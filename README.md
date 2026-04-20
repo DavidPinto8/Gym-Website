@@ -1,4 +1,4 @@
-# ltw01g01
+# ltw14g08
 
 ## Features
 
@@ -37,3 +37,8 @@
 ## Credentials
 
 - to be defined...
+
+## Work done by
+
+- David Pinto - up202404233@up.pt
+- João Lage - up202406458@up.pt

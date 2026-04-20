@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flow Fitness - Find Your Rhythm</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/home.css">
+</head>
+<body>
+
+    <header class="main-header">
+        <nav class="nav-container container">
+            <div class="logo">
+                <a href="index.html">FLOW<span>FITNESS</span></a>
+            </div>
+            
+            <ul class="nav-links">
+                <li><a href="index.html" class="active">Home</a></li>
+                <li><a href="schedule.html">Classes</a></li>
+                <li><a href="trainers.html">Trainers</a></li>
+            </ul>
+
+            <div class="nav-auth">
+                <a href="login.html" class="btn-secondary">Log In</a>
+                <a href="register.html" class="btn-primary">Sign Up</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero" aria-labelledby="hero-title">
+            <div class="hero-content container">
+                <h1 id="hero-title">Find Your Flow.</h1>
+                <p>Momentum, balance, and the best equipment in the city. Flow Fitness is where you find your rhythm and push past your limits.</p>
+                <div class="hero-actions">
+                    <a href="#plans" class="btn-primary btn-large">View Memberships</a>
+                    <a href="schedule.html" class="btn-secondary btn-large">Explore Classes</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="about-section container">
+            <div class="section-header text-center">
+                <h2>Movement is Everything</h2>
+            </div>
+            
+            <div class="about-grid">
+                <div class="about-text">
+                    <p>Founded on the belief that fitness is a continuous journey, Flow Fitness is designed to keep you moving forward without friction.</p>
+                    <p>Whether you are finding your footing or pushing for a new personal best, our state-of-the-art facilities and expert trainers are here to help you maintain your momentum and achieve peak physical health.</p>
+                </div>
+                <figure class="about-image">
+                    <img src="assets/gym-floor.jpeg" alt="Our premium gym floor with modern equipment">
+                    <figcaption>Main training area at Flow Fitness.</figcaption>
+                </figure>
+            </div>
+        </section>
+
+        <section id="plans" class="plans-section bg-light" aria-labelledby="plans-title">
+            <div class="container">
+                <div class="section-header text-center">
+                    <h2 id="plans-title">Choose Your Plan</h2>
+                    <p>Flexible memberships designed for every rhythm.</p>
+                </div>
+
+                <div class="cards-grid">
+                    <article class="card plan-card">
+                        <div class="card-header">
+                            <h3>Starter</h3>
+                            <p class="price">€30<span>/month</span></p>
+                        </div>
+                        <ul class="plan-features">
+                            <li>Access to main gym floor</li>
+                            <li>Free locker usage</li>
+                            <li>Off-peak hours access</li>
+                            <li>Basic app access (schedule & check-ins)</li>
+                        </ul>
+                        <a href="register.html?plan=starter" class="btn-secondary btn-block">Choose Starter</a>
+                    </article>
+
+                    <article class="card plan-card highlighted">
+                        <div class="card-badge">Most Popular</div>
+                        <div class="card-header">
+                            <h3>Pro</h3>
+                            <p class="price">€45<span>/month</span></p>
+                        </div>
+                        <ul class="plan-features">
+                            <li>Everything in Starter</li>
+                            <li>24/7 Access</li>
+                            <li>All group fitness classes</li>
+                            <li>1 Personal Training session/month</li>
+                            <li>Advanced app access (equipment tracking & progress)</li>
+                            <li>Guest pass: 1/month</li>
+                        </ul>
+                        <a href="register.html?plan=pro" class="btn-primary btn-block">Choose Pro</a>
+                    </article>
+
+                    <article class="card plan-card">
+                        <div class="card-header">
+                            <h3>Elite</h3>
+                            <p class="price">€70<span>/month</span></p>
+                        </div>
+                        <ul class="plan-features">
+                            <li>Everything in Pro</li>
+                            <li>Weekly Personal Training</li>
+                            <li>Custom nutrition plan</li>
+                            <li>Priority class booking & waitlist</li>
+                            <li>Sauna & cold plunge access</li>
+                            <li>Premium towels & amenities</li>
+                            <li>Exclusive Elite events & workshops</li>
+                            <li>Unlimited guest passes</li>
+                        </ul>
+                        <a href="register.html?plan=elite" class="btn-secondary btn-block">Choose Elite</a>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section id="faq" class="faq-section container" aria-labelledby="faq-title">
+            <div class="section-header text-center">
+                <h2 id="faq-title">Frequently Asked Questions</h2>
+            </div>
+            
+            <div class="faq-list">
+                <details class="faq-item">
+                    <summary>Do I need to book classes in advance?</summary>
+                    <p>Yes, our classes fill up quickly. We recommend booking your spot through your profile at least 24 hours in advance to keep your routine steady.</p>
+                </details>
+
+                <details class="faq-item">
+                    <summary>Can I check if the gym is crowded right now?</summary>
+                    <p>Absolutely. As a Pro or Elite member, you can log into your account and check the real-time availability of equipment on the main floor.</p>
+                </details>
+
+                <details class="faq-item">
+                    <summary>Can I cancel my membership at any time?</summary>
+                    <p>Our Starter and Pro plans are contract-free and can be canceled with a 30-day notice. The Elite plan requires a 6-month commitment.</p>
+                </details>
+            </div>
+        </section>
+    </main>
+
+    <footer class="main-footer">
+        <div class="container footer-grid">
+            <div class="footer-brand">
+                <h3>FLOW<span>FITNESS</span></h3>
+                <p>Keep moving forward.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="schedule.html">Classes</a></li>
+                    <li><a href="trainers.html">Our Team</a></li>
+                    <li><a href="login.html">Member Login</a></li>
+                </ul>
+            </div>
+            <div class="footer-contact">
+                <h4>Contact Us</h4>
+                <address>
+                    <p>145 Flow Avenue</p>
+                    <p>Email: info@flowfitness.com</p>
+                </address>
+            </div>
+        </div>
+        <div class="footer-bottom container text-center">
+            <p>&copy; 2026 Flow Fitness.</p>
+        </div>
+    </footer>
+
+</body>
+</html>
