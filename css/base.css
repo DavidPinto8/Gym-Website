@@ -65,3 +65,7 @@ img {
     display: block;
     border-radius: 12px;
 }
+
+figcaption {
+    text-align: center;
+}
