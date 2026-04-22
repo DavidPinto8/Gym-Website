@@ -66,8 +66,8 @@
 /* Stats Grid */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
 }
 
 .stat-card {
@@ -174,7 +174,6 @@
 }
 
 /* Membership Section Integration */
-
 .membership-details {
     margin-top: 2rem;
     padding-top: 2rem;
@@ -238,20 +237,8 @@
     color: var(--white);
 }
 
-/* Mobile Overrides */
-@media (max-width: 767px) {
-    .plan-actions {
-        align-items: flex-start;
-        width: 100%;
-    }
-    
-    .plan-actions .btn-outline {
-        width: 100%;
-    }
-}
 
 /* Desktop & Tablet Overrides */
-
 @media (min-width: 768px) {
     .form-row {
         display: grid;
@@ -270,8 +257,20 @@
     }
 }
 
+/* Mobile Overrides */
 @media (max-width: 767px) {
+    .plan-actions {
+        align-items: flex-start;
+        width: 100%;
+    }
+    .plan-actions .btn-outline,
+    .plan-actions .btn-outline-danger {
+        width: 100%;
+    }
     .form-actions .btn-primary {
         width: 100%;
+    }
+    .stats-grid {
+        grid-template-columns: 1fr 1fr !important;
     }
 }
