@@ -35,10 +35,11 @@
     font-weight: 800;
     font-size: 1.5rem;
     color: var(--white);
+    margin: 0;
 }
 
 .logo-img {
-    height: 40px; 
+    height: 48px; 
     width: auto;
     border-radius: 0; 
 }
@@ -148,4 +149,19 @@
 .card:hover {
     transform: translateY(-5px);
     box-shadow: var(--shadow-md);
+}
+
+/* Profile */
+.nav-avatar { 
+    width: 40px; 
+    height: 40px; 
+    border-radius: 50%; 
+    border: 2px solid var(--gold); 
+}
+
+.profile-dropdown { 
+    display: flex; 
+    align-items: center; 
+    gap: 0.5rem; 
+    font-weight: 600; 
 }

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile | Flow Fitness</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/profile.css"> </head>
+<body>
+
+    <header class="main-header">
+        <nav class="nav-container container">
+            <div class="logo">
+                <a href="index.html">
+                    <img src="assets/logo-landscape.png" alt="Flow Fitness Logo" class="logo-img">
+                </a>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="schedule.html">Classes</a></li>
+                <li><a href="trainers.html">Trainers</a></li>
+            </ul>
+            <div class="nav-auth logged-in">
+                <a href="profile.html" class="profile-dropdown">
+                    <img src="assets/avatar-jalen.jpg" alt="Profile" class="nav-avatar">
+                    <span class="user-greeting">Hi, Jalen</span>
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="profile-page bg-light">
+        <div class="container profile-layout">
+            
+            <aside class="profile-sidebar card">
+                <div class="profile-summary text-center">
+                    <img src="assets/avatar-jalen.jpg" alt="Jalen Brunson" class="profile-avatar">
+                    <h3>Jalen Brunson</h3>
+                    <span class="badge-gold">Pro Member</span>
+                </div>
+                <nav class="profile-nav">
+                    <ul>
+                        <li><a href="#my-flow" class="active">My Flow</a></li>
+                        <li><a href="#account-settings">Account Settings</a></li>
+                        <li><a href="#membership-details">Membership Plan</a></li>
+                        <li><a href="index.html" class="text-danger">Log Out</a></li>
+                    </ul>
+                </nav>
+            </aside>
+
+            <section class="profile-content">
+                
+                <div id="my-flow" class="stats-grid" aria-label="Performance Statistics">
+                    <div class="stat-card card">
+                        <span class="stat-title">Current Streak</span>
+                        <span class="stat-value">5 <small>Days</small></span>
+                    </div>
+                    <div class="stat-card card">
+                        <span class="stat-title">Classes Attended</span>
+                        <span class="stat-value">12</span>
+                    </div>
+                    <div class="stat-card card">
+                        <span class="stat-title">Next Milestone</span>
+                        <span class="stat-value">20 <small>Workouts</small></span>
+                    </div>
+                </div>
+
+                <div id="account-settings" class="card form-container">
+                    <h2 id="form-title">Account Settings</h2>
+                    <p class="text-muted">Manage your personal details and workout preferences.</p>
+
+                    <form action="#" method="POST" class="profile-form">
+                        
+                        <fieldset>
+                            <legend>Personal Information</legend>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="first-name">First Name</label>
+                                    <input type="text" id="first-name" name="first-name" value="Jalen" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="last-name">Last Name</label>
+                                    <input type="text" id="last-name" name="last-name" value="Brunson" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="username">Username</label>
+                                <input type="text" id="username" name="username" value="jbrunson_11" required>
+                            </div>
+                        </fieldset>
+
+                        <fieldset>
+                            <legend>Workout Preferences</legend>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="fav-class">Favorite Flow</label>
+                                    <select id="fav-class" name="fav-class" class="custom-select">
+                                        <option value="hiit">HIIT & Conditioning</option>
+                                        <option value="mobility">Mobility & Yoga</option>
+                                        <option value="strength" selected>Strength Training</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="fitness-goal">Primary Goal</label>
+                                    <select id="fitness-goal" name="fitness-goal" class="custom-select">
+                                        <option value="endurance">Build Endurance</option>
+                                        <option value="muscle" selected>Gain Muscle</option>
+                                        <option value="weightloss">Weight Loss</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary btn-large">Update Profile</button>
+                        </div>
+                    </form>
+                    <h2 id="membership-title">Current Membership</h2>
+                    <p class="text-muted">Review your active plan and billing details.</p>
+
+                    <div id="membership-details" class="membership-details">
+                        <div class="plan-info">
+                            <span class="badge-gold">Pro Member</span>
+                            <p class="price">€45<span>/month</span></p>
+                            <p class="billing-date">Next billing date: May 24, 2026</p>
+                        </div>
+                        <div class="plan-actions">
+                            <a href="register.html?plan=elite" class="btn-outline">Upgrade to Elite</a>
+                            <a href="#" class="btn-outline-danger">Cancel Plan</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <footer class="main-footer">
+        </footer>
+
+</body>
+</html>
