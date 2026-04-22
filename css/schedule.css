@@ -83,9 +83,10 @@
     overflow: hidden;
     display: flex;
     align-items: flex-end;
-    background-color: var(--black-light);
+    background-color: var(--black-light); 
     background-size: cover;
     background-position: center;
+    background-repeat: no-repeat;
     transition: transform 0.4s ease, box-shadow 0.4s ease;
     border: none;
     box-shadow: var(--shadow-sm); 
@@ -134,11 +135,22 @@
     font-size: 0.95rem;
 }
 
-.yoga { background-image: url('../assets/yoga.jpg'); }
-.hiit { background-image: url('../assets/hiit.jpg'); }
-.strength { background-image: url('../assets/strength.jpg'); }
-.cardio { background-image: url('../assets/cardio.jpg'); }
 
+.yoga { 
+    background-image: url('../assets/Yoga.png'); 
+}
+
+.hiit { 
+    background-image: url('../assets/HIIT.png'); 
+}
+
+.strength { 
+    background-image: url('../assets/Strength.png'); 
+}
+
+.cardio { 
+    background-image: url('../assets/Cardio.png'); 
+}
 
 @media (min-width: 768px) {
     .schedule-layout {
