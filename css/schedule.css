@@ -1,0 +1,169 @@
+.schedule-page {
+    background-color: var(--bg-main); 
+    padding: 3rem 0 6rem 0;
+    min-height: 80vh;
+}
+
+.schedule-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3rem;
+}
+
+.filters {
+    background-color: var(--black);
+    color: var(--white);
+    padding: 2.5rem 2rem;
+    border-radius: var(--radius-md);
+    height: fit-content;
+    box-shadow: var(--shadow-md);
+}
+
+.filters-title {
+    color: var(--gold);
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid #333;
+    padding-bottom: 0.5rem;
+}
+
+.filter-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #a0a0a0;
+}
+
+.form-group select {
+    padding: 0.8rem;
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 4px;
+    color: var(--white);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+}
+
+.form-group select:focus {
+    border-color: var(--gold);
+    outline: none;
+}
+
+.classes-section .section-header h1 {
+    color: var(--black);
+    font-family: var(--font-heading);
+}
+
+.classes-section .section-header p {
+    color: var(--text-muted); 
+}
+
+.classes-section .section-header {
+    margin-bottom: 3rem;
+}
+
+.classes-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+}
+
+.class-card {
+    position: relative;
+    min-height: 320px;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+    background-color: var(--black-light); 
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+    border: none;
+    box-shadow: var(--shadow-sm); 
+}
+
+.class-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-md);
+}
+
+.card-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.9) 15%, rgba(0,0,0,0.3) 100%);
+    z-index: 1;
+}
+
+.card-content {
+    position: relative;
+    z-index: 2;
+    padding: 2.5rem;
+    width: 100%;
+}
+
+.class-tag {
+    background-color: var(--gold);
+    color: var(--black);
+    padding: 0.3rem 0.8rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    border-radius: 2px;
+    margin-bottom: 1rem;
+    display: inline-block;
+}
+
+.class-card h3 {
+    color: var(--white);
+    margin-bottom: 0.5rem;
+    font-size: 1.8rem;
+}
+
+.class-info, .class-trainer {
+    color: #cecece;
+    margin-bottom: 0.3rem;
+    font-size: 0.95rem;
+}
+
+
+.yoga { 
+    background-image: url('../assets/Yoga.png'); 
+}
+
+.hiit { 
+    background-image: url('../assets/HIIT.png'); 
+}
+
+.strength { 
+    background-image: url('../assets/Strength.png'); 
+}
+
+.cardio { 
+    background-image: url('../assets/Cardio.png'); 
+}
+
+@media (min-width: 768px) {
+    .schedule-layout {
+        grid-template-columns: 300px 1fr;
+        align-items: start;
+    }
+
+    .filters {
+        position: sticky;
+        top: 120px;
+    }
+
+    .classes-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
