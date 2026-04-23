@@ -1,4 +1,23 @@
-# ltw14g08
+# Flow Fitness (ltw14g08)
+
+## How to View the HTML Prototype
+
+For this phase of the project, the frontend is built with static HTML and CSS. You can view the website using either of the following methods:
+
+**Method 1: Direct File Open**
+1. Unzip the project folder.
+2. Navigate to the root directory.
+3. Double-click the `index.html` file to open it in your default web browser.
+4. From the Home page, you can use the navigation bar to access the other pages (`schedule.html`, `profile.html`, etc.).
+
+**Method 2: Using a Local PHP Server**
+If your environment requires serving the files, open your terminal in the root folder of the project and run:
+```bash
+php -S localhost:9000
+```
+Then, open your web browser and navigate to `http://localhost:9000`.
+
+---
 
 ## Features
 
@@ -27,16 +46,18 @@
 - [ ] Oversee and ensure the smooth operation of the entire system.
 
 **Extra:**
-- [ ] Something extra (e.g., personal training bookings, membership plans, waitlist, ...).
+- [x] Membership plans (Starter, Pro, Elite pricing tiers and features integration).
 
-## Running
+## Running (Backend Phase - WIP)
+
+Once the backend and database are fully implemented in the next phases, the setup will be:
 
     sqlite3 database/database.db < database/database.sql
     php -S localhost:9000
 
 ## Credentials
 
-- to be defined...
+- To be defined in the backend phase...
 
 ## Work done by
 
