@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="description" content="Flow Fitness — premium gym with classes, personal trainers, and state-of-the-art equipment. Find your rhythm today.">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flow Fitness - Find Your Rhythm</title>
     <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
@@ -17,24 +18,34 @@
 <body>
 
     <header class="main-header">
-        <nav class="nav-container container">
-            <div class="logo">
-                <a href="index.html">
-                    <img src="assets/logo-landscape.png" alt="Flow Fitness Logo" class="logo-img">
-                </a>
+        <nav class="nav-container container" aria-label="Main navigation">
+            <div class="nav-top">
+                <div class="logo">
+                    <a href="index.html">
+                        <img src="assets/logo-landscape.png" alt="Flow Fitness Logo" class="logo-img">
+                    </a>
+                </div>
+                <label class="nav-toggle" for="nav-toggle-checkbox" aria-label="Toggle navigation">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </label>
             </div>
-            
-            <ul class="nav-links">
-                <li><a href="index.html" class="active">Home</a></li>
-                <li><a href="schedule.html">Classes</a></li>
-                <li><a href="trainers.html">Trainers</a></li>
-            </ul>
 
-           <div class="nav-auth logged-in">
-                <a href="profile.html" class="profile-dropdown">
-                    <img src="assets/avatar-jalen.jpg" alt="Profile" class="nav-avatar">
-                    <span class="user-greeting">Hi, Jalen</span>
-                </a>
+            <input type="checkbox" id="nav-toggle-checkbox" class="nav-toggle-input">
+
+            <div class="nav-menu">
+                <ul class="nav-links">
+                    <li><a href="index.html" class="active">Home</a></li>
+                    <li><a href="schedule.html">Classes</a></li>
+                    <li><a href="trainers.html">Trainers</a></li>
+                </ul>
+                <div class="nav-auth logged-in">
+                    <a href="profile.html" class="profile-dropdown">
+                        <img src="assets/avatar-jalen.jpg" alt="Profile" class="nav-avatar">
+                        <span class="user-greeting">Hi, Jalen</span>
+                    </a>
+                </div>
             </div>
         </nav>
     </header>
@@ -128,26 +139,60 @@
             </div>
         </section>
 
-        <section id="faq" class="faq-section container" aria-labelledby="faq-title">
+        <section id="testimonials" class="testimonials-section container" aria-labelledby="testimonials-title">
             <div class="section-header text-center">
-                <h2 id="faq-title">Frequently Asked Questions</h2>
+                <h2 id="testimonials-title">The Flow Community</h2>
+                <p>Hear from the members who bring the energy every single day.</p>
             </div>
             
-            <div class="faq-list">
-                <details class="faq-item">
-                    <summary>Do I need to book classes in advance?</summary>
-                    <p>Yes, our classes fill up quickly. We recommend booking your spot through your profile at least 24 hours in advance to keep your routine steady.</p>
-                </details>
+            <div class="cards-grid">
+                <article class="card testimonial-card text-center">
+                    <p class="quote" style="font-style: italic; margin-bottom: 1.5rem; font-size: 1.05rem;">"The atmosphere here is unmatched. It feels like a professional training facility. The equipment is top-tier and the trainers truly push you to your limits."</p>
+                    <div class="author">
+                        <p style="font-weight: 700; color: var(--gold); margin: 0;">Marcus T.</p>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Elite Member</p>
+                    </div>
+                </article>
 
-                <details class="faq-item">
-                    <summary>Can I check if the gym is crowded right now?</summary>
-                    <p>Absolutely. As a Pro or Elite member, you can log into your account and check the real-time availability of equipment on the main floor.</p>
-                </details>
+                <article class="card testimonial-card text-center">
+                    <p class="quote" style="font-style: italic; margin-bottom: 1.5rem; font-size: 1.05rem;">"I've never been to a gym with such great class variety. The morning HIIT sessions completely changed my routine and the instructors are phenomenal."</p>
+                    <div class="author">
+                        <p style="font-weight: 700; color: var(--gold); margin: 0;">Sarah L.</p>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Pro Member</p>
+                    </div>
+                </article>
 
-                <details class="faq-item">
-                    <summary>Can I cancel my membership at any time?</summary>
-                    <p>Our Starter and Pro plans are contract-free and can be canceled with a 30-day notice. The Elite plan requires a 6-month commitment.</p>
-                </details>
+                <article class="card testimonial-card text-center">
+                    <p class="quote" style="font-style: italic; margin-bottom: 1.5rem; font-size: 1.05rem;">"Finding a gym with 24/7 access, excellent recovery zones, and a real sense of community is rare. Flow Fitness has quickly become my second home."</p>
+                    <div class="author">
+                        <p style="font-weight: 700; color: var(--gold); margin: 0;">David K.</p>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Elite Member</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section id="faq" class="faq-section container" aria-labelledby="faq-title">
+            <div class="faq-inner">
+                <div class="section-header text-center">
+                    <h2 id="faq-title">Frequently Asked Questions</h2>
+                </div>
+                <div class="faq-list">
+                    <details class="faq-item">
+                        <summary>Do I need to book classes in advance?</summary>
+                        <p>Yes, our classes fill up quickly. We recommend booking your spot through your profile at least 24 hours in advance to keep your routine steady.</p>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary>Can I check if the gym is crowded right now?</summary>
+                        <p>Absolutely. As a Pro or Elite member, you can log into your account and check the real-time availability of equipment on the main floor.</p>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary>Can I cancel my membership at any time?</summary>
+                        <p>Our Starter and Pro plans are contract-free and can be canceled with a 30-day notice. The Elite plan requires a 6-month commitment.</p>
+                    </details>
+                </div>
             </div>
         </section>
     </main>
@@ -155,7 +200,7 @@
     <footer class="main-footer">
         <div class="container footer-grid">
             <div class="footer-brand">
-                <h3>FLOW<span>FITNESS</span>&reg;</h3>
+                <p class="footer-brand-name">FLOW<span>FITNESS</span>&reg;</p>
                 <p>Keep moving forward.</p>
             </div>
             <div class="footer-links">
