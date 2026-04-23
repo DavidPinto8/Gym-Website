@@ -11,7 +11,7 @@ For this phase of the project, the frontend is built with static HTML and CSS. Y
 4. From the Home page, you can use the navigation bar to access the other pages (`schedule.html`, `profile.html`, etc.).
 
 **Method 2: Using a Local PHP Server**
-If your environment requires serving the files, open your terminal in the root folder of the project and run:
+- If your environment requires serving the files, open your terminal in the root folder of the project and run:
 ```bash
 php -S localhost:9000
 ```
