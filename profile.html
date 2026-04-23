@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="description" content="Manage your Flow Fitness profile, membership plan, and workout preferences.">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Profile | Flow Fitness</title>
     <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
@@ -12,26 +13,40 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/components.css">
-    <link rel="stylesheet" href="css/profile.css"> </head>
+    <link rel="stylesheet" href="css/profile.css"> 
+</head>
 <body>
 
     <header class="main-header">
-        <nav class="nav-container container">
-            <div class="logo">
-                <a href="index.html">
-                    <img src="assets/logo-landscape.png" alt="Flow Fitness Logo" class="logo-img">
-                </a>
+        <nav class="nav-container container" aria-label="Main navigation">
+            <div class="nav-top">
+                <div class="logo">
+                    <a href="index.html">
+                        <img src="assets/logo-landscape.png" alt="Flow Fitness Logo" class="logo-img">
+                    </a>
+                </div>
+                <label class="nav-toggle" for="nav-toggle-checkbox">
+                    <span style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0;">Toggle navigation</span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </label>
             </div>
-            <ul class="nav-links">
-                <li><a href="index.html">Home</a></li>
-                <li><a href="schedule.html">Classes</a></li>
-                <li><a href="trainers.html">Trainers</a></li>
-            </ul>
-            <div class="nav-auth logged-in">
-                <a href="profile.html" class="profile-dropdown">
-                    <img src="assets/avatar-jalen.jpg" alt="Profile" class="nav-avatar">
-                    <span class="user-greeting">Hi, Jalen</span>
-                </a>
+
+            <input type="checkbox" id="nav-toggle-checkbox" class="nav-toggle-input">
+
+            <div class="nav-menu">
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="schedule.html">Classes</a></li>
+                    <li><a href="trainers.html">Trainers</a></li>
+                </ul>
+                <div class="nav-auth logged-in">
+                    <a href="profile.html" class="profile-dropdown">
+                        <img src="assets/avatar-jalen.jpg" alt="Profile" class="nav-avatar">
+                        <span class="user-greeting">Hi, Jalen</span>
+                    </a>
+                </div>
             </div>
         </nav>
     </header>
@@ -57,18 +72,18 @@
 
             <section class="profile-content">
                 
-                <div id="my-flow" class="stats-grid" aria-label="Performance Statistics">
+                <div id="my-flow" class="stats-grid" role="region" aria-label="Performance Statistics">
                     <div class="stat-card card">
                         <span class="stat-title">Current Streak</span>
-                        <span class="stat-value">5 <small>Days</small></span>
+                        <span class="stat-value">45 <small>Days</small></span>
                     </div>
                     <div class="stat-card card">
                         <span class="stat-title">Classes Attended</span>
-                        <span class="stat-value">12</span>
+                        <span class="stat-value">132</span>
                     </div>
                     <div class="stat-card card">
                         <span class="stat-title">Next Milestone</span>
-                        <span class="stat-value">20 <small>Workouts</small></span>
+                        <span class="stat-value">150 <small>Workouts</small></span>
                     </div>
                 </div>
 
@@ -122,10 +137,12 @@
                             <button type="submit" class="btn-primary btn-large">Update Profile</button>
                         </div>
                     </form>
-                    <h2 id="membership-title">Current Membership</h2>
-                    <p class="text-muted">Review your active plan and billing details.</p>
+                </div>
 
-                    <div id="membership-details" class="membership-details">
+                <div id="membership-details" class="card form-container">
+                    <h2>Current Membership</h2>
+                    <p class="text-muted">Review your active plan and billing details.</p>
+                    <div class="membership-details">
                         <div class="plan-info">
                             <span class="badge-gold">Pro Member</span>
                             <p class="price">€45<span>/month</span></p>
@@ -145,11 +162,11 @@
     <footer class="main-footer">
         <div class="container footer-grid">
             <div class="footer-brand">
-                <h3>FLOW<span>FITNESS</span>&reg;</h3>
+                <p class="footer-brand-name">FLOW<span>FITNESS</span>&reg;</p>
                 <p>Keep moving forward.</p>
             </div>
             <div class="footer-links">
-                <h4>Quick Links</h4>
+                <h3>Quick Links</h3>
                 <ul>
                     <li><a href="schedule.html">Classes</a></li>
                     <li><a href="trainers.html">Our Team</a></li>
@@ -157,7 +174,7 @@
                 </ul>
             </div>
             <div class="footer-contact">
-                <h4>Contact Us</h4>
+                <h3>Contact Us</h3>
                 <address>
                     <p>145 Flow Avenue</p>
                     <p>Email: info@flowfitness.com</p>
