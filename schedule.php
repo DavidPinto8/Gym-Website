@@ -2,7 +2,6 @@
     session_start();
     require_once 'database/db.php';
     
-    // Ligar à BD e puxar as aulas e os nomes dos treinadores
     $db = getDatabaseConnection();
     $stmt = $db->prepare("
         SELECT classes.*, users.name AS trainer_name 
@@ -72,7 +71,6 @@
                 <div class="classes-grid">
                     <?php if (count($classes) > 0): ?>
                         <?php foreach ($classes as $class): 
-                            // Formatar a data (ex: Monday • 08:00)
                             $timestamp = strtotime($class['start_time']);
                             $dayOfWeek = date('l', $timestamp);
                             $timeFormated = date('H:i', $timestamp);
