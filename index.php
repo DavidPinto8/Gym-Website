@@ -1,55 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="description" content="Flow Fitness — premium gym with classes, personal trainers, and state-of-the-art equipment. Find your rhythm today.">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flow Fitness - Find Your Rhythm</title>
-    <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/components.css">
-    <link rel="stylesheet" href="css/home.css">
-</head>
-<body>
-
-    <header class="main-header">
-        <nav class="nav-container container" aria-label="Main navigation">
-            <div class="nav-top">
-                <div class="logo">
-                    <a href="index.html">
-                        <img src="assets/logo-landscape.png" alt="Flow Fitness Logo" class="logo-img">
-                    </a>
-                </div>
-                <label class="nav-toggle" for="nav-toggle-checkbox">
-                    <span style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0;">Toggle navigation</span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </label>
-            </div>
-
-            <input type="checkbox" id="nav-toggle-checkbox" class="nav-toggle-input">
-
-            <div class="nav-menu">
-                <ul class="nav-links">
-                    <li><a href="index.html" class="active">Home</a></li>
-                    <li><a href="schedule.html">Classes</a></li>
-                    <li><a href="trainers.html">Trainers</a></li>
-                </ul>
-                <div class="nav-auth logged-in">
-                    <a href="profile.html" class="profile-dropdown">
-                        <img src="assets/avatar-jalen.jpg" alt="Profile" class="nav-avatar">
-                        <span class="user-greeting">Hi, Jalen</span>
-                    </a>
-                </div>
-            </div>
-        </nav>
-    </header>
+<?php 
+    session_start();
+    $pageTitle = "Flow Fitness - Find Your Rhythm";
+    $currentPage = 'home';
+    $extraCSS = 'home.css';
+    include 'templates/header.php'; 
+?>
 
     <main>
         <section class="hero" aria-labelledby="hero-title">
@@ -58,7 +13,7 @@
                 <p>Momentum, balance, and the best equipment in the city. Flow Fitness is where you find your rhythm and push past your limits.</p>
                 <div class="hero-actions">
                     <a href="#plans" class="btn-primary btn-large">View Memberships</a>
-                    <a href="schedule.html" class="btn-secondary btn-large">Explore Classes</a>
+                    <a href="schedule.php" class="btn-secondary btn-large">Explore Classes</a>
                 </div>
             </div>
         </section>
@@ -99,7 +54,7 @@
                             <li>Off-peak hours access</li>
                             <li>Basic app access (schedule & check-ins)</li>
                         </ul>
-                        <a href="register.html?plan=starter" class="btn-outline btn-block">Choose Starter</a>
+                        <a href="register.php?plan=starter" class="btn-outline btn-block">Choose Starter</a>
                     </article>
 
                     <article class="card plan-card highlighted">
@@ -116,7 +71,7 @@
                             <li>Advanced app access (equipment tracking & progress)</li>
                             <li>Guest pass: 1/month</li>
                         </ul>
-                        <a href="register.html?plan=pro" class="btn-primary btn-block">Choose Pro</a>
+                        <a href="register.php?plan=pro" class="btn-primary btn-block">Choose Pro</a>
                     </article>
 
                     <article class="card plan-card">
@@ -134,7 +89,7 @@
                             <li>Exclusive Elite events & workshops</li>
                             <li>Unlimited guest passes</li>
                         </ul>
-                        <a href="register.html?plan=elite" class="btn-outline btn-block">Choose Elite</a>
+                        <a href="register.php?plan=elite" class="btn-outline btn-block">Choose Elite</a>
                     </article>
                 </div>
             </div>
@@ -198,32 +153,4 @@
         </section>
     </main>
 
-    <footer class="main-footer">
-        <div class="container footer-grid">
-            <div class="footer-brand">
-                <p class="footer-brand-name">FLOW<span>FITNESS</span>&reg;</p>
-                <p>Keep moving forward.</p>
-            </div>
-            <div class="footer-links">
-                <h3>Quick Links</h3>
-                <ul>
-                    <li><a href="schedule.html">Classes</a></li>
-                    <li><a href="trainers.html">Our Team</a></li>
-                    <li><a href="login.html">Member Login</a></li>
-                </ul>
-            </div>
-            <div class="footer-contact">
-                <h3>Contact Us</h3>
-                <address>
-                    <p>145 Flow Avenue</p>
-                    <p>Email: info@flowfitness.com</p>
-                </address>
-            </div>
-        </div>
-        <div class="footer-bottom container text-center">
-            <p>&copy; 2026 Flow Fitness.</p>
-        </div>
-    </footer>
-
-</body>
-</html>
+<?php include 'templates/footer.php'; ?>
