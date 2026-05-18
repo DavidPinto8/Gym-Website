@@ -243,6 +243,43 @@
     color: var(--white);
 }
 
+.equipment-update-form {
+    margin-top: 1rem;
+}
+
+.equipment-update-form label {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--black);
+    margin-bottom: 0.5rem;
+}
+
+.equipment-update-form label span {
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.equipment-update-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.equipment-update-controls input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: var(--radius-md);
+    font-family: var(--font-body);
+}
+
+.equipment-update-controls input:focus {
+    outline: none;
+    border-color: var(--gold);
+}
+
 @media (max-width: 900px) {
     .admin-stats-grid,
     .equipment-admin-grid {

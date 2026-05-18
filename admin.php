@@ -281,9 +281,39 @@ include 'templates/header.php';
                             ></div>
                         </div>
 
-                        <p class="equipment-units">
-                            <?php echo htmlspecialchars($item['available_units']); ?> of <?php echo htmlspecialchars($item['total_units']); ?> units available
-                        </p>
+                        <form action="actions/action_update_equipment.php" method="POST" class="equipment-update-form">
+                            <input 
+                                type="hidden" 
+                                name="csrf_token" 
+                                value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>"
+                            >
+
+                            <input 
+                                type="hidden" 
+                                name="equipment_id" 
+                                value="<?php echo htmlspecialchars($item['id']); ?>"
+                            >
+
+                            <label>
+                                Available units
+                                <span><?php echo htmlspecialchars($item['total_units']); ?> total</span>
+                            </label>
+
+                            <div class="equipment-update-controls">
+                                <input 
+                                    type="number" 
+                                    name="available_units" 
+                                    min="0" 
+                                    max="<?php echo htmlspecialchars($item['total_units']); ?>" 
+                                    value="<?php echo htmlspecialchars($item['available_units']); ?>"
+                                    required
+                                >
+
+                                <button type="submit" class="admin-action-btn promote-btn">
+                                    Update
+                                </button>
+                            </div>
+                        </form>
                     </article>
                 <?php endforeach; ?>
             </div>

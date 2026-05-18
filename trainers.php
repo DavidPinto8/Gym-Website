@@ -1,6 +1,7 @@
 <?php 
     session_start();
     require_once 'database/db.php';
+    require_once 'includes/avatar.php';
     
     $db = getDatabaseConnection();
 
@@ -13,10 +14,9 @@
 
     $pageTitle = "Our Team | Flow Fitness";
     $currentPage = 'trainers';
-    include 'templates/header.php'; 
+    $extraCSS = 'trainers.css';
+    include 'templates/header.php';
 ?>
-
-<link rel="stylesheet" href="css/trainers.css">
 
 <main class="bg-light trainers-page">
     <div class="container">
@@ -28,9 +28,11 @@
         <div class="trainers-grid">
             <?php if (count($trainers) > 0): ?>
                 <?php foreach ($trainers as $trainer): 
-                    $photoUrl = !empty($trainer['photo']) 
-                        ? htmlspecialchars($trainer['photo']) 
-                        : 'https://ui-avatars.com/api/?name=' . urlencode($trainer['name']) . '&background=1a1a1a&color=d4af37&size=200&bold=true';
+                    $photoUrl = getUserAvatar(
+                        $trainer['name'],
+                        $trainer['photo'] ?? null,
+                        200
+                    );
 
                     $specs = explode(',', $trainer['specializations']);
                     $mainSpec = $specs[0] ?? 'Fitness Expert';

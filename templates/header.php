@@ -70,9 +70,25 @@
                 
                 <div class="nav-auth <?php echo isset($_SESSION['user_id']) ? 'logged-in' : ''; ?>">
                     <?php if (isset($_SESSION['user_id'])): ?>
+                        <?php
+                            require_once __DIR__ . '/../includes/avatar.php';
+
+                            $navAvatar = getUserAvatar(
+                                $_SESSION['name'] ?? 'User',
+                                $_SESSION['photo'] ?? null,
+                                100
+                            );
+                        ?>
+
                         <a href="profile.php" class="profile-dropdown">
-                            <img src="<?php echo htmlspecialchars($_SESSION['photo'] ?? 'assets/default-avatar.png'); ?>" alt="Profile" class="nav-avatar">
-                            <span class="user-greeting">Hi, <?php echo htmlspecialchars($_SESSION['name']); ?></span>
+                            <img 
+                                src="<?php echo $navAvatar; ?>" 
+                                alt="Profile picture" 
+                                class="nav-avatar"
+                            >
+                            <span class="user-greeting">
+                                Hi, <?php echo htmlspecialchars($_SESSION['name']); ?>
+                            </span>
                         </a>
                     <?php else: ?>
                         <a href="login.php" class="btn-outline" style="color: var(--white); border-color: var(--white); margin-right: 1rem;">Log In</a>
