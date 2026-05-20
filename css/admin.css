@@ -305,3 +305,111 @@
         padding: 1.25rem;
     }
 }
+
+/* --- ANALYTICS PANEL DESIGN (Person 2 Layout Expansion) --- */
+.analytics-row-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.analytics-panel h3 {
+    font-size: 1.15rem;
+    color: var(--black);
+    margin-bottom: 0.25rem;
+    font-family: var(--font-heading);
+}
+
+.occupancy-display {
+    margin-top: 1.5rem;
+}
+
+.occupancy-percentage {
+    font-family: var(--font-heading);
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: var(--black);
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.occupancy-bar-bg {
+    height: 10px;
+    background-color: #e5e7eb;
+    border-radius: var(--radius-pill);
+    overflow: hidden;
+}
+
+.occupancy-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--black), var(--gold));
+    border-radius: var(--radius-pill);
+}
+
+.analytics-discipline-list {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0 0 0;
+}
+
+.analytics-discipline-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px dashed #eee;
+}
+
+.analytics-discipline-list li:last-child {
+    border-bottom: none;
+}
+
+.discipline-name {
+    font-weight: 500;
+    color: var(--text-dark);
+}
+
+.text-capitalize {
+    text-transform: capitalize;
+}
+
+.spotlight-content {
+    margin-top: 1.5rem;
+    text-align: center;
+    padding: 0.5rem;
+}
+
+.spotlight-content h4 {
+    font-size: 1.25rem;
+    color: var(--black);
+    margin-bottom: 0.5rem;
+}
+
+.streak-score {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--gold);
+    margin: 0;
+}
+
+.streak-score small {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 400;
+    display: block;
+}
+
+.alert-border-danger {
+    border-top: 4px solid #ef4444 !important;
+}
+
+.text-danger-focused {
+    color: #ef4444 !important;
+}
+
+@media (max-width: 900px) {
+    .analytics-row-grid {
+        grid-template-columns: 1fr;
+    }
+}
