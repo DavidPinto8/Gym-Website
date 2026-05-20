@@ -21,6 +21,7 @@
         <link rel="stylesheet" href="css/<?php echo htmlspecialchars($extraCSS); ?>">
     <?php endif; ?>
 </head>
+
 <body>
     <header class="main-header">
         <nav class="nav-container container" aria-label="Main navigation">
@@ -31,28 +32,39 @@
                     </a>
                 </div>
 
-                <label class="nav-toggle" for="nav-toggle-checkbox">
-                    <span style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0;">Toggle navigation</span>
+                <button
+                    class="nav-toggle"
+                    id="nav-toggle"
+                    type="button"
+                    aria-label="Toggle navigation"
+                    aria-expanded="false"
+                >
                     <span></span>
                     <span></span>
                     <span></span>
-                </label>
+                </button>
             </div>
 
-            <input type="checkbox" id="nav-toggle-checkbox" class="nav-toggle-input">
-
-            <div class="nav-menu">
+            <div class="nav-menu" id="nav-menu">
                 <ul class="nav-links">
                     <li>
                         <a href="index.php" class="<?php echo (isset($currentPage) && $currentPage === 'home') ? 'active' : ''; ?>">
                             Home
                         </a>
                     </li>
+
                     <li>
                         <a href="schedule.php" class="<?php echo (isset($currentPage) && $currentPage === 'schedule') ? 'active' : ''; ?>">
                             Classes
                         </a>
                     </li>
+
+                    <li>
+                        <a href="equipment.php" class="<?php echo (isset($currentPage) && $currentPage === 'equipment') ? 'active' : ''; ?>">
+                            Equipment
+                        </a>
+                    </li>
+
                     <li>
                         <a href="trainers.php" class="<?php echo (isset($currentPage) && $currentPage === 'trainers') ? 'active' : ''; ?>">
                             Trainers
@@ -67,7 +79,7 @@
                         </li>
                     <?php endif; ?>
                 </ul>
-                
+
                 <div class="nav-auth <?php echo isset($_SESSION['user_id']) ? 'logged-in' : ''; ?>">
                     <?php if (isset($_SESSION['user_id'])): ?>
                         <?php
@@ -81,18 +93,32 @@
                         ?>
 
                         <a href="profile.php" class="profile-dropdown">
-                            <img 
-                                src="<?php echo $navAvatar; ?>" 
-                                alt="Profile picture" 
+                            <img
+                                src="<?php echo htmlspecialchars($navAvatar); ?>"
+                                alt="Profile picture"
                                 class="nav-avatar"
                             >
+
                             <span class="user-greeting">
                                 Hi, <?php echo htmlspecialchars($_SESSION['name']); ?>
                             </span>
                         </a>
                     <?php else: ?>
-                        <a href="login.php" class="btn-outline" style="color: var(--white); border-color: var(--white); margin-right: 1rem;">Log In</a>
-                        <a href="register.php" class="btn-primary" style="padding: 0.5rem 1rem;">Join Now</a>
+                        <a
+                            href="login.php"
+                            class="btn-outline"
+                            style="color: var(--white); border-color: var(--white); margin-right: 1rem;"
+                        >
+                            Log In
+                        </a>
+
+                        <a
+                            href="register.php"
+                            class="btn-primary"
+                            style="padding: 0.5rem 1rem;"
+                        >
+                            Join Now
+                        </a>
                     <?php endif; ?>
                 </div>
             </div>

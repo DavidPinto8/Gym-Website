@@ -52,16 +52,14 @@
     width: 100%;
 }
 
-.nav-toggle-input {
-    display: none;
-}
-
 .nav-toggle {
     display: flex;
     flex-direction: column;
     gap: 5px;
     cursor: pointer;
     padding: 0.5rem;
+    background: none;
+    border: none;
 }
 
 .nav-toggle span {
@@ -70,6 +68,18 @@
     height: 2px;
     background-color: var(--white);
     transition: all 0.3s ease;
+}
+
+.nav-toggle.open span:nth-child(1) {
+    transform: rotate(45deg) translateY(10px);
+}
+
+.nav-toggle.open span:nth-child(2) {
+    opacity: 0;
+}
+
+.nav-toggle.open span:nth-child(3) {
+    transform: rotate(-45deg) translateY(-10px);
 }
 
 .nav-menu {
@@ -81,7 +91,7 @@
     width: 100%;
 }
 
-.nav-toggle-input:checked ~ .nav-menu {
+.nav-menu.open {
     display: flex;
 }
 
