@@ -248,3 +248,36 @@
         grid-template-columns: repeat(2, 1fr);
     }
 }
+
+/* --- WAITLIST & COMPONENTS POLISH --- */
+.waitlist-position-badge {
+    background-color: #fff8e1;
+    border: 1px solid #ffe082;
+    color: #b78103;
+    padding: 0.6rem;
+    border-radius: var(--radius-md);
+    text-align: center;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.waitlist-position-badge strong {
+    font-size: 1rem;
+    color: var(--black);
+}
+
+/* Diferenciação visual do botão de sair da waitlist vs cancelamento normal */
+.leave-waitlist-btn {
+    border-color: #f59e0b !important;
+    color: #d97706 !important;
+}
+
+.leave-waitlist-btn:hover {
+    background-color: #f59e0b !important;
+    color: var(--white) !important;
+}

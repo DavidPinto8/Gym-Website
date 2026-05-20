@@ -37,7 +37,22 @@ $stmt = $db->prepare("
                 WHEN enrollments.member_id = :member_id
                 THEN enrollments.status
             END
-        ) AS user_booking_status
+        ) AS user_booking_status,
+
+        (
+            SELECT COUNT(*) + 1
+            FROM enrollments AS e2
+            WHERE e2.class_id = classes.id 
+              AND e2.status = 'waitlist'
+              AND e2.id < (
+                  SELECT id 
+                  FROM enrollments AS e3 
+                  WHERE e3.class_id = classes.id 
+                    AND e3.member_id = :member_id_sub 
+                    AND e3.status = 'waitlist'
+                  LIMIT 1
+              )
+        ) AS waitlist_position
 
     FROM classes 
 
@@ -56,7 +71,8 @@ $stmt = $db->prepare("
 ");
 
 $stmt->execute([
-    ':member_id' => $memberId
+    ':member_id' => $memberId,
+    ':member_id_sub' => $memberId
 ]);
 
 $classes = $stmt->fetchAll();
@@ -193,6 +209,10 @@ include 'templates/header.php';
 
                                     <?php elseif ($bookingStatus === 'waitlist'): ?>
 
+                                        <div class="waitlist-position-badge">
+                                            <span>🔥 Position <strong>#<?php echo htmlspecialchars($class['waitlist_position'] ?? '1'); ?></strong> on Waitlist</span>
+                                        </div>
+
                                         <form action="actions/action_cancel_booking.php" method="POST">
                                             <input 
                                                 type="hidden" 
@@ -200,7 +220,7 @@ include 'templates/header.php';
                                                 value="<?php echo htmlspecialchars($class['id']); ?>"
                                             >
 
-                                            <button type="submit" class="btn-outline btn-block waitlist-btn">
+                                            <button type="submit" class="btn-outline btn-block leave-waitlist-btn">
                                                 Leave Waitlist
                                             </button>
                                         </form>
