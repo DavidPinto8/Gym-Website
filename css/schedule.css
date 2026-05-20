@@ -162,6 +162,76 @@
     background-image: url('../assets/Cardio.png'); 
 }
 
+.other { 
+    background-image: url('../assets/Other.png'); 
+}
+
+/* --- Booking Status & Alerts --- */
+.class-capacity {
+    color: #d1d5db;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.schedule-alert {
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    margin-bottom: 2rem;
+}
+
+.success-alert {
+    background-color: #dcfce7;
+    color: #166534;
+    border: 1px solid #86efac;
+}
+
+.error-alert {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+}
+
+.cancel-btn {
+    margin-top: 1rem;
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+.cancel-btn:hover {
+    background-color: #ef4444;
+    color: var(--white);
+}
+
+.waitlist-btn {
+    margin-top: 1rem;
+    border-color: var(--gold);
+    color: var(--gold);
+}
+
+.waitlist-btn:hover {
+    background-color: var(--gold);
+    color: var(--black);
+}
+
+.member-warning {
+    color: #facc15;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-top: 1rem;
+}
+
+.login-book-btn {
+    display: block;
+    margin-top: 1rem;
+    color: var(--white);
+    border-color: var(--white);
+}
+
+.card-content form {
+    margin-top: 1rem;
+}
+
 /* --- Media Queries (Tablet & Desktop) --- */
 @media (min-width: 768px) {
     .schedule-layout {

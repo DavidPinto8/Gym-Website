@@ -33,7 +33,20 @@
             
             <aside class="profile-sidebar card">
                 <div class="profile-summary text-center">
-                    <img src="<?php echo htmlspecialchars($user['photo'] ?? 'assets/default-avatar.png'); ?>" alt="Profile" class="profile-avatar">
+                    <?php
+                    require_once 'includes/avatar.php';
+
+                    $profileAvatar = getUserAvatar(
+                        $user['name'],
+                        $user['photo'] ?? null,
+                        180
+                    );
+                    ?>
+
+                    <img 
+                        src="<?php echo $profileAvatar; ?>" 
+                        alt="<?php echo htmlspecialchars($user['name']); ?> profile picture"
+                    >
                     <h3><?php echo htmlspecialchars($user['name']); ?></h3>
                     <span class="badge-gold"><?php echo htmlspecialchars($user['plan_name'] ?? 'Basic'); ?> Member</span>
                 </div>

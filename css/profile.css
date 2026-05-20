@@ -24,6 +24,18 @@
     border: 3px solid var(--gold);
 }
 
+.profile-summary img {
+    width: 180px;
+    height: 180px;
+    object-fit: cover;
+
+    display: block;
+    margin: 0 auto 1.5rem auto;
+
+    border-radius: 20px;
+    border: 3px solid var(--gold);
+}
+
 .badge-gold {
     display: inline-block;
     background-color: var(--gold);
