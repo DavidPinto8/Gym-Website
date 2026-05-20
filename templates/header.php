@@ -48,11 +48,19 @@
                             Home
                         </a>
                     </li>
+
                     <li>
                         <a href="schedule.php" class="<?php echo (isset($currentPage) && $currentPage === 'schedule') ? 'active' : ''; ?>">
                             Classes
                         </a>
                     </li>
+
+                    <li>
+                        <a href="equipment.php" class="<?php echo (isset($currentPage) && $currentPage === 'equipment') ? 'active' : ''; ?>">
+                            Equipment
+                        </a>
+                    </li>
+
                     <li>
                         <a href="trainers.php" class="<?php echo (isset($currentPage) && $currentPage === 'trainers') ? 'active' : ''; ?>">
                             Trainers
@@ -91,8 +99,13 @@
                             </span>
                         </a>
                     <?php else: ?>
-                        <a href="login.php" class="btn-outline" style="color: var(--white); border-color: var(--white); margin-right: 1rem;">Log In</a>
-                        <a href="register.php" class="btn-primary" style="padding: 0.5rem 1rem;">Join Now</a>
+                        <a href="login.php" class="btn-outline" style="color: var(--white); border-color: var(--white); margin-right: 1rem;">
+                            Log In
+                        </a>
+
+                        <a href="register.php" class="btn-primary" style="padding: 0.5rem 1rem;">
+                            Join Now
+                        </a>
                     <?php endif; ?>
                 </div>
             </div>
