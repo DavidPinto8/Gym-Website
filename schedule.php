@@ -1,5 +1,8 @@
 <?php 
 session_start();
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 require_once 'database/db.php';
 
 $db = getDatabaseConnection();
@@ -160,7 +163,7 @@ include 'templates/header.php';
                     ?>
 
                         <article 
-                            class="class-card <?php echo htmlspecialchars($class['type']); ?>" 
+                            class="class-card <?php echo htmlspecialchars($class['type']); ?> <?php echo $bookingStatus === 'enrolled' ? 'enrolled' : ($bookingStatus === 'waitlist' ? 'waitlisted' : ''); ?>"
                             data-type="<?php echo htmlspecialchars($class['type']); ?>" 
                             data-day="<?php echo strtolower($dayOfWeek); ?>"
                         >
@@ -196,6 +199,7 @@ include 'templates/header.php';
                                     <?php if ($bookingStatus === 'enrolled'): ?>
 
                                         <form action="actions/action_cancel_booking.php" method="POST">
+                                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                                             <input 
                                                 type="hidden" 
                                                 name="class_id" 
@@ -214,6 +218,7 @@ include 'templates/header.php';
                                         </div>
 
                                         <form action="actions/action_cancel_booking.php" method="POST">
+                                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                                             <input 
                                                 type="hidden" 
                                                 name="class_id" 
@@ -228,6 +233,7 @@ include 'templates/header.php';
                                     <?php else: ?>
 
                                         <form action="actions/action_book_class.php" method="POST">
+                                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                                             <input 
                                                 type="hidden" 
                                                 name="class_id" 

@@ -271,7 +271,6 @@
     color: var(--black);
 }
 
-/* Diferenciação visual do botão de sair da waitlist vs cancelamento normal */
 .leave-waitlist-btn {
     border-color: #f59e0b !important;
     color: #d97706 !important;
@@ -280,4 +279,15 @@
 .leave-waitlist-btn:hover {
     background-color: #f59e0b !important;
     color: var(--white) !important;
+}
+
+/* --- POLISH BOOKING STATES & NEW UI --- */
+.class-card.enrolled {
+    border: 2px solid #10b981 !important;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important;
+}
+
+.class-card.waitlisted {
+    border: 2px solid #f59e0b !important;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3) !important;
 }
