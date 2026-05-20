@@ -1,5 +1,9 @@
 <?php
 session_start();
+if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== ($_SESSION['csrf_token'] ?? '')) {
+    header('Location: ../schedule.php?error=Invalid CSRF security token.');
+    exit();
+}
 require_once '../database/db.php';
 
 if (!isset($_SESSION['user_id'])) {

@@ -1,5 +1,8 @@
 <?php 
 session_start();
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 require_once 'database/db.php';
 
 $db = getDatabaseConnection();
@@ -37,7 +40,22 @@ $stmt = $db->prepare("
                 WHEN enrollments.member_id = :member_id
                 THEN enrollments.status
             END
-        ) AS user_booking_status
+        ) AS user_booking_status,
+
+        (
+            SELECT COUNT(*) + 1
+            FROM enrollments AS e2
+            WHERE e2.class_id = classes.id 
+              AND e2.status = 'waitlist'
+              AND e2.id < (
+                  SELECT id 
+                  FROM enrollments AS e3 
+                  WHERE e3.class_id = classes.id 
+                    AND e3.member_id = :member_id_sub 
+                    AND e3.status = 'waitlist'
+                  LIMIT 1
+              )
+        ) AS waitlist_position
 
     FROM classes 
 
@@ -56,7 +74,8 @@ $stmt = $db->prepare("
 ");
 
 $stmt->execute([
-    ':member_id' => $memberId
+    ':member_id' => $memberId,
+    ':member_id_sub' => $memberId
 ]);
 
 $classes = $stmt->fetchAll();
@@ -144,7 +163,7 @@ include 'templates/header.php';
                     ?>
 
                         <article 
-                            class="class-card <?php echo htmlspecialchars($class['type']); ?>" 
+                            class="class-card <?php echo htmlspecialchars($class['type']); ?> <?php echo $bookingStatus === 'enrolled' ? 'enrolled' : ($bookingStatus === 'waitlist' ? 'waitlisted' : ''); ?>"
                             data-type="<?php echo htmlspecialchars($class['type']); ?>" 
                             data-day="<?php echo strtolower($dayOfWeek); ?>"
                         >
@@ -180,6 +199,7 @@ include 'templates/header.php';
                                     <?php if ($bookingStatus === 'enrolled'): ?>
 
                                         <form action="actions/action_cancel_booking.php" method="POST">
+                                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                                             <input 
                                                 type="hidden" 
                                                 name="class_id" 
@@ -193,14 +213,19 @@ include 'templates/header.php';
 
                                     <?php elseif ($bookingStatus === 'waitlist'): ?>
 
+                                        <div class="waitlist-position-badge">
+                                            <span>🔥 Position <strong>#<?php echo htmlspecialchars($class['waitlist_position'] ?? '1'); ?></strong> on Waitlist</span>
+                                        </div>
+
                                         <form action="actions/action_cancel_booking.php" method="POST">
+                                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                                             <input 
                                                 type="hidden" 
                                                 name="class_id" 
                                                 value="<?php echo htmlspecialchars($class['id']); ?>"
                                             >
 
-                                            <button type="submit" class="btn-outline btn-block waitlist-btn">
+                                            <button type="submit" class="btn-outline btn-block leave-waitlist-btn">
                                                 Leave Waitlist
                                             </button>
                                         </form>
@@ -208,6 +233,7 @@ include 'templates/header.php';
                                     <?php else: ?>
 
                                         <form action="actions/action_book_class.php" method="POST">
+                                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                                             <input 
                                                 type="hidden" 
                                                 name="class_id" 

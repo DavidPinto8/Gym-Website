@@ -21,6 +21,53 @@ $totalTrainers = $db->query("SELECT COUNT(*) FROM users WHERE role = 'trainer'")
 $totalClasses = $db->query("SELECT COUNT(*) FROM classes")->fetchColumn();
 $totalEquipment = $db->query("SELECT COUNT(*) FROM equipment")->fetchColumn();
 
+
+$occupancyQuery = $db->query("
+    SELECT 
+        CASE 
+            WHEN SUM(capacity) > 0 
+            THEN ROUND((COUNT(enrollments.id) * 100.0) / SUM(capacity), 1)
+            ELSE 0 
+        END
+    FROM classes
+    LEFT JOIN enrollments 
+        ON classes.id = enrollments.class_id 
+        AND enrollments.status = 'enrolled'
+");
+$avgOccupancy = $occupancyQuery->fetchColumn();
+
+
+$popularityQuery = $db->query("
+    SELECT 
+        classes.type, 
+        COUNT(enrollments.id) as total_enrollments
+    FROM classes
+    LEFT JOIN enrollments 
+        ON classes.id = enrollments.class_id 
+        AND enrollments.status = 'enrolled'
+    GROUP BY classes.type
+    ORDER BY total_enrollments DESC
+");
+$disciplinePopularity = $popularityQuery->fetchAll();
+
+
+$topStreakQuery = $db->query("
+    SELECT users.name, members.streak 
+    FROM members 
+    JOIN users ON members.user_id = users.id 
+    ORDER BY members.streak DESC 
+    LIMIT 1
+");
+$topStreakMember = $topStreakQuery->fetch();
+
+
+$criticalEquipmentCount = $db->query("
+    SELECT COUNT(*) 
+    FROM equipment 
+    WHERE total_units > 0 AND ((available_units * 100.0) / total_units) <= 25.0
+")->fetchColumn();
+
+
 $stmt = $db->query("
     SELECT 
         users.id,
@@ -110,9 +157,54 @@ include 'templates/header.php';
                 <strong><?php echo htmlspecialchars($totalClasses); ?></strong>
             </article>
 
-            <article class="admin-stat-card card">
-                <span class="stat-label">Equipment Items</span>
-                <strong><?php echo htmlspecialchars($totalEquipment); ?></strong>
+            <article class="admin-stat-card card <?php echo $criticalEquipmentCount > 0 ? 'alert-border-danger' : ''; ?>">
+                <span class="stat-label">Critical Equipments</span>
+                <strong class="<?php echo $criticalEquipmentCount > 0 ? 'text-danger-focused' : ''; ?>">
+                    <?php echo htmlspecialchars($criticalEquipmentCount); ?>
+                </strong>
+            </article>
+        </section>
+
+        <section class="analytics-row-grid">
+            <article class="analytics-panel card">
+                <h3>Gym Occupancy Status</h3>
+                <p class="text-muted">Average class slot utilization rate across the facilities.</p>
+                <div class="occupancy-display">
+                    <span class="occupancy-percentage"><?php echo htmlspecialchars($avgOccupancy); ?>%</span>
+                    <div class="occupancy-bar-bg">
+                        <div class="occupancy-bar-fill" style="width: <?php echo htmlspecialchars($avgOccupancy); ?>%;"></div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="analytics-panel card">
+                <h3>Popular Disciplines</h3>
+                <p class="text-muted">Top training methodologies by volume of active bookings.</p>
+                <ul class="analytics-discipline-list">
+                    <?php if (count($disciplinePopularity) > 0): ?>
+                        <?php foreach ($disciplinePopularity as $discipline): ?>
+                            <li>
+                                <span class="discipline-name text-capitalize"><?php echo htmlspecialchars($discipline['type']); ?></span>
+                                <span class="discipline-count badge-gold"><?php echo htmlspecialchars($discipline['total_enrollments']); ?> bookings</span>
+                            </li>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <li class="text-muted">No active registrations recorded.</li>
+                    <?php endif; ?>
+                </ul>
+            </article>
+
+            <article class="analytics-panel card">
+                <h3>Community Spotlight</h3>
+                <p class="text-muted">Current highest workout streak in the ecosystem.</p>
+                <?php if ($topStreakMember): ?>
+                    <div class="spotlight-content">
+                        <h4><?php echo htmlspecialchars($topStreakMember['name']); ?></h4>
+                        <p class="streak-score">🔥 <?php echo htmlspecialchars($topStreakMember['streak']); ?> <small>Days Active</small></p>
+                    </div>
+                <?php else: ?>
+                    <p class="text-muted">No active member data found.</p>
+                <?php endif; ?>
             </article>
         </section>
 
