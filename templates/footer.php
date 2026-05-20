@@ -9,22 +9,12 @@
             <h3>Quick Links</h3>
 
             <ul>
-                <li>
-                    <a href="schedule.php">Classes</a>
-                </li>
-
-                <li>
-                    <a href="equipment.php">Equipment</a>
-                </li>
-
-                <li>
-                    <a href="trainers.php">Our Team</a>
-                </li>
+                <li><a href="schedule.php">Classes</a></li>
+                <li><a href="equipment.php">Equipment</a></li>
+                <li><a href="trainers.php">Our Team</a></li>
 
                 <?php if (!isset($_SESSION['user_id'])): ?>
-                    <li>
-                        <a href="login.php">Member Login</a>
-                    </li>
+                    <li><a href="login.php">Member Login</a></li>
                 <?php endif; ?>
             </ul>
         </div>
@@ -43,5 +33,7 @@
         <p>&copy; <?php echo date('Y'); ?> Flow Fitness.</p>
     </div>
 </footer>
+
+<script src="js/navbar.js"></script>
 </body>
 </html>
