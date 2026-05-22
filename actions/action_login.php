@@ -43,7 +43,7 @@ if ($user['role'] === 'admin') {
 }
 
 if ($user['role'] === 'trainer') {
-    header('Location: ../profile.php');
+    header('Location: ../trainer_dashboard.php');
     exit();
 }
 

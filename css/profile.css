@@ -64,6 +64,19 @@
     color: var(--gold);
 }
 
+/* --- Avatar Upload Button --- */
+#avatar-upload {
+    display: none;
+}
+
+.avatar-upload-btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+    cursor: pointer;
+}
+
 /* --- Main Content --- */
 .profile-content {
     display: flex;
@@ -337,6 +350,80 @@
 
 .password-toggle:hover {
     color: var(--black);
+}
+
+/* --- Trainer Dashboard Specifics --- */
+.trainer-schedule-grid {
+    margin-top: 1.5rem;
+    display: grid;
+    gap: 1rem;
+}
+
+.trainer-class-card {
+    border-top: none;
+    border-left: 4px solid var(--gold);
+    text-align: left;
+    padding: 1.25rem;
+}
+
+.trainer-class-title {
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.trainer-class-time {
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.trainer-roster-btn {
+    padding: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.form-textarea {
+    resize: vertical;
+    padding: 1rem;
+    line-height: 1.5;
+}
+
+/* --- Class Roster Dropdown --- */
+.class-roster-list {
+    margin-top: 1rem;
+    border-top: 1px dashed #e2e8f0;
+    padding-top: 1rem;
+    transition: all 0.3s ease;
+}
+
+.roster-hidden {
+    display: none;
+}
+
+.roster-visible {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+.class-roster-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.class-roster-list li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f1f5f9;
+    color: var(--text-dark);
+    font-size: 0.95rem;
+}
+
+.class-roster-list li:last-child {
+    border-bottom: none;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 /* --- Utilities --- */

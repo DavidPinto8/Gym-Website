@@ -11,6 +11,15 @@
         exit();
     }
 
+    if ($_SESSION['role'] === 'admin') {
+        header("Location: admin.php");
+        exit();
+    }
+    if ($_SESSION['role'] === 'trainer') {
+        header("Location: trainer_dashboard.php");
+        exit();
+    }
+
     $db = getDatabaseConnection();
 
     $stmt = $db->prepare("
@@ -92,10 +101,10 @@
                     id="profile-picture-preview"
                 >
 
-                <input type="file" id="avatar-upload" name="avatar" accept="image/png, image/jpeg, image/jpg" style="display: none;">
+                <input type="file" id="avatar-upload" name="avatar" accept="image/png, image/jpeg, image/jpg">
                 
-                <label for="avatar-upload" class="btn-outline" style="display: inline-block; padding: 0.5rem 1rem; font-size: 0.85rem; margin-bottom: 1rem; cursor: pointer;">
-                    Mudar Foto
+                <label for="avatar-upload" class="btn-outline avatar-upload-btn">
+                    Change Photo
                 </label>
 
                 <h3><?php echo htmlspecialchars($user['name']); ?></h3>
