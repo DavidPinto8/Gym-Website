@@ -146,6 +146,25 @@
     padding: 5rem 0;
 }
 
+.testimonial-card .quote {
+    font-style: italic;
+    margin-bottom: 1.5rem;
+    font-size: 1.05rem;
+}
+
+.testimonial-card .author h3 {
+    font-weight: 700;
+    color: var(--gold);
+    margin: 0;
+    font-size: 1rem;
+}
+
+.testimonial-card .author p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
 /* --- FAQ Section --- */
 .faq-section {
     padding: 5rem 1rem;

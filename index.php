@@ -100,29 +100,26 @@
                 <h2 id="testimonials-title">The Flow Community</h2>
                 <p>Hear from the members who bring the energy every single day.</p>
             </div>
-            
             <div class="cards-grid">
                 <article class="card testimonial-card text-center">
-                    <p class="quote" style="font-style: italic; margin-bottom: 1.5rem; font-size: 1.05rem;">"The atmosphere here is unmatched. It feels like a professional training facility. The equipment is top-tier and the trainers truly push you to your limits."</p>
+                    <p class="quote">"The atmosphere here is unmatched. It feels like a professional training facility. The equipment is top-tier and the trainers truly push you to your limits."</p>
                     <div class="author">
-                        <h3 style="font-weight: 700; color: var(--gold); margin: 0; font-size: 1rem;">Marcus T.</h3>
-                        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Elite Member</p>
+                        <h3>Marcus T.</h3>
+                        <p>Elite Member</p>
                     </div>
                 </article>
-
                 <article class="card testimonial-card text-center">
-                    <p class="quote" style="font-style: italic; margin-bottom: 1.5rem; font-size: 1.05rem;">"I've never been to a gym with such great class variety. The morning HIIT sessions completely changed my routine and the instructors are phenomenal."</p>
+                    <p class="quote">"I've never been to a gym with such great class variety. The morning HIIT sessions completely changed my routine and the instructors are phenomenal."</p>
                     <div class="author">
-                        <h3 style="font-weight: 700; color: var(--gold); margin: 0; font-size: 1rem;">Sarah L.</h3>
-                        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Pro Member</p>
+                        <h3>Sarah L.</h3>
+                        <p>Pro Member</p>
                     </div>
                 </article>
-
                 <article class="card testimonial-card text-center">
-                    <p class="quote" style="font-style: italic; margin-bottom: 1.5rem; font-size: 1.05rem;">"Finding a gym with 24/7 access, excellent recovery zones, and a real sense of community is rare. Flow Fitness has quickly become my second home."</p>
+                    <p class="quote">"Finding a gym with 24/7 access, excellent recovery zones, and a real sense of community is rare. Flow Fitness has quickly become my second home."</p>
                     <div class="author">
-                        <h3 style="font-weight: 700; color: var(--gold); margin: 0; font-size: 1rem;">David K.</h3>
-                        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Elite Member</p>
+                        <h3>David K.</h3>
+                        <p>Elite Member</p>
                     </div>
                 </article>
             </div>

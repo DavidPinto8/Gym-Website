@@ -3,7 +3,7 @@
 function getUserAvatar($name, $photo = null, $size = 200) {
 
     if (!empty($photo)) {
-        return htmlspecialchars($photo);
+        return 'assets/' . htmlspecialchars($photo);
     }
 
     return 'https://ui-avatars.com/api/?name=' .

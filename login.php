@@ -1,37 +1,46 @@
 <?php 
     session_start();
+
     if (isset($_SESSION['user_id'])) {
         header("Location: profile.php");
         exit();
     }
+
+    $loginError = isset($_GET['error']);
     
     $pageTitle = "Login | Flow Fitness";
     $extraCSS = 'profile.css'; 
     include 'templates/header.php'; 
 ?>
 
-<main class="bg-light" style="min-height: 80vh; display: flex; align-items: center; justify-content: center; padding: 4rem 2rem;">
-    <div class="card form-container" style="max-width: 400px; width: 100%;">
-        <h2 class="text-center" style="margin-bottom: 0.5rem; color: var(--black); font-family: var(--font-heading);">Welcome Back</h2>
-        <p class="text-center text-muted" style="margin-bottom: 2rem;">Keep your momentum going.</p>
+<main class="auth-page bg-light">
+    <div class="card form-container auth-card">
+        <h2 class="auth-title text-center">Welcome Back</h2>
+        <p class="auth-subtitle text-center text-muted">Keep your momentum going.</p>
+
+        <?php if ($loginError): ?>
+            <p class="form-error text-center">Invalid username or password.</p>
+        <?php endif; ?>
         
-        <form action="actions/action_login.php" method="POST" class="profile-form">
-            <div class="form-group" style="margin-bottom: 1.5rem;">
+        <form action="actions/action_login.php" method="POST" class="profile-form auth-form">
+            <div class="form-group">
                 <label for="username">Username</label>
-                <input type="text" id="username" name="username" required style="width: 100%; padding: 0.8rem; background-color: #ffffff; border: 1px solid #ccc; border-radius: 4px; color: #333;">
+                <input type="text" id="username" name="username" required>
             </div>
-            <div class="form-group" style="margin-bottom: 2rem;">
+
+            <div class="form-group form-group-large">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" required style="width: 100%; padding: 0.8rem; background-color: #ffffff; border: 1px solid #ccc; border-radius: 4px; color: #333;">
+                <input type="password" id="password" name="password" required>
             </div>
             
             <button type="submit" class="btn-primary btn-block">Log In</button>
         </form>
         
-        <p class="text-center" style="margin-top: 1.5rem; font-size: 0.9rem;">
-            Not a member yet? <a href="register.php" style="color: var(--gold); text-decoration: none; font-weight: 600;">Join Now</a>
+        <p class="auth-footer text-center">
+            Not a member yet? <a href="register.php">Join Now</a>
         </p>
     </div>
 </main>
 
+<script src="js/auth.js"></script>
 <?php include 'templates/footer.php'; ?>

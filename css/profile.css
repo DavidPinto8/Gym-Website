@@ -28,10 +28,8 @@
     width: 180px;
     height: 180px;
     object-fit: cover;
-
     display: block;
     margin: 0 auto 1.5rem auto;
-
     border-radius: 20px;
     border: 3px solid var(--gold);
 }
@@ -71,6 +69,26 @@
     display: flex;
     flex-direction: column;
     gap: 2rem;
+}
+
+/* --- Messages --- */
+.form-message {
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    margin: 0;
+}
+
+.form-success {
+    background-color: #f0fff4;
+    color: #2f855a;
+    border: 1px solid #9ae6b4;
+}
+
+.form-error {
+    background-color: #fff5f5;
+    color: #e53e3e;
+    border: 1px solid #feb2b2;
 }
 
 /* --- Stats Grid --- */
@@ -161,13 +179,14 @@
 }
 
 .custom-select {
+    width: 100%;
     padding: 0.8rem 1rem;
     border: 1px solid #cbd5e0;
     border-radius: var(--radius-md);
     font-family: var(--font-body);
     font-size: 1rem;
     background-color: #f8fafc;
-    width: 100%;
+    color: var(--text-dark);
     cursor: pointer;
     transition: all 0.3s ease;
 }
@@ -176,6 +195,7 @@
     outline: none;
     border-color: var(--gold);
     box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+    background-color: var(--white);
 }
 
 .form-actions {
@@ -193,12 +213,6 @@
     align-items: center;
     flex-wrap: wrap;
     gap: 2rem;
-}
-
-#membership-title {
-    margin-top: 3.5rem; 
-    padding-top: 2.5rem; 
-    border-top: 1px solid #e2e8f0; 
 }
 
 .plan-info .price {
@@ -226,7 +240,103 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    align-items: flex-end; 
+    align-items: flex-end;
+}
+
+.plan-upgrade-form {
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.plan-upgrade-form label {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-dark);
+}
+
+.plan-upgrade-form .btn-primary {
+    width: 100%;
+    padding: 1rem 2rem;
+    font-size: 1rem;
+}
+
+/* --- Auth Pages --- */
+.auth-page {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+}
+
+.auth-card {
+    max-width: 400px;
+    width: 100%;
+}
+
+.auth-card-large {
+    max-width: 500px;
+}
+
+.auth-title {
+    margin-bottom: 0.5rem;
+    color: var(--black);
+    font-family: var(--font-heading);
+}
+
+.auth-subtitle {
+    margin-bottom: 2rem;
+}
+
+.auth-footer {
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+}
+
+.auth-footer a {
+    color: var(--gold);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.auth-footer a:hover {
+    text-decoration: underline;
+}
+
+.form-group-large {
+    margin-bottom: 2.5rem;
+}
+
+.password-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.password-wrapper input {
+    width: 100%;
+    padding-right: 4.75rem;
+}
+
+.password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 0.9rem;
+    transform: translateY(-50%);
+    border: none;
+    background: none;
+    color: var(--gold);
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 0;
+    height: auto;
+    line-height: 1;
+}
+
+.password-toggle:hover {
+    color: var(--black);
 }
 
 /* --- Utilities --- */
@@ -272,13 +382,19 @@
 }
 
 @media (max-width: 767px) {
-    .plan-actions {
+    .membership-details {
         align-items: flex-start;
+    }
+
+    .plan-actions,
+    .plan-upgrade-form {
+        align-items: stretch;
         width: 100%;
     }
     
     .plan-actions .btn-outline,
     .plan-actions .btn-outline-danger,
+    .plan-actions .btn-primary,
     .form-actions .btn-primary {
         width: 100%;
     }
