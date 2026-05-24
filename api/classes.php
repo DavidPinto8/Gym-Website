@@ -33,9 +33,9 @@ SELECT
     users.name AS trainer_name,
 
     COUNT(
-        CASE
+        DISTINCT CASE
             WHEN enrollments.status = 'enrolled'
-            THEN 1
+            THEN enrollments.id
         END
     ) AS enrolled_count,
 
@@ -44,7 +44,10 @@ SELECT
             WHEN enrollments.member_id = :member_id
             THEN enrollments.status
         END
-    ) AS user_booking_status
+    ) AS user_booking_status,
+
+    ROUND(AVG(reviews.rating), 1) AS average_rating,
+    COUNT(DISTINCT reviews.id) AS review_count
 
 FROM classes
 
@@ -56,6 +59,9 @@ LEFT JOIN users
 
 LEFT JOIN enrollments
     ON classes.id = enrollments.class_id
+
+LEFT JOIN reviews
+    ON classes.id = reviews.class_id
 
 WHERE 1=1
 ";

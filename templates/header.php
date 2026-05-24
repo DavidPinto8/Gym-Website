@@ -71,10 +71,23 @@
                         </a>
                     </li>
 
+                    <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'member'): ?>
+                        <li>
+                            <a href="reports.php" class="<?php echo (isset($currentPage) && $currentPage === 'reports') ? 'active' : ''; ?>">
+                                Reports
+                            </a>
+                        </li>
+                    <?php endif; ?>
+
                     <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
                         <li>
                             <a href="admin.php" class="<?php echo (isset($currentPage) && $currentPage === 'admin') ? 'active' : ''; ?>">
                                 Admin
+                            </a>
+                        </li>
+                        <li>
+                            <a href="admin_reports.php" class="<?php echo (isset($currentPage) && $currentPage === 'admin_reports') ? 'active' : ''; ?>">
+                                Reports
                             </a>
                         </li>
                     <?php endif; ?>

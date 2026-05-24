@@ -1,219 +1,151 @@
-document.addEventListener(
-   'DOMContentLoaded',
-   () => {
+document.addEventListener('DOMContentLoaded', () => {
+    loadClasses();
 
-      loadClasses();
+    const filterForm = document.querySelector('.filter-form');
 
-      document
-         .querySelector('.filter-form')
-         .addEventListener(
-            'submit',
-            event => {
-
-               event.preventDefault();
-
-               loadClasses();
-
-            });
-
-   });
+    if (filterForm) {
+        filterForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            loadClasses();
+        });
+    }
+});
 
 async function loadClasses() {
+    const type = document.getElementById('class-type').value;
+    const day = document.getElementById('day-select').value;
 
-   const type =
-      document
-      .getElementById(
-         'class-type'
-      ).value;
+    const params = new URLSearchParams({
+        type,
+        day
+    });
 
-   const day =
-      document
-      .getElementById(
-         'day-select'
-      ).value;
+    const response = await fetch(`api/classes.php?${params}`);
+    const classes = await response.json();
 
-   const params =
-      new URLSearchParams({
-         type,
-         day
-      });
+    renderClasses(classes);
+}
 
-   const response =
-      await fetch(
-         `api/classes.php?${params}`
-      );
-
-   const classes =
-      await response.json();
-
-   renderClasses(classes);
-
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
 }
 
 function renderClasses(classes) {
+    const container = document.querySelector('.classes-grid');
 
-   const container =
-      document
-      .querySelector(
-         '.classes-grid'
-      );
+    container.innerHTML = '';
 
-   container.innerHTML = '';
+    if (classes.length === 0) {
+        container.innerHTML = '<p>No classes found.</p>';
+        return;
+    }
 
-   if (classes.length === 0) {
+    classes.forEach((cls) => {
+        const date = new Date(cls.start_time);
 
-      container.innerHTML = `
-<p>
-No classes found.
-</p>
-`;
+        const day = date.toLocaleDateString('en-US', {
+            weekday: 'long'
+        });
 
-      return;
+        const time = date.toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
 
-   }
+        const spots = cls.capacity - cls.enrolled_count;
 
-   classes.forEach(cls => {
-
-      const date =
-         new Date(cls.start_time);
-
-      const day =
-         date.toLocaleDateString(
-            'en-US', {
-               weekday: 'long'
-            }
-         );
-
-      const time =
-         date.toLocaleTimeString(
-            [], {
-               hour: '2-digit',
-               minute: '2-digit'
-            }
-         );
-
-      const spots =
-         cls.capacity -
-         cls.enrolled_count;
-
-      let actionHtml = '';
+        let actionHtml = '';
 
         if (!isLoggedIn) {
-        actionHtml = `
-            <a href="login.php" class="btn-outline btn-block text-center login-book-btn">
-                Login to Book
-            </a>
-        `;
+            actionHtml = `
+                <a href="login.php" class="btn-outline btn-block text-center login-book-btn">
+                    Login to Book
+                </a>
+            `;
         } else if (userRole !== 'member') {
-        actionHtml = `
-            <p class="member-warning">
-                Only members can book classes.
-            </p>
-        `;
+            actionHtml = `
+                <p class="member-warning">
+                    Only members can book classes.
+                </p>
+            `;
         } else if (cls.user_booking_status === 'enrolled') {
-        actionHtml = `
-            <form action="actions/action_cancel_booking.php" method="POST">
-                <input type="hidden" name="class_id" value="${cls.id}">
-                <button type="submit" class="btn-outline btn-block cancel-btn">
-                    Cancel Booking
-                </button>
-            </form>
-        `;
+            actionHtml = `
+                <form action="actions/action_cancel_booking.php" method="POST">
+                    <input type="hidden" name="csrf_token" value="${escapeHtml(csrfToken)}">
+                    <input type="hidden" name="class_id" value="${escapeHtml(cls.id)}">
+
+                    <button type="submit" class="btn-outline btn-block cancel-btn">
+                        Cancel Booking
+                    </button>
+                </form>
+            `;
         } else if (cls.user_booking_status === 'waitlist') {
-        actionHtml = `
-            <form action="actions/action_cancel_booking.php" method="POST">
-                <input type="hidden" name="class_id" value="${cls.id}">
-                <button type="submit" class="btn-outline btn-block waitlist-btn">
-                    Leave Waitlist
-                </button>
-            </form>
-        `;
+            actionHtml = `
+                <form action="actions/action_cancel_booking.php" method="POST">
+                    <input type="hidden" name="csrf_token" value="${escapeHtml(csrfToken)}">
+                    <input type="hidden" name="class_id" value="${escapeHtml(cls.id)}">
+
+                    <button type="submit" class="btn-outline btn-block waitlist-btn">
+                        Leave Waitlist
+                    </button>
+                </form>
+            `;
         } else {
-        actionHtml = `
-            <form action="actions/action_book_class.php" method="POST">
-                <input type="hidden" name="class_id" value="${cls.id}">
-                <button type="submit" class="btn-primary btn-block">
-                    ${spots <= 0 ? 'Join Waitlist' : 'Book Spot'}
-                </button>
-            </form>
-        `;
+            actionHtml = `
+                <form action="actions/action_book_class.php" method="POST">
+                    <input type="hidden" name="csrf_token" value="${escapeHtml(csrfToken)}">
+                    <input type="hidden" name="class_id" value="${escapeHtml(cls.id)}">
+
+                    <button type="submit" class="btn-primary btn-block">
+                        ${spots <= 0 ? 'Join Waitlist' : 'Book Spot'}
+                    </button>
+                </form>
+            `;
         }
 
-      container.innerHTML += `
+        const ratingHtml = cls.review_count > 0
+            ? `<p class="class-rating">★ ${Number(cls.average_rating).toFixed(1)} (${cls.review_count} reviews)</p>`
+            : '<p class="class-rating">No reviews yet</p>';
 
-<article
-class="
-class-card
-${cls.type}
-"
->
+        container.innerHTML += `
+            <article class="class-card ${escapeHtml(cls.type)}">
+                <div class="card-overlay"></div>
 
-<div
-class="
-card-content
-"
->
+                <div class="card-content">
+                    <span class="class-tag">
+                        ${escapeHtml(cls.type)}
+                    </span>
 
-<span
-class="
-class-tag
-"
->
+                    <h3>
+                        ${escapeHtml(cls.name)}
+                    </h3>
 
-${cls.type}
+                    <p class="class-info">
+                        ${escapeHtml(day)} • ${escapeHtml(time)}
+                    </p>
 
-</span>
+                    <p class="class-trainer">
+                        Trainer: ${escapeHtml(cls.trainer_name ?? 'TBA')}
+                    </p>
 
-<h3>
+                    <p class="class-capacity">
+                        ${escapeHtml(cls.enrolled_count)}/${escapeHtml(cls.capacity)} spots booked
+                    </p>
 
-${cls.name}
+                    ${ratingHtml}
 
-</h3>
+                    <a href="class_details.php?id=${escapeHtml(cls.id)}" class="btn-outline btn-block details-btn">
+                        View Details
+                    </a>
 
-<p
-class="
-class-info
-"
->
-
-${day}
-•
-${time}
-
-</p>
-
-<p
-class="
-class-trainer
-"
->
-
-Trainer:
-${cls.trainer_name ?? 'TBA'}
-
-</p>
-
-<p
-class="
-class-capacity
-"
->
-
-${cls.enrolled_count}
-/
-${cls.capacity}
-spots booked
-
-</p>
-
-${actionHtml}
-
-</div>
-
-</article>
-
-`;
-
-   });
-
+                    ${actionHtml}
+                </div>
+            </article>
+        `;
+    });
 }

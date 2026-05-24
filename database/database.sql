@@ -1,5 +1,6 @@
 PRAGMA foreign_keys = ON;
 
+DROP TABLE IF EXISTS reports;
 DROP TABLE IF EXISTS reviews;
 DROP TABLE IF EXISTS equipment;
 DROP TABLE IF EXISTS enrollments;
@@ -66,6 +67,7 @@ CREATE TABLE enrollments (
     class_id    INTEGER NOT NULL,
     enrolled_at TEXT    NOT NULL DEFAULT (datetime('now')),
     status      TEXT    NOT NULL DEFAULT 'enrolled' CHECK (status IN ('enrolled', 'cancelled', 'waitlist')),
+    attended    INTEGER NOT NULL DEFAULT 0 CHECK (attended IN (0, 1)),
     UNIQUE (member_id, class_id),               
     FOREIGN KEY (member_id) REFERENCES members (id) ON DELETE CASCADE,
     FOREIGN KEY (class_id)  REFERENCES classes (id) ON DELETE CASCADE
@@ -92,6 +94,19 @@ CREATE TABLE reviews (
     UNIQUE (member_id, class_id),               
     FOREIGN KEY (member_id) REFERENCES members (id) ON DELETE CASCADE,
     FOREIGN KEY (class_id)  REFERENCES classes (id) ON DELETE CASCADE
+);
+
+CREATE TABLE reports (
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    member_id      INTEGER NOT NULL,
+    category       TEXT    NOT NULL CHECK (category IN ('equipment', 'class', 'trainer', 'other')),
+    subject        TEXT    NOT NULL,
+    description    TEXT    NOT NULL,
+    status         TEXT    NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'in_progress', 'resolved')),
+    admin_response TEXT,
+    created_at     TEXT    NOT NULL DEFAULT (datetime('now')),
+    updated_at     TEXT    NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY (member_id) REFERENCES members (id) ON DELETE CASCADE
 );
 
 -- ==========================================

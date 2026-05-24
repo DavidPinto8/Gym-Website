@@ -186,6 +186,9 @@ include 'templates/header.php';
                                 <p class="class-capacity">
                                     <?php echo htmlspecialchars($class['enrolled_count']); ?>/<?php echo htmlspecialchars($class['capacity']); ?> spots booked
                                 </p>
+                                <a href="class_details.php?id=<?php echo htmlspecialchars($class['id']); ?>" class="btn-outline btn-block details-btn">
+                                    View Details
+                                </a>
 
                                 <?php if (isset($_SESSION['user_id']) && $memberId): ?>
                                     <?php if ($bookingStatus === 'enrolled'): ?>
@@ -245,6 +248,7 @@ include 'templates/header.php';
 <script>
     const isLoggedIn = <?php echo isset($_SESSION['user_id']) ? 'true' : 'false'; ?>;
     const userRole = "<?php echo htmlspecialchars($_SESSION['role'] ?? ''); ?>";
+    const csrfToken = "<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>";
 </script>
 
 <script src="js/schedule.js"></script>
