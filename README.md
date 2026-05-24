@@ -1,21 +1,24 @@
 # Flow Fitness (ltw14g08)
 
-## How to View the HTML Prototype
+## How to Run
 
-For this phase of the project, the frontend is built with static HTML and CSS. You can view the website using either of the following methods:
+### Setup Database
 
-**Method 1: Direct File Open**
-1. Unzip the project folder.
-2. Navigate to the root directory.
-3. Double-click the `index.html` file to open it in your default web browser.
-4. From the Home page, you can use the navigation bar to access the other pages (`schedule.html`, `profile.html`, etc.).
+```bash
+sqlite3 database/database.db < database/database.sql
+```
 
-**Method 2: Using a Local PHP Server**
-- If your environment requires serving the files, open your terminal in the root folder of the project and run:
+### Start Server
+
 ```bash
 php -S localhost:9000
 ```
-Then, open your web browser and navigate to `http://localhost:9000`.
+
+Open:
+
+```
+http://localhost:9000
+```
 
 ---
 
@@ -45,21 +48,101 @@ Then, open your web browser and navigate to `http://localhost:9000`.
 - [x] Elevate a user to admin status.
 - [x] Oversee and ensure the smooth operation of the entire system.
 
-**Extra:**
-- [x] Membership plans (Starter, Pro, Elite pricing tiers and features integration).
+---
 
-## Running (Backend Phase - WIP)
+## Additional Features Implemented
 
-Once the backend and database are fully implemented in the next phases, the setup will be:
+### Booking & Class Experience
+- [x] Automatic waitlist system when classes are full.
+- [x] Automatic promotion from waitlist to enrolled status after cancellations.
+- [x] Detailed class pages with schedules, trainer information and ratings.
+- [x] Attendance tracking system managed by trainers.
+- [x] Class participation validation before allowing reviews.
+- [x] Average class ratings display.
 
-    sqlite3 database/database.db < database/database.sql
-    php -S localhost:9000
+### Trainer Features
+- [x] Trainer dashboard.
+- [x] Attendance management per class.
+- [x] Trainer schedule overview.
 
-## Credentials
+### Reports & Feedback
+- [x] Equipment issue reporting.
+- [x] Class issue reporting.
+- [x] Trainer issue reporting.
+- [x] Report status tracking.
+- [x] Admin responses to reports.
 
-- To be defined in the backend phase...
+### Equipment
+- [x] Live equipment availability updates using AJAX.
 
-## Work done by
+### Security
+- [x] Password hashing (`password_hash()`).
+- [x] CSRF protection.
+- [x] SQL Injection prevention using PDO prepared statements.
+- [x] XSS mitigation using `htmlspecialchars()`.
+- [x] Session authentication.
+- [x] Role-based authorization.
 
-- David Pinto - up202404233@up.pt
-- João Lage - up202406458@up.pt
+### UX Improvements
+- [x] AJAX schedule filtering.
+- [x] AJAX equipment updates.
+- [x] Responsive layouts.
+- [x] Profile photo upload support.
+
+---
+
+## Membership Plans
+
+Available plans:
+
+- Starter
+- Pro
+- Elite
+
+---
+
+## Running Credentials
+
+### Admin
+
+```
+username: admin
+password: password
+```
+
+### Demo Member
+
+```
+username: jbrunson_11
+password: password
+```
+
+### Demo Trainer
+
+```
+username: sarah_j
+password: password
+``` 
+
+All seeded accounts use:
+
+```
+password
+```
+
+---
+
+## Team
+
+Group ltw14g08
+
+- David Pinto — up202404233@up.pt
+- João Lage — up202406458@up.pt
+
+---
+
+## Notes
+
+Members can only review classes they have actually attended.
+
+The system includes AJAX interactions, waitlist handling, trainer attendance tracking, issue reporting workflows and secure authentication mechanisms.
