@@ -9,8 +9,8 @@
     }
 
     // CSRF Token
-    if (empty($_SESSION['csrf'])) {
-        $_SESSION['csrf'] = bin2hex(random_bytes(32));
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
 
     $db = getDatabaseConnection();
@@ -98,9 +98,11 @@
                     <?php if (count($trainer_classes) > 0): ?>
                         <?php foreach ($trainer_classes as $class): ?>
                             <?php 
-                                // Fetch the actual names of the members enrolled in THIS class
                                 $stmt_roster = $db->prepare("
-                                    SELECT users.name 
+                                    SELECT 
+                                        members.id AS member_id,
+                                        users.name,
+                                        enrollments.attended
                                     FROM enrollments 
                                     JOIN members ON enrollments.member_id = members.id 
                                     JOIN users ON members.user_id = users.id 
@@ -126,13 +128,37 @@
 
                                 <div id="roster-<?php echo $class['id']; ?>" class="class-roster-list roster-hidden">
                                     <?php if (count($roster) > 0): ?>
-                                        <ul>
-                                            <?php foreach ($roster as $student): ?>
-                                                <li>
-                                                    <span class="student-name"><?php echo htmlspecialchars($student['name']); ?></span>
-                                                </li>
-                                            <?php endforeach; ?>
-                                        </ul>
+                                        <form action="actions/action_mark_attendance.php" method="POST" class="attendance-form">
+                                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+                                            <input type="hidden" name="class_id" value="<?php echo htmlspecialchars($class['id']); ?>">
+
+                                            <ul>
+                                                <?php foreach ($roster as $student): ?>
+                                                    <li>
+                                                        <label class="attendance-row">
+                                                            <input
+                                                                type="checkbox"
+                                                                name="attended_members[]"
+                                                                value="<?php echo htmlspecialchars($student['member_id']); ?>"
+                                                                <?php echo (int)$student['attended'] === 1 ? 'checked' : ''; ?>
+                                                            >
+
+                                                            <span class="student-name">
+                                                                <?php echo htmlspecialchars($student['name']); ?>
+                                                            </span>
+
+                                                            <?php if ((int)$student['attended'] === 1): ?>
+                                                                <span class="attendance-badge">Attended</span>
+                                                            <?php endif; ?>
+                                                        </label>
+                                                    </li>
+                                                <?php endforeach; ?>
+                                            </ul>
+
+                                            <button type="submit" class="btn-primary btn-block attendance-save-btn">
+                                                Save Attendance
+                                            </button>
+                                        </form>
                                     <?php else: ?>
                                         <p class="text-muted text-center" style="margin-top: 1rem;">No members enrolled yet.</p>
                                     <?php endif; ?>
@@ -151,7 +177,7 @@
                 <p class="text-muted">Update how members see you on the Trainers page.</p>
 
                 <form action="actions/action_update_trainer.php" method="POST" class="profile-form">
-                    <input type="hidden" name="csrf" value="<?php echo $_SESSION['csrf']; ?>">
+                    <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                     
                     <fieldset>
                         <legend>Professional Info</legend>

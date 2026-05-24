@@ -10,6 +10,10 @@
     margin-bottom: 3rem;
 }
 
+.admin-logout-btn {
+    white-space: nowrap;
+}
+
 .admin-eyebrow {
     display: inline-block;
     color: var(--gold);

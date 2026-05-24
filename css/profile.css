@@ -449,6 +449,40 @@
     color: var(--white);
 }
 
+/* --- Attendance Form --- */
+
+.attendance-form ul {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin: 1rem 0;
+}
+
+.attendance-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+}
+
+.attendance-row input {
+    width: auto;
+}
+
+.attendance-badge {
+    margin-left: auto;
+    background-color: #dcfce7;
+    color: #166534;
+    padding: 0.2rem 0.6rem;
+    border-radius: var(--radius-pill);
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.attendance-save-btn {
+    margin-top: 1rem;
+}
+
 /* --- Media Queries --- */
 @media (min-width: 768px) {
     .form-row {

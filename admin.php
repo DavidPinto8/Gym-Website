@@ -127,6 +127,9 @@ include 'templates/header.php';
                 <h1>Admin Dashboard</h1>
                 <p class="text-muted">Manage users, monitor classes, and oversee gym equipment.</p>
             </div>
+            <a href="actions/action_logout.php" class="btn-outline-danger admin-logout-btn">
+                Log Out
+            </a>
         </section>
 
         <?php if ($successMessage): ?>
