@@ -2,6 +2,15 @@
 
 session_start();
 
+if (
+    empty($_POST['csrf_token']) ||
+    empty($_SESSION['csrf_token']) ||
+    !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
+) {
+    header('Location: ../login.php?error=Invalid security token.');
+    exit();
+}
+
 require_once '../database/db.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -49,5 +58,3 @@ if ($user['role'] === 'trainer') {
 
 header('Location: ../profile.php');
 exit();
-
-?>
