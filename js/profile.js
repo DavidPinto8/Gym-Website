@@ -10,8 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const formData = new FormData();
             formData.append('avatar', file);
 
-            const csrfToken = document.querySelector('input[name="csrf"]')?.value;
-            if (csrfToken) formData.append('csrf', csrfToken);
+            const csrfToken = document.querySelector('input[name="csrf_token"]')?.value;
+            if (csrfToken) formData.append('csrf_token', csrfToken);
 
             try {
                 const response = await fetch('api/upload_avatar.php', {

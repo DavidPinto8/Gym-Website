@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit();
 }
 
-if (!isset($_POST['csrf']) || $_POST['csrf'] !== $_SESSION['csrf']) {
+if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
     header('Location: ../profile.php?error=update_failed#account-settings');
     exit();
 }

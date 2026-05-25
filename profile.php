@@ -2,8 +2,8 @@
     session_start();
     require_once 'database/db.php';
 
-    if (empty($_SESSION['csrf'])) {
-        $_SESSION['csrf'] = bin2hex(random_bytes(32));
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
 
     if (!isset($_SESSION['user_id'])) {
@@ -96,7 +96,7 @@
                 ?>
 
                 <img 
-                    src="<?php echo $profileAvatar; ?>" 
+                    src="<?php echo htmlspecialchars($profileAvatar); ?>" 
                     alt="<?php echo htmlspecialchars($user['name']); ?> profile picture"
                     id="profile-picture-preview"
                 >
@@ -162,7 +162,7 @@
                 <p class="text-muted">Manage your personal details and workout preferences.</p>
 
                 <form action="actions/action_update_profile.php" method="POST" class="profile-form">
-                    <input type="hidden" name="csrf" value="<?php echo $_SESSION['csrf']; ?>">
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                     
                     <fieldset>
                         <legend>Personal Information</legend>
@@ -250,14 +250,14 @@
 
                         <?php if (!empty($user['next_billing_date'])): ?>
                             <p class="billing-date">
-                                Next billing date: <?php echo date('M d, Y', strtotime($user['next_billing_date'])); ?>
+                                Next billing date: <?php echo htmlspecialchars(date('M d, Y', strtotime($user['next_billing_date']))); ?>
                             </p>
                         <?php endif; ?>
                     </div>
 
                     <div class="plan-actions">
                         <form action="actions/action_upgrade_plan.php" method="POST" class="plan-upgrade-form">
-                            <input type="hidden" name="csrf" value="<?php echo $_SESSION['csrf']; ?>">
+                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                             
                             <label for="plan_id">Change Membership Plan</label>
 
