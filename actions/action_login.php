@@ -1,6 +1,10 @@
 <?php
 
 session_start();
+if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== ($_SESSION['csrf_token'] ?? '')) {
+    header('Location: ../login.php?error=Invalid security token.');
+    exit();
+}
 
 require_once '../database/db.php';
 
