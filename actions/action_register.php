@@ -1,13 +1,35 @@
 <?php
+
 session_start();
+
+if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== ($_SESSION['csrf_token'] ?? '')) {
+    header('Location: ../register.php?error=Invalid security token.');
+    exit();
+}
+
 require_once '../database/db.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = trim($_POST['name']);
-    $username = trim($_POST['username']);
-    $email = trim($_POST['email']);
-    $password = $_POST['password'];
-    $plan_id = (int)$_POST['plan_id']; 
+    $name = trim($_POST['name'] ?? '');
+    $username = trim($_POST['username'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $password = $_POST['password'] ?? '';
+    $plan_id = isset($_POST['plan_id']) ? (int)$_POST['plan_id'] : 0;
+    
+    if ($name === '' || $username === '' || $email === '' || $password === '' || $plan_id === 0) {
+        header('Location: ../register.php?error=empty_fields');
+        exit();
+    }
+
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        header('Location: ../register.php?error=invalid_email');
+        exit();
+    }
+
+    if (strlen($password) < 6) {
+        header('Location: ../register.php?error=short_password');
+        exit();
+    }
 
     $db = getDatabaseConnection();
 
