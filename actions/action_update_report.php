@@ -6,7 +6,7 @@ if (
     empty($_SESSION['csrf_token']) ||
     !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
 ) {
-    header('Location: ../admin_reports.php?error=Invalid CSRF security token.');
+    header('Location: ../admin_reports.php?error=invalid_csrf');
     exit();
 }
 
@@ -18,7 +18,7 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: ../admin_reports.php?error=Invalid request.');
+    header('Location: ../admin_reports.php?error=invalid_request');
     exit();
 }
 
@@ -29,22 +29,27 @@ $adminResponse = trim($_POST['admin_response'] ?? '');
 $validStatuses = ['open', 'in_progress', 'resolved'];
 
 if (!$reportId || !in_array($status, $validStatuses, true)) {
-    header('Location: ../admin_reports.php?error=Invalid report update.');
+    header('Location: ../admin_reports.php?error=invalid_input');
     exit();
 }
 
 $db = getDatabaseConnection();
 
-$stmt = $db->prepare("
-    UPDATE reports
-    SET status = ?, admin_response = ?, updated_at = datetime('now')
-    WHERE id = ?
-");
-$stmt->execute([
-    $status,
-    $adminResponse,
-    $reportId
-]);
+try{
+    $stmt = $db->prepare("
+        UPDATE reports
+        SET status = ?, admin_response = ?, updated_at = datetime('now')
+        WHERE id = ?
+    ");
+    $stmt->execute([
+        $status,
+        $adminResponse,
+        $reportId
+    ]);
 
-header('Location: ../admin_reports.php?success=Report updated successfully.');
-exit();
+    header('Location: ../admin_reports.php?success=report_updated');
+    exit();
+} catch(Exception $e){
+    header('Location: ../admin_reports.php?error=update_failed');
+    exit();
+}

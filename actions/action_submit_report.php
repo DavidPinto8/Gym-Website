@@ -6,7 +6,7 @@ if (
     empty($_SESSION['csrf_token']) ||
     !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
 ) {
-    header('Location: ../reports.php?error=Invalid CSRF security token.');
+    header('Location: ../reports.php?error=invalid_csrf');
     exit();
 }
 
@@ -18,7 +18,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: ../reports.php?error=Invalid request.');
+    header('Location: ../reports.php?error=invalid_request');
     exit();
 }
 
@@ -29,35 +29,40 @@ $description = trim($_POST['description'] ?? '');
 $validCategories = ['equipment', 'class', 'trainer', 'other'];
 
 if (!in_array($category, $validCategories, true) || $subject === '' || $description === '') {
-    header('Location: ../reports.php?error=Please fill in all report fields.');
+    header('Location: ../reports.php?error=invalid_input');
     exit();
 }
 
 $db = getDatabaseConnection();
 
-$stmt = $db->prepare("
-    SELECT id
-    FROM members
-    WHERE user_id = ?
-");
-$stmt->execute([$_SESSION['user_id']]);
-$member = $stmt->fetch();
+try{
+    $stmt = $db->prepare("
+        SELECT id
+        FROM members
+        WHERE user_id = ?
+    ");
+    $stmt->execute([$_SESSION['user_id']]);
+    $member = $stmt->fetch();
 
-if (!$member) {
-    header('Location: ../reports.php?error=Only members can submit reports.');
+    if (!$member) {
+        header('Location: ../reports.php?error=not_a_member');
+        exit();
+    }
+
+    $stmt = $db->prepare("
+        INSERT INTO reports (member_id, category, subject, description,status)
+        VALUES (?, ?, ?, ?, 'open')
+    ");
+    $stmt->execute([
+        $member['id'],
+        $category,
+        $subject,
+        $description
+    ]);
+
+    header('Location: ../reports.php?success=report_submitted');
+    exit();
+} catch (Exception $e) {
+    header('Location: ../reports.php?error=update_failed');
     exit();
 }
-
-$stmt = $db->prepare("
-    INSERT INTO reports (member_id, category, subject, description)
-    VALUES (?, ?, ?, ?)
-");
-$stmt->execute([
-    $member['id'],
-    $category,
-    $subject,
-    $description
-]);
-
-header('Location: ../reports.php?success=Report submitted successfully.');
-exit();
