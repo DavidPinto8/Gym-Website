@@ -19,7 +19,7 @@ if (
     empty($_SESSION['csrf_token']) ||
     !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
 ) {
-    header('Location: ../profile.php?error=update_failed#account-settings');
+    header('Location: ../profile.php?error=invalid_csrf#account-settings');
     exit();
 }
 
