@@ -1,9 +1,14 @@
 <?php
 
 function getUserAvatar($name, $photo = null, $size = 200) {
-
     if (!empty($photo)) {
-        return 'assets/' . htmlspecialchars($photo);
+        $safePhoto = htmlspecialchars($photo);
+
+        if (str_starts_with($safePhoto, 'assets/')) {
+            return $safePhoto;
+        }
+
+        return 'assets/' . $safePhoto;
     }
 
     return 'https://ui-avatars.com/api/?name=' .
