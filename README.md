@@ -20,6 +20,12 @@ Open:
 http://localhost:9000
 ```
 
+### Run Automated Tests
+
+```bash
+php tests/run_tests.php
+```
+
 ---
 
 ## Features
@@ -82,6 +88,8 @@ http://localhost:9000
 - [x] XSS mitigation using `htmlspecialchars()`.
 - [x] Session authentication.
 - [x] Role-based authorization.
+- [x] Automated backend sanity testing suite for API boundaries.
+- [x] Server-side data validation and sanitization for all input forms.
 
 ### UX Improvements
 - [x] AJAX schedule filtering.

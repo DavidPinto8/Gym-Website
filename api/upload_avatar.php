@@ -72,10 +72,16 @@ $allowedTypes = [
     'image/jpeg' => 'jpg',
     'image/png' => 'png'
 ];
-
-$fileInfo = finfo_open(FILEINFO_MIME_TYPE);
-$mimeType = finfo_file($fileInfo, $file['tmp_name']);
-finfo_close($fileInfo);
+try{
+    $finfo = new finfo(FILEINFO_MIME_TYPE);
+    $mimeType = $finfo->file($file['tmp_name']);
+} catch (Exception $e) {
+    echo json_encode([
+        'sucess' => false,
+        'message'=> 'Failed to determine file type'
+    ]);
+    exit();
+}
 
 if (!array_key_exists($mimeType, $allowedTypes)) {
     echo json_encode([
