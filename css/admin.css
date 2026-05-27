@@ -1,12 +1,16 @@
 .admin-page {
     padding: 4rem 0;
     min-height: 80vh;
+    background:
+        radial-gradient(circle at top left, rgba(212, 175, 55, 0.12), transparent 30%),
+        var(--bg-light);
 }
 
 .admin-hero {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 2rem;
     margin-bottom: 3rem;
 }
 
@@ -17,7 +21,7 @@
 .admin-eyebrow {
     display: inline-block;
     color: var(--gold);
-    font-weight: 700;
+    font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     margin-bottom: 0.75rem;
@@ -26,6 +30,8 @@
 .admin-hero h1 {
     font-size: clamp(2.25rem, 5vw, 4rem);
     margin-bottom: 0.75rem;
+    font-family: var(--font-heading);
+    text-transform: uppercase;
 }
 
 .admin-stats-grid {
@@ -37,12 +43,13 @@
 
 .admin-stat-card {
     border-top: 4px solid var(--gold);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
 }
 
 .stat-label {
     display: block;
     color: var(--text-muted);
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
     font-size: 0.8rem;
     margin-bottom: 0.5rem;
@@ -56,6 +63,7 @@
 
 .admin-section {
     margin-bottom: 2rem;
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.08);
 }
 
 .admin-section-header {
@@ -64,6 +72,13 @@
     align-items: center;
     gap: 1rem;
     margin-bottom: 1.5rem;
+}
+
+.admin-section-header h2 {
+    font-family: var(--font-heading);
+    text-transform: uppercase;
+    font-size: clamp(1.6rem, 3vw, 2.25rem);
+    margin-bottom: 0.25rem;
 }
 
 .admin-table-wrapper {
@@ -81,6 +96,7 @@
     padding: 1rem;
     text-align: left;
     border-bottom: 1px solid #eee;
+    vertical-align: middle;
 }
 
 .admin-table th {
@@ -94,13 +110,17 @@
     color: var(--text-dark);
 }
 
+.admin-table tbody tr:hover {
+    background-color: #fafafa;
+}
+
 .role-badge,
 .equipment-type {
     display: inline-block;
     padding: 0.35rem 0.75rem;
     border-radius: var(--radius-pill);
     font-size: 0.75rem;
-    font-weight: 700;
+    font-weight: 800;
     text-transform: uppercase;
 }
 
@@ -123,6 +143,7 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
+    margin-top: 1.5rem;
 }
 
 .equipment-admin-card {
@@ -130,6 +151,17 @@
     border-radius: var(--radius-md);
     padding: 1.25rem;
     background-color: #fff;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.equipment-admin-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(212, 175, 55, 0.7);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.11);
 }
 
 .equipment-admin-top {
@@ -165,8 +197,10 @@
 }
 
 .equipment-progress-fill {
+    width: 0;
     height: 100%;
     border-radius: var(--radius-pill);
+    transition: width 0.35s ease;
 }
 
 .status-good {
@@ -179,12 +213,6 @@
 
 .status-danger {
     background-color: #ef4444;
-}
-
-.equipment-units {
-    margin-bottom: 0;
-    font-size: 0.9rem;
-    color: var(--text-muted);
 }
 
 .admin-alert {
@@ -219,12 +247,19 @@
 .admin-action-btn {
     border: none;
     border-radius: var(--radius-pill);
-    padding: 0.45rem 0.85rem;
+    padding: 0.5rem 0.9rem;
     font-size: 0.75rem;
-    font-weight: 700;
+    font-weight: 800;
     cursor: pointer;
     text-transform: uppercase;
-    transition: all 0.2s ease;
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.admin-action-btn:hover {
+    transform: translateY(-1px);
 }
 
 .promote-btn {
@@ -273,7 +308,7 @@
 
 .equipment-update-controls input {
     width: 100%;
-    padding: 0.5rem 0.75rem;
+    padding: 0.55rem 0.75rem;
     border: 1px solid #ddd;
     border-radius: var(--radius-md);
     font-family: var(--font-body);
@@ -282,40 +317,87 @@
 .equipment-update-controls input:focus {
     outline: none;
     border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.18);
 }
 
-@media (max-width: 900px) {
-    .admin-stats-grid,
-    .equipment-admin-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
+.equipment-delete-form {
+    margin-top: 0.75rem;
 }
 
-@media (max-width: 600px) {
-    .admin-page {
-        padding: 2.5rem 0;
-    }
-
-    .admin-hero {
-        align-items: flex-start;
-    }
-
-    .admin-stats-grid,
-    .equipment-admin-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .admin-section {
-        padding: 1.25rem;
-    }
+.equipment-delete-form button {
+    width: 100%;
 }
 
-/* --- ANALYTICS PANEL DESIGN (Person 2 Layout Expansion) --- */
+/* --- Management Forms --- */
+
+.admin-management-form {
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #eee;
+    border-radius: var(--radius-md);
+    background-color: #fafafa;
+}
+
+.admin-form-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+.admin-form-wide {
+    grid-column: span 2;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.form-group label {
+    color: var(--black);
+    font-size: 0.9rem;
+    font-weight: 800;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 0.75rem 0.85rem;
+    border: 1px solid #d1d5db;
+    border-radius: var(--radius-md);
+    background-color: var(--white);
+    color: var(--text-dark);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.18);
+}
+
+.admin-submit-btn {
+    margin-top: 1.25rem;
+}
+
+.admin-management-table {
+    margin-top: 1rem;
+}
+
+/* --- Analytics Panel Design --- */
+
 .analytics-row-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
     margin-bottom: 2rem;
+}
+
+.analytics-panel {
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
 }
 
 .analytics-panel h3 {
@@ -347,8 +429,10 @@
 
 .occupancy-bar-fill {
     height: 100%;
+    width: 0;
     background: linear-gradient(90deg, var(--black), var(--gold));
     border-radius: var(--radius-pill);
+    transition: width 0.35s ease;
 }
 
 .analytics-discipline-list {
@@ -361,6 +445,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 1rem;
     padding: 0.5rem 0;
     border-bottom: 1px dashed #eee;
 }
@@ -405,15 +490,55 @@
 }
 
 .alert-border-danger {
-    border-top: 4px solid #ef4444 !important;
+    border-top: 4px solid #ef4444;
 }
 
 .text-danger-focused {
-    color: #ef4444 !important;
+    color: #ef4444;
+}
+
+@media (max-width: 1100px) {
+    .admin-form-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .admin-form-wide {
+        grid-column: span 1;
+    }
 }
 
 @media (max-width: 900px) {
+    .admin-stats-grid,
+    .equipment-admin-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
     .analytics-row-grid {
         grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .admin-page {
+        padding: 2.5rem 0;
+    }
+
+    .admin-hero {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .admin-stats-grid,
+    .equipment-admin-grid,
+    .admin-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-section {
+        padding: 1.25rem;
+    }
+
+    .equipment-update-controls {
+        flex-direction: column;
     }
 }

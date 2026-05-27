@@ -1,65 +1,77 @@
-<?php 
-    session_start();
-    require_once 'database/db.php';
+<?php
+session_start();
 
-    // Security Check
-    if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'trainer') {
-        header("Location: login.php");
-        exit();
-    }
+require_once 'database/db.php';
+require_once 'includes/avatar.php';
 
-    // CSRF Token
-    if (empty($_SESSION['csrf_token'])) {
-        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-    }
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'trainer') {
+    header("Location: login.php");
+    exit();
+}
 
-    $db = getDatabaseConnection();
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 
-    // Fetch Trainer Data
-    $stmt = $db->prepare("
-        SELECT users.*, trainers.bio, trainers.specializations, trainers.certifications, trainers.id AS trainer_id
-        FROM users 
-        JOIN trainers ON users.id = trainers.user_id 
-        WHERE users.id = ?
-    ");
-    $stmt->execute([$_SESSION['user_id']]);
-    $trainer = $stmt->fetch();
+$db = getDatabaseConnection();
 
-    if (!$trainer) {
-        die("Trainer profile not found. Please contact an Admin.");
-    }
+$stmt = $db->prepare("
+    SELECT
+        users.*,
+        trainers.bio,
+        trainers.specializations,
+        trainers.certifications,
+        trainers.id AS trainer_id
+    FROM users
+    JOIN trainers ON users.id = trainers.user_id
+    WHERE users.id = ?
+");
+$stmt->execute([$_SESSION['user_id']]);
+$trainer = $stmt->fetch();
 
-    // 4. Fetch the Trainer's Class Schedule (Dynamic Population)
-    $stmt_classes = $db->prepare("
-        SELECT classes.*, 
-               (SELECT COUNT(*) FROM enrollments WHERE class_id = classes.id AND status = 'enrolled') as enrolled_count
-        FROM classes 
-        WHERE trainer_id = ?
-        ORDER BY start_time ASC
-    ");
-    $stmt_classes->execute([$trainer['trainer_id']]);
-    $trainer_classes = $stmt_classes->fetchAll();
+if (!$trainer) {
+    die("Trainer profile not found. Please contact an Admin.");
+}
 
-    $successMessage = $_GET['success'] ?? null;
-    $errorMessage = $_GET['error'] ?? null;
+$stmt_classes = $db->prepare("
+    SELECT
+        classes.*,
+        (
+            SELECT COUNT(*)
+            FROM enrollments
+            WHERE class_id = classes.id
+            AND status = 'enrolled'
+        ) AS enrolled_count
+    FROM classes
+    WHERE trainer_id = ?
+    ORDER BY start_time ASC
+");
+$stmt_classes->execute([$trainer['trainer_id']]);
+$trainer_classes = $stmt_classes->fetchAll();
 
-    $pageTitle = "Trainer Dashboard | Flow Fitness";
-    $extraCSS = 'profile.css'; 
-    include 'templates/header.php'; 
+$successMessage = $_GET['success'] ?? null;
+$errorMessage = $_GET['error'] ?? null;
+
+$pageTitle = "Trainer Dashboard | Flow Fitness";
+$extraCSS = 'profile.css';
+
+include 'templates/header.php';
 ?>
 
 <main class="profile-page bg-light">
     <div class="container profile-layout">
-
         <aside class="profile-sidebar card">
             <div class="profile-summary text-center">
                 <?php
-                    require_once 'includes/avatar.php';
-                    $profileAvatar = getUserAvatar($trainer['name'], $trainer['photo'] ?? null, 180);
+                    $profileAvatar = getUserAvatar(
+                        $trainer['name'],
+                        $trainer['photo'] ?? null,
+                        180
+                    );
                 ?>
 
-                <img 
-                    src="<?php echo htmlspecialchars($profileAvatar); ?>" 
+                <img
+                    src="<?php echo htmlspecialchars($profileAvatar); ?>"
                     alt="<?php echo htmlspecialchars($trainer['name']); ?>"
                 >
 
@@ -69,15 +81,20 @@
 
             <nav class="profile-nav">
                 <ul>
-                    <li><a href="#my-classes" class="active">My Schedule & Roster</a></li>
-                    <li><a href="#trainer-profile">Public Profile</a></li>
-                    <li><a href="actions/action_logout.php" class="text-danger">Log Out</a></li>
+                    <li>
+                        <a href="#my-classes" class="active">My Schedule & Roster</a>
+                    </li>
+                    <li>
+                        <a href="#trainer-profile">Public Profile</a>
+                    </li>
+                    <li>
+                        <a href="actions/action_logout.php" class="text-danger">Log Out</a>
+                    </li>
                 </ul>
             </nav>
         </aside>
 
         <section class="profile-content">
-            
             <?php if ($successMessage): ?>
                 <p class="form-message form-success">
                     <?php echo htmlspecialchars(str_replace('_', ' ', $successMessage)); ?>
@@ -90,47 +107,73 @@
                 </p>
             <?php endif; ?>
 
-            <div id="my-classes" class="card form-container">
+            <section id="my-classes" class="card form-container">
                 <h2>My Upcoming Classes</h2>
-                <p class="text-muted">Manage your schedule and view class rosters.</p>
-                
+                <p class="text-muted">
+                    Manage your schedule, view class rosters and mark attendance.
+                </p>
+
                 <div class="trainer-schedule-grid">
                     <?php if (count($trainer_classes) > 0): ?>
                         <?php foreach ($trainer_classes as $class): ?>
-                            <?php 
+                            <?php
                                 $stmt_roster = $db->prepare("
-                                    SELECT 
+                                    SELECT
                                         members.id AS member_id,
                                         users.name,
                                         enrollments.attended
-                                    FROM enrollments 
-                                    JOIN members ON enrollments.member_id = members.id 
-                                    JOIN users ON members.user_id = users.id 
-                                    WHERE enrollments.class_id = ? AND enrollments.status = 'enrolled'
+                                    FROM enrollments
+                                    JOIN members ON enrollments.member_id = members.id
+                                    JOIN users ON members.user_id = users.id
+                                    WHERE enrollments.class_id = ?
+                                    AND enrollments.status = 'enrolled'
                                     ORDER BY users.name ASC
                                 ");
                                 $stmt_roster->execute([$class['id']]);
                                 $roster = $stmt_roster->fetchAll();
+
+                                $rosterId = 'roster-' . $class['id'];
                             ?>
-                            <div class="stat-card card trainer-class-card">
-                                <h4 class="trainer-class-title">
+
+                            <article class="stat-card card trainer-class-card">
+                                <h3 class="trainer-class-title">
                                     <?php echo htmlspecialchars($class['name']); ?>
-                                </h4>
-                                
+                                </h3>
+
                                 <p class="text-muted trainer-class-time">
-                                    <?php echo date('M d, Y - H:i', strtotime($class['start_time'])); ?> 
+                                    <?php echo date('M d, Y - H:i', strtotime($class['start_time'])); ?>
                                     | <?php echo htmlspecialchars($class['location']); ?>
                                 </p>
-                                
-                                <button class="btn-outline btn-block trainer-roster-btn" onclick="toggleRoster('roster-<?php echo $class['id']; ?>')">
-                                    View Roster (<?php echo $class['enrolled_count']; ?>/<?php echo $class['capacity']; ?>)
+
+                                <button
+                                    type="button"
+                                    class="btn-outline btn-block trainer-roster-btn js-toggle-roster"
+                                    data-roster-target="<?php echo htmlspecialchars($rosterId); ?>"
+                                >
+                                    View Roster (<?php echo htmlspecialchars($class['enrolled_count']); ?>/<?php echo htmlspecialchars($class['capacity']); ?>)
                                 </button>
 
-                                <div id="roster-<?php echo $class['id']; ?>" class="class-roster-list roster-hidden">
+                                <div
+                                    id="<?php echo htmlspecialchars($rosterId); ?>"
+                                    class="class-roster-list roster-hidden"
+                                >
                                     <?php if (count($roster) > 0): ?>
-                                        <form action="actions/action_mark_attendance.php" method="POST" class="attendance-form">
-                                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-                                            <input type="hidden" name="class_id" value="<?php echo htmlspecialchars($class['id']); ?>">
+                                        <form
+                                            action="actions/action_mark_attendance.php"
+                                            method="POST"
+                                            class="attendance-form"
+                                        >
+                                            <input
+                                                type="hidden"
+                                                name="csrf_token"
+                                                value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>"
+                                            >
+
+                                            <input
+                                                type="hidden"
+                                                name="class_id"
+                                                value="<?php echo htmlspecialchars($class['id']); ?>"
+                                            >
 
                                             <ul>
                                                 <?php foreach ($roster as $student): ?>
@@ -140,14 +183,14 @@
                                                                 type="checkbox"
                                                                 name="attended_members[]"
                                                                 value="<?php echo htmlspecialchars($student['member_id']); ?>"
-                                                                <?php echo (int)$student['attended'] === 1 ? 'checked' : ''; ?>
+                                                                <?php echo (int) $student['attended'] === 1 ? 'checked' : ''; ?>
                                                             >
 
                                                             <span class="student-name">
                                                                 <?php echo htmlspecialchars($student['name']); ?>
                                                             </span>
 
-                                                            <?php if ((int)$student['attended'] === 1): ?>
+                                                            <?php if ((int) $student['attended'] === 1): ?>
                                                                 <span class="attendance-badge">Attended</span>
                                                             <?php endif; ?>
                                                         </label>
@@ -155,62 +198,80 @@
                                                 <?php endforeach; ?>
                                             </ul>
 
-                                            <button type="submit" class="btn-primary btn-block attendance-save-btn">
+                                            <button
+                                                type="submit"
+                                                class="btn-primary btn-block attendance-save-btn"
+                                            >
                                                 Save Attendance
                                             </button>
                                         </form>
                                     <?php else: ?>
-                                        <p class="text-muted text-center" style="margin-top: 1rem;">No members enrolled yet.</p>
+                                        <p class="text-muted text-center empty-roster-message">
+                                            No members enrolled yet.
+                                        </p>
                                     <?php endif; ?>
                                 </div>
-
-                            </div>
+                            </article>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <p class="text-muted" style="grid-column: 1 / -1;">You have no upcoming classes assigned at the moment.</p>
+                        <p class="text-muted empty-dashboard-message">
+                            You have no upcoming classes assigned at the moment.
+                        </p>
                     <?php endif; ?>
                 </div>
-            </div>
+            </section>
 
-            <div id="trainer-profile" class="card form-container">
+            <section id="trainer-profile" class="card form-container">
                 <h2>Public Profile Settings</h2>
-                <p class="text-muted">Update how members see you on the Trainers page.</p>
+                <p class="text-muted">
+                    Update how members see you on the Trainers page.
+                </p>
 
-                <form action="actions/action_update_trainer.php" method="POST" class="profile-form">
-                    <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-                    
+                <form
+                    action="actions/action_update_trainer.php"
+                    method="POST"
+                    class="profile-form"
+                >
+                    <input
+                        type="hidden"
+                        name="csrf"
+                        value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>"
+                    >
+
                     <fieldset>
                         <legend>Professional Info</legend>
-                        
+
                         <div class="form-group">
                             <label for="bio">Biography</label>
-                            <textarea 
-                                id="bio" 
-                                name="bio" 
-                                rows="4" 
-                                class="custom-select form-textarea" 
+                            <textarea
+                                id="bio"
+                                name="bio"
+                                rows="4"
+                                class="custom-select form-textarea"
                                 required
                             ><?php echo htmlspecialchars($trainer['bio'] ?? ''); ?></textarea>
                         </div>
 
                         <div class="form-group">
-                            <label for="specializations">Specializations (Comma separated)</label>
-                            <input 
-                                type="text" 
-                                id="specializations" 
-                                name="specializations" 
-                                value="<?php echo htmlspecialchars($trainer['specializations'] ?? ''); ?>" 
+                            <label for="specializations">Specializations</label>
+                            <input
+                                type="text"
+                                id="specializations"
+                                name="specializations"
+                                value="<?php echo htmlspecialchars($trainer['specializations'] ?? ''); ?>"
+                                placeholder="Example: Yoga, Mobility, Strength"
                                 required
                             >
                         </div>
 
                         <div class="form-group">
                             <label for="certifications">Certifications</label>
-                            <input 
-                                type="text" 
-                                id="certifications" 
-                                name="certifications" 
-                                value="<?php echo htmlspecialchars($trainer['certifications'] ?? ''); ?>" 
+                            <input
+                                type="text"
+                                id="certifications"
+                                name="certifications"
+                                value="<?php echo htmlspecialchars($trainer['certifications'] ?? ''); ?>"
+                                placeholder="Example: NASM CPT, Yoga Alliance RYT"
                                 required
                             >
                         </div>
@@ -222,22 +283,11 @@
                         </button>
                     </div>
                 </form>
-            </div>
-
+            </section>
         </section>
     </div>
 </main>
 
-<script>
-    function toggleRoster(rosterId) {
-        const rosterDiv = document.getElementById(rosterId);
-        if (rosterDiv.classList.contains('roster-hidden')) {
-            rosterDiv.classList.remove('roster-hidden');
-            rosterDiv.classList.add('roster-visible');
-        } else {
-            rosterDiv.classList.remove('roster-visible');
-            rosterDiv.classList.add('roster-hidden');
-        }
-    }
-</script>
+<script src="js/trainer_dashboard.js"></script>
+
 <?php include 'templates/footer.php'; ?>
