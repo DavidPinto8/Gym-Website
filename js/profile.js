@@ -1,9 +1,19 @@
 document.addEventListener('DOMContentLoaded', () => {
     const avatarInput = document.getElementById('avatar-upload');
     const avatarPreview = document.getElementById('profile-picture-preview');
+    const uploadStatus = document.getElementById('avatar-upload-status');
 
     if (!avatarInput || !avatarPreview) {
         return;
+    }
+
+    function setUploadStatus(message, type = '') {
+        if (!uploadStatus) {
+            return;
+        }
+
+        uploadStatus.textContent = message;
+        uploadStatus.className = `avatar-upload-status ${type}`.trim();
     }
 
     avatarInput.addEventListener('change', async function () {
@@ -13,14 +23,23 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+
+        if (!allowedTypes.includes(file.type)) {
+            setUploadStatus('Please choose a PNG or JPEG image.', 'error');
+            return;
+        }
+
         const formData = new FormData();
         formData.append('avatar', file);
 
-        const csrfToken = document.querySelector('input[name="csrf_token"]')?.value;
+        const csrfToken = document.getElementById('avatar-csrf-token')?.value;
 
         if (csrfToken) {
             formData.append('csrf_token', csrfToken);
         }
+
+        setUploadStatus('Uploading photo...', 'loading');
 
         try {
             const response = await fetch('api/upload_avatar.php', {
@@ -38,12 +57,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (headerAvatar) {
                     headerAvatar.src = avatarPreview.src;
                 }
+
+                setUploadStatus('Photo updated successfully.', 'success');
             } else {
-                alert('Upload failed: ' + data.message);
+                setUploadStatus('Upload failed: ' + data.message, 'error');
             }
         } catch (error) {
-            console.error('Server communication error:', error);
-            alert('An error occurred while uploading the image.');
+            setUploadStatus('An error occurred while uploading the image.', 'error');
         }
     });
 });

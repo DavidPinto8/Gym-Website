@@ -86,8 +86,27 @@
     display: inline-block;
     padding: 0.5rem 1rem;
     font-size: 0.85rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
     cursor: pointer;
+}
+
+.avatar-upload-status {
+    min-height: 1.2rem;
+    margin: 0.25rem 0 0;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.avatar-upload-status.success {
+    color: #166534;
+}
+
+.avatar-upload-status.error {
+    color: #991b1b;
+}
+
+.avatar-upload-status.loading {
+    color: var(--text-muted);
 }
 
 /* --- Main Content --- */
@@ -172,6 +191,87 @@
     font-size: 1rem;
     color: var(--text-muted);
     font-family: var(--font-body);
+}
+
+/* --- Digital Access Pass --- */
+
+.access-pass-card {
+    overflow: hidden;
+    background:
+        linear-gradient(135deg, rgba(212, 175, 55, 0.16), transparent 36%),
+        var(--white);
+}
+
+.access-pass-content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    align-items: center;
+}
+
+.access-pass-kicker {
+    display: inline-block;
+    margin-bottom: 0.75rem;
+    color: var(--gold);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.access-pass-details {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+    margin-top: 1.5rem;
+}
+
+.access-pass-details div {
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    background-color: #f8fafc;
+    border-left: 4px solid var(--gold);
+}
+
+.access-pass-details strong {
+    display: block;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+}
+
+.access-pass-details span {
+    color: var(--black);
+    font-weight: 800;
+}
+
+.qr-pass-box {
+    justify-self: center;
+    width: 230px;
+    padding: 1.25rem;
+    border-radius: var(--radius-md);
+    background-color: var(--black);
+    text-align: center;
+    box-shadow: 0 16px 34px rgba(0, 0, 0, 0.18);
+}
+
+.member-qr-code {
+    width: 180px;
+    height: 180px;
+    display: block;
+    margin: 0 auto 1rem;
+    border-radius: var(--radius-sm);
+    background-color: var(--white);
+    padding: 0.5rem;
+}
+
+.qr-pass-box span {
+    color: var(--gold);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
 }
 
 /* --- Form Layout & Styling --- */
@@ -603,6 +703,14 @@
 
     .form-actions .btn-primary {
         width: auto;
+    }
+
+    .access-pass-content {
+        grid-template-columns: 1fr 260px;
+    }
+
+    .access-pass-details {
+        grid-template-columns: repeat(3, 1fr);
     }
 }
 

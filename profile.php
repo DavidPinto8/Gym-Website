@@ -3,6 +3,7 @@
 session_start();
 
 require_once 'database/db.php';
+require_once 'includes/avatar.php';
 
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
@@ -61,10 +62,17 @@ $stmtAttended = $db->prepare("
       )
 ");
 $stmtAttended->execute([$_SESSION['user_id']]);
-$attendedCount = $stmtAttended->fetchColumn();
+$attendedCount = (int)$stmtAttended->fetchColumn();
+
+$nextMilestone = max(50, (ceil(($attendedCount + 1) / 50) * 50));
+
+$memberAccessCode = 'FLOW-' . str_pad((string)$user['id'], 5, '0', STR_PAD_LEFT);
+$qrPayload = 'FlowFitness Member Access | ID: ' . $memberAccessCode . ' | User: ' . $user['username'];
+$qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' . urlencode($qrPayload);
 
 $successMessages = [
     'profile_updated' => 'Profile updated successfully.',
+    'password_updated' => 'Password updated successfully.',
     'plan_updated' => 'Membership plan updated successfully.'
 ];
 
@@ -72,7 +80,10 @@ $errorMessages = [
     'empty_fields' => 'Please fill in all required fields.',
     'username_taken' => 'That username is already taken.',
     'update_failed' => 'Something went wrong while updating your profile.',
-    'invalid_plan' => 'Please select a valid membership plan.'
+    'invalid_plan' => 'Please select a valid membership plan.',
+    'password_mismatch' => 'The new passwords do not match.',
+    'short_password' => 'Password must be at least 6 characters long.',
+    'invalid_current_password' => 'Current password is incorrect.'
 ];
 
 $successMessage = null;
@@ -97,8 +108,6 @@ include 'templates/header.php';
         <aside class="profile-sidebar card">
             <div class="profile-summary text-center">
                 <?php
-                    require_once 'includes/avatar.php';
-
                     $profileAvatar = getUserAvatar(
                         $user['name'],
                         $user['photo'] ?? null,
@@ -119,6 +128,13 @@ include 'templates/header.php';
                     accept="image/png, image/jpeg, image/jpg"
                 >
 
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>"
+                    id="avatar-csrf-token"
+                >
+
                 <label for="avatar-upload" class="btn-outline avatar-upload-btn">
                     Change Photo
                 </label>
@@ -128,12 +144,16 @@ include 'templates/header.php';
                 <span class="badge-gold">
                     <?php echo htmlspecialchars($user['plan_name'] ?? 'Basic'); ?> Member
                 </span>
+
+                <p id="avatar-upload-status" class="avatar-upload-status" aria-live="polite"></p>
             </div>
 
             <nav class="profile-nav">
                 <ul>
                     <li><a href="#my-flow" class="active">My Flow</a></li>
+                    <li><a href="#access-pass">Access Pass</a></li>
                     <li><a href="#account-settings">Account Settings</a></li>
+                    <li><a href="#password-settings">Password</a></li>
                     <li><a href="#membership-details">Membership Plan</a></li>
                     <li><a href="actions/action_logout.php" class="text-danger">Log Out</a></li>
                 </ul>
@@ -174,8 +194,49 @@ include 'templates/header.php';
                     <span class="stat-title">Next Milestone</span>
 
                     <span class="stat-value">
-                        150 <small>Workouts</small>
+                        <?php echo htmlspecialchars($nextMilestone); ?> <small>Workouts</small>
                     </span>
+                </div>
+            </div>
+
+            <div id="access-pass" class="card form-container access-pass-card">
+                <div class="access-pass-content">
+                    <div>
+                        <span class="access-pass-kicker">Digital Access Pass</span>
+
+                        <h2>Gym Entry QR</h2>
+
+                        <p class="text-muted">
+                            Use this member pass at the front desk to identify your Flow Fitness account.
+                        </p>
+
+                        <div class="access-pass-details">
+                            <div>
+                                <strong>Member</strong>
+                                <span><?php echo htmlspecialchars($user['name']); ?></span>
+                            </div>
+
+                            <div>
+                                <strong>Plan</strong>
+                                <span><?php echo htmlspecialchars($user['plan_name'] ?? 'Basic'); ?></span>
+                            </div>
+
+                            <div>
+                                <strong>Access Code</strong>
+                                <span><?php echo htmlspecialchars($memberAccessCode); ?></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="qr-pass-box">
+                        <img
+                            src="<?php echo htmlspecialchars($qrUrl); ?>"
+                            alt="Member access QR code"
+                            class="member-qr-code"
+                        >
+
+                        <span>Scan for member access</span>
+                    </div>
                 </div>
             </div>
 
@@ -185,6 +246,7 @@ include 'templates/header.php';
 
                 <form action="actions/action_update_profile.php" method="POST" class="profile-form">
                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+                    <input type="hidden" name="form_type" value="profile">
 
                     <fieldset>
                         <legend>Personal Information</legend>
@@ -259,6 +321,63 @@ include 'templates/header.php';
                     <div class="form-actions">
                         <button type="submit" class="btn-primary btn-large">
                             Update Profile
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="password-settings" class="card form-container">
+                <h2>Password Settings</h2>
+                <p class="text-muted">Update your password securely.</p>
+
+                <form action="actions/action_update_profile.php" method="POST" class="profile-form">
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+                    <input type="hidden" name="form_type" value="password">
+
+                    <fieldset>
+                        <legend>Security</legend>
+
+                        <div class="form-group">
+                            <label for="current-password">Current Password</label>
+
+                            <input
+                                type="password"
+                                id="current-password"
+                                name="current_password"
+                                required
+                            >
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="new-password">New Password</label>
+
+                                <input
+                                    type="password"
+                                    id="new-password"
+                                    name="new_password"
+                                    minlength="6"
+                                    required
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label for="confirm-password">Confirm New Password</label>
+
+                                <input
+                                    type="password"
+                                    id="confirm-password"
+                                    name="confirm_password"
+                                    minlength="6"
+                                    required
+                                >
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary btn-large">
+                            Update Password
                         </button>
                     </div>
                 </form>
