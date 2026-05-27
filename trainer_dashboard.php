@@ -1,12 +1,13 @@
 <?php
+
 session_start();
 
-require_once 'database/db.php';
-require_once 'includes/avatar.php';
-require_once 'includes/class_occurrence.php';
+require_once __DIR__ . '/database/db.php';
+require_once __DIR__ . '/includes/avatar.php';
+require_once __DIR__ . '/includes/class_occurrence.php';
 
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'trainer') {
-    header("Location: login.php");
+if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'trainer') {
+    header('Location: login.php');
     exit();
 }
 
@@ -18,7 +19,9 @@ $db = getDatabaseConnection();
 
 $stmt = $db->prepare("
     SELECT
-        users.*,
+        users.id,
+        users.name,
+        users.photo,
         trainers.bio,
         trainers.specializations,
         trainers.certifications,
@@ -27,37 +30,42 @@ $stmt = $db->prepare("
     JOIN trainers ON users.id = trainers.user_id
     WHERE users.id = ?
 ");
+
 $stmt->execute([$_SESSION['user_id']]);
+
 $trainer = $stmt->fetch();
 
 if (!$trainer) {
-    die("Trainer profile not found. Please contact an Admin.");
+    header('Location: login.php');
+    exit();
 }
 
-$stmt_classes = $db->prepare("
+$stmt = $db->prepare("
     SELECT
         classes.*,
         (
             SELECT COUNT(*)
             FROM enrollments
             WHERE class_id = classes.id
-            AND status = 'enrolled'
+              AND status = 'enrolled'
         ) AS enrolled_count
     FROM classes
     WHERE trainer_id = ?
     ORDER BY start_time ASC
 ");
-$stmt_classes->execute([$trainer['trainer_id']]);
-$trainer_classes = $stmt_classes->fetchAll();
-$trainer_classes = applyNextWeeklyOccurrences($trainer_classes);
+
+$stmt->execute([$trainer['trainer_id']]);
+
+$trainerClasses = applyNextWeeklyOccurrences($stmt->fetchAll());
 
 $successMessage = $_GET['success'] ?? null;
 $errorMessage = $_GET['error'] ?? null;
 
-$pageTitle = "Trainer Dashboard | Flow Fitness";
+$pageTitle = 'Trainer Dashboard | Flow Fitness';
+$currentPage = 'trainer_dashboard';
 $extraCSS = 'profile.css';
 
-include 'templates/header.php';
+include __DIR__ . '/templates/header.php';
 ?>
 
 <main class="profile-page bg-light">
@@ -73,24 +81,36 @@ include 'templates/header.php';
                 ?>
 
                 <img
-                    src="<?php echo htmlspecialchars($profileAvatar); ?>"
-                    alt="<?php echo htmlspecialchars($trainer['name']); ?>"
+                    src="<?php echo htmlspecialchars($profileAvatar, ENT_QUOTES, 'UTF-8'); ?>"
+                    alt="<?php echo htmlspecialchars($trainer['name'], ENT_QUOTES, 'UTF-8'); ?>"
                 >
 
-                <h3><?php echo htmlspecialchars($trainer['name']); ?></h3>
+                <h3><?php echo htmlspecialchars($trainer['name'], ENT_QUOTES, 'UTF-8'); ?></h3>
                 <span class="badge-gold">Instructor</span>
             </div>
 
             <nav class="profile-nav">
                 <ul>
                     <li>
-                        <a href="#my-classes" class="active">My Schedule & Roster</a>
+                        <a href="#my-classes" class="active">My Schedule &amp; Roster</a>
                     </li>
+
                     <li>
                         <a href="#trainer-profile">Public Profile</a>
                     </li>
+
                     <li>
-                        <a href="actions/action_logout.php" class="text-danger">Log Out</a>
+                        <form action="actions/action_logout.php" method="POST">
+                            <input
+                                type="hidden"
+                                name="csrf_token"
+                                value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>"
+                            >
+
+                            <button type="submit" class="text-danger">
+                                Log Out
+                            </button>
+                        </form>
                     </li>
                 </ul>
             </nav>
@@ -99,13 +119,13 @@ include 'templates/header.php';
         <section class="profile-content">
             <?php if ($successMessage): ?>
                 <p class="form-message form-success">
-                    <?php echo htmlspecialchars(str_replace('_', ' ', $successMessage)); ?>
+                    <?php echo htmlspecialchars(str_replace('_', ' ', $successMessage), ENT_QUOTES, 'UTF-8'); ?>
                 </p>
             <?php endif; ?>
 
             <?php if ($errorMessage): ?>
                 <p class="form-message form-error">
-                    <?php echo htmlspecialchars(str_replace('_', ' ', $errorMessage)); ?>
+                    <?php echo htmlspecialchars(str_replace('_', ' ', $errorMessage), ENT_QUOTES, 'UTF-8'); ?>
                 </p>
             <?php endif; ?>
 
@@ -116,10 +136,10 @@ include 'templates/header.php';
                 </p>
 
                 <div class="trainer-schedule-grid">
-                    <?php if (count($trainer_classes) > 0): ?>
-                        <?php foreach ($trainer_classes as $class): ?>
+                    <?php if (count($trainerClasses) > 0): ?>
+                        <?php foreach ($trainerClasses as $class): ?>
                             <?php
-                                $stmt_roster = $db->prepare("
+                                $stmt = $db->prepare("
                                     SELECT
                                         members.id AS member_id,
                                         users.name,
@@ -128,35 +148,38 @@ include 'templates/header.php';
                                     JOIN members ON enrollments.member_id = members.id
                                     JOIN users ON members.user_id = users.id
                                     WHERE enrollments.class_id = ?
-                                    AND enrollments.status = 'enrolled'
+                                      AND enrollments.status = 'enrolled'
                                     ORDER BY users.name ASC
                                 ");
-                                $stmt_roster->execute([$class['id']]);
-                                $roster = $stmt_roster->fetchAll();
 
+                                $stmt->execute([$class['id']]);
+
+                                $roster = $stmt->fetchAll();
                                 $rosterId = 'roster-' . $class['id'];
                             ?>
 
                             <article class="stat-card card trainer-class-card">
                                 <h3 class="trainer-class-title">
-                                    <?php echo htmlspecialchars($class['name']); ?>
+                                    <?php echo htmlspecialchars($class['name'], ENT_QUOTES, 'UTF-8'); ?>
                                 </h3>
 
                                 <p class="text-muted trainer-class-time">
-                                    <?php echo date('M d, Y - H:i', strtotime($class['start_time'])); ?>
-                                    | <?php echo htmlspecialchars($class['location']); ?>
+                                    <?php echo htmlspecialchars(date('M d, Y - H:i', strtotime($class['start_time'])), ENT_QUOTES, 'UTF-8'); ?>
+                                    |
+                                    <?php echo htmlspecialchars($class['location'], ENT_QUOTES, 'UTF-8'); ?>
                                 </p>
 
                                 <button
                                     type="button"
                                     class="btn-outline btn-block trainer-roster-btn js-toggle-roster"
-                                    data-roster-target="<?php echo htmlspecialchars($rosterId); ?>"
+                                    data-roster-target="<?php echo htmlspecialchars($rosterId, ENT_QUOTES, 'UTF-8'); ?>"
                                 >
-                                    View Roster (<?php echo htmlspecialchars($class['enrolled_count']); ?>/<?php echo htmlspecialchars($class['capacity']); ?>)
+                                    View Roster
+                                    (<?php echo htmlspecialchars((string) $class['enrolled_count'], ENT_QUOTES, 'UTF-8'); ?>/<?php echo htmlspecialchars((string) $class['capacity'], ENT_QUOTES, 'UTF-8'); ?>)
                                 </button>
 
                                 <div
-                                    id="<?php echo htmlspecialchars($rosterId); ?>"
+                                    id="<?php echo htmlspecialchars($rosterId, ENT_QUOTES, 'UTF-8'); ?>"
                                     class="class-roster-list roster-hidden"
                                 >
                                     <?php if (count($roster) > 0): ?>
@@ -168,13 +191,13 @@ include 'templates/header.php';
                                             <input
                                                 type="hidden"
                                                 name="csrf_token"
-                                                value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>"
+                                                value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>"
                                             >
 
                                             <input
                                                 type="hidden"
                                                 name="class_id"
-                                                value="<?php echo htmlspecialchars($class['id']); ?>"
+                                                value="<?php echo htmlspecialchars((string) $class['id'], ENT_QUOTES, 'UTF-8'); ?>"
                                             >
 
                                             <ul>
@@ -184,12 +207,12 @@ include 'templates/header.php';
                                                             <input
                                                                 type="checkbox"
                                                                 name="attended_members[]"
-                                                                value="<?php echo htmlspecialchars($student['member_id']); ?>"
+                                                                value="<?php echo htmlspecialchars((string) $student['member_id'], ENT_QUOTES, 'UTF-8'); ?>"
                                                                 <?php echo (int) $student['attended'] === 1 ? 'checked' : ''; ?>
                                                             >
 
                                                             <span class="student-name">
-                                                                <?php echo htmlspecialchars($student['name']); ?>
+                                                                <?php echo htmlspecialchars($student['name'], ENT_QUOTES, 'UTF-8'); ?>
                                                             </span>
 
                                                             <?php if ((int) $student['attended'] === 1): ?>
@@ -236,8 +259,8 @@ include 'templates/header.php';
                 >
                     <input
                         type="hidden"
-                        name="csrf"
-                        value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>"
+                        name="csrf_token"
+                        value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>"
                     >
 
                     <fieldset>
@@ -245,22 +268,24 @@ include 'templates/header.php';
 
                         <div class="form-group">
                             <label for="bio">Biography</label>
+
                             <textarea
                                 id="bio"
                                 name="bio"
                                 rows="4"
                                 class="custom-select form-textarea"
                                 required
-                            ><?php echo htmlspecialchars($trainer['bio'] ?? ''); ?></textarea>
+                            ><?php echo htmlspecialchars($trainer['bio'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                         </div>
 
                         <div class="form-group">
                             <label for="specializations">Specializations</label>
+
                             <input
                                 type="text"
                                 id="specializations"
                                 name="specializations"
-                                value="<?php echo htmlspecialchars($trainer['specializations'] ?? ''); ?>"
+                                value="<?php echo htmlspecialchars($trainer['specializations'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                 placeholder="Example: Yoga, Mobility, Strength"
                                 required
                             >
@@ -268,11 +293,12 @@ include 'templates/header.php';
 
                         <div class="form-group">
                             <label for="certifications">Certifications</label>
+
                             <input
                                 type="text"
                                 id="certifications"
                                 name="certifications"
-                                value="<?php echo htmlspecialchars($trainer['certifications'] ?? ''); ?>"
+                                value="<?php echo htmlspecialchars($trainer['certifications'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                 placeholder="Example: NASM CPT, Yoga Alliance RYT"
                                 required
                             >
@@ -292,4 +318,4 @@ include 'templates/header.php';
 
 <script src="js/trainer_dashboard.js"></script>
 
-<?php include 'templates/footer.php'; ?>
+<?php include __DIR__ . '/templates/footer.php'; ?>

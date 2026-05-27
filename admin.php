@@ -1,8 +1,9 @@
 <?php
+
 session_start();
 
-require_once 'database/db.php';
-require_once 'includes/class_occurrence.php';
+require_once __DIR__ . '/database/db.php';
+require_once __DIR__ . '/includes/class_occurrence.php';
 
 if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
     header('Location: login.php');
@@ -18,10 +19,22 @@ $errorMessage = $_GET['error'] ?? null;
 
 $db = getDatabaseConnection();
 
-$totalMembers = $db->query("SELECT COUNT(*) FROM users WHERE role = 'member'")->fetchColumn();
-$totalTrainers = $db->query("SELECT COUNT(*) FROM users WHERE role = 'trainer'")->fetchColumn();
-$totalClasses = $db->query("SELECT COUNT(*) FROM classes")->fetchColumn();
-$totalEquipment = $db->query("SELECT COUNT(*) FROM equipment")->fetchColumn();
+$totalMembers = $db->query("
+    SELECT COUNT(*)
+    FROM users
+    WHERE role = 'member'
+")->fetchColumn();
+
+$totalTrainers = $db->query("
+    SELECT COUNT(*)
+    FROM users
+    WHERE role = 'trainer'
+")->fetchColumn();
+
+$totalClasses = $db->query("
+    SELECT COUNT(*)
+    FROM classes
+")->fetchColumn();
 
 $occupancyQuery = $db->query("
     SELECT
@@ -35,6 +48,7 @@ $occupancyQuery = $db->query("
         ON classes.id = enrollments.class_id
         AND enrollments.status = 'enrolled'
 ");
+
 $avgOccupancy = $occupancyQuery->fetchColumn();
 
 $popularityQuery = $db->query("
@@ -48,6 +62,7 @@ $popularityQuery = $db->query("
     GROUP BY classes.type
     ORDER BY total_enrollments DESC
 ");
+
 $disciplinePopularity = $popularityQuery->fetchAll();
 
 $topStreakQuery = $db->query("
@@ -57,13 +72,14 @@ $topStreakQuery = $db->query("
     ORDER BY members.streak DESC
     LIMIT 1
 ");
+
 $topStreakMember = $topStreakQuery->fetch();
 
 $criticalEquipmentCount = $db->query("
     SELECT COUNT(*)
     FROM equipment
     WHERE total_units > 0
-    AND ((available_units * 100.0) / total_units) <= 25.0
+      AND ((available_units * 100.0) / total_units) <= 25.0
 ")->fetchColumn();
 
 $stmt = $db->query("
@@ -80,6 +96,7 @@ $stmt = $db->query("
     LEFT JOIN plans ON members.plan_id = plans.id
     ORDER BY users.created_at DESC
 ");
+
 $users = $stmt->fetchAll();
 
 $stmt = $db->query("
@@ -90,6 +107,7 @@ $stmt = $db->query("
     JOIN users ON trainers.user_id = users.id
     ORDER BY users.name ASC
 ");
+
 $trainers = $stmt->fetchAll();
 
 $stmt = $db->query("
@@ -113,6 +131,7 @@ $stmt = $db->query("
     GROUP BY classes.id
     ORDER BY classes.start_time ASC
 ");
+
 $classes = $stmt->fetchAll();
 
 $stmt = $db->query("
@@ -120,14 +139,15 @@ $stmt = $db->query("
     FROM equipment
     ORDER BY type ASC, name ASC
 ");
+
 $equipment = $stmt->fetchAll();
 $classes = applyNextWeeklyOccurrences($classes);
 
-$pageTitle = "Admin Dashboard | Flow Fitness";
+$pageTitle = 'Admin Dashboard | Flow Fitness';
 $currentPage = 'admin';
 $extraCSS = 'admin.css';
 
-include 'templates/header.php';
+include __DIR__ . '/templates/header.php';
 ?>
 
 <main class="admin-page bg-light">
@@ -141,43 +161,51 @@ include 'templates/header.php';
                 </p>
             </div>
 
-            <a href="actions/action_logout.php" class="btn-outline-danger admin-logout-btn">
-                Log Out
-            </a>
+            <form action="actions/action_logout.php" method="POST">
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>"
+                >
+
+                <button type="submit" class="btn-outline-danger admin-logout-btn">
+                    Log Out
+                </button>
+            </form>
         </section>
 
         <?php if ($successMessage): ?>
             <div class="admin-alert success-alert">
-                <?php echo htmlspecialchars(str_replace('_', ' ', $successMessage)); ?>
+                <?php echo htmlspecialchars(str_replace('_', ' ', $successMessage), ENT_QUOTES, 'UTF-8'); ?>
             </div>
         <?php endif; ?>
 
         <?php if ($errorMessage): ?>
             <div class="admin-alert error-alert">
-                <?php echo htmlspecialchars(str_replace('_', ' ', $errorMessage)); ?>
+                <?php echo htmlspecialchars(str_replace('_', ' ', $errorMessage), ENT_QUOTES, 'UTF-8'); ?>
             </div>
         <?php endif; ?>
 
         <section class="admin-stats-grid">
             <article class="admin-stat-card card">
                 <span class="stat-label">Members</span>
-                <strong><?php echo htmlspecialchars($totalMembers); ?></strong>
+                <strong><?php echo htmlspecialchars((string) $totalMembers, ENT_QUOTES, 'UTF-8'); ?></strong>
             </article>
 
             <article class="admin-stat-card card">
                 <span class="stat-label">Trainers</span>
-                <strong><?php echo htmlspecialchars($totalTrainers); ?></strong>
+                <strong><?php echo htmlspecialchars((string) $totalTrainers, ENT_QUOTES, 'UTF-8'); ?></strong>
             </article>
 
             <article class="admin-stat-card card">
                 <span class="stat-label">Classes</span>
-                <strong><?php echo htmlspecialchars($totalClasses); ?></strong>
+                <strong><?php echo htmlspecialchars((string) $totalClasses, ENT_QUOTES, 'UTF-8'); ?></strong>
             </article>
 
-            <article class="admin-stat-card card <?php echo $criticalEquipmentCount > 0 ? 'alert-border-danger' : ''; ?>">
+            <article class="admin-stat-card card <?php echo (int) $criticalEquipmentCount > 0 ? 'alert-border-danger' : ''; ?>">
                 <span class="stat-label">Critical Equipment</span>
-                <strong class="<?php echo $criticalEquipmentCount > 0 ? 'text-danger-focused' : ''; ?>">
-                    <?php echo htmlspecialchars($criticalEquipmentCount); ?>
+                <strong class="<?php echo (int) $criticalEquipmentCount > 0 ? 'text-danger-focused' : ''; ?>">
+                    <?php echo htmlspecialchars((string) $criticalEquipmentCount, ENT_QUOTES, 'UTF-8'); ?>
                 </strong>
             </article>
         </section>
@@ -189,13 +217,13 @@ include 'templates/header.php';
 
                 <div class="occupancy-display">
                     <span class="occupancy-percentage">
-                        <?php echo htmlspecialchars($avgOccupancy); ?>%
+                        <?php echo htmlspecialchars((string) $avgOccupancy, ENT_QUOTES, 'UTF-8'); ?>%
                     </span>
 
                     <div class="occupancy-bar-bg">
                         <div
                             class="occupancy-bar-fill js-progress-fill"
-                            data-progress="<?php echo htmlspecialchars($avgOccupancy); ?>"
+                            data-progress="<?php echo htmlspecialchars((string) $avgOccupancy, ENT_QUOTES, 'UTF-8'); ?>"
                         ></div>
                     </div>
                 </div>
@@ -210,11 +238,11 @@ include 'templates/header.php';
                         <?php foreach ($disciplinePopularity as $discipline): ?>
                             <li>
                                 <span class="discipline-name text-capitalize">
-                                    <?php echo htmlspecialchars($discipline['type']); ?>
+                                    <?php echo htmlspecialchars($discipline['type'], ENT_QUOTES, 'UTF-8'); ?>
                                 </span>
 
                                 <span class="discipline-count badge-gold">
-                                    <?php echo htmlspecialchars($discipline['total_enrollments']); ?> bookings
+                                    <?php echo htmlspecialchars((string) $discipline['total_enrollments'], ENT_QUOTES, 'UTF-8'); ?> bookings
                                 </span>
                             </li>
                         <?php endforeach; ?>
@@ -230,9 +258,9 @@ include 'templates/header.php';
 
                 <?php if ($topStreakMember): ?>
                     <div class="spotlight-content">
-                        <h4><?php echo htmlspecialchars($topStreakMember['name']); ?></h4>
+                        <h4><?php echo htmlspecialchars($topStreakMember['name'], ENT_QUOTES, 'UTF-8'); ?></h4>
                         <p class="streak-score">
-                            🔥 <?php echo htmlspecialchars($topStreakMember['streak']); ?>
+                            🔥 <?php echo htmlspecialchars((string) $topStreakMember['streak'], ENT_QUOTES, 'UTF-8'); ?>
                             <small>Days Active</small>
                         </p>
                     </div>
@@ -266,15 +294,15 @@ include 'templates/header.php';
                     <tbody>
                         <?php foreach ($users as $user): ?>
                             <tr>
-                                <td><?php echo htmlspecialchars($user['name']); ?></td>
-                                <td><?php echo htmlspecialchars($user['username']); ?></td>
-                                <td><?php echo htmlspecialchars($user['email']); ?></td>
+                                <td><?php echo htmlspecialchars($user['name'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td><?php echo htmlspecialchars($user['username'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td><?php echo htmlspecialchars($user['email'], ENT_QUOTES, 'UTF-8'); ?></td>
                                 <td>
-                                    <span class="role-badge role-<?php echo htmlspecialchars($user['role']); ?>">
-                                        <?php echo htmlspecialchars($user['role']); ?>
+                                    <span class="role-badge role-<?php echo htmlspecialchars($user['role'], ENT_QUOTES, 'UTF-8'); ?>">
+                                        <?php echo htmlspecialchars($user['role'], ENT_QUOTES, 'UTF-8'); ?>
                                     </span>
                                 </td>
-                                <td><?php echo htmlspecialchars($user['plan_name'] ?? '—'); ?></td>
+                                <td><?php echo htmlspecialchars($user['plan_name'] ?? '—', ENT_QUOTES, 'UTF-8'); ?></td>
                                 <td>
                                     <div class="admin-actions">
                                         <?php if ($user['role'] !== 'admin'): ?>
@@ -282,13 +310,13 @@ include 'templates/header.php';
                                                 <input
                                                     type="hidden"
                                                     name="csrf_token"
-                                                    value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>"
+                                                    value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>"
                                                 >
 
                                                 <input
                                                     type="hidden"
                                                     name="user_id"
-                                                    value="<?php echo htmlspecialchars($user['id']); ?>"
+                                                    value="<?php echo htmlspecialchars((string) $user['id'], ENT_QUOTES, 'UTF-8'); ?>"
                                                 >
 
                                                 <button type="submit" class="admin-action-btn promote-btn">
@@ -307,13 +335,13 @@ include 'templates/header.php';
                                                 <input
                                                     type="hidden"
                                                     name="csrf_token"
-                                                    value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>"
+                                                    value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>"
                                                 >
 
                                                 <input
                                                     type="hidden"
                                                     name="user_id"
-                                                    value="<?php echo htmlspecialchars($user['id']); ?>"
+                                                    value="<?php echo htmlspecialchars((string) $user['id'], ENT_QUOTES, 'UTF-8'); ?>"
                                                 >
 
                                                 <button type="submit" class="admin-action-btn delete-btn">
@@ -342,7 +370,7 @@ include 'templates/header.php';
                 <input
                     type="hidden"
                     name="csrf_token"
-                    value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>"
+                    value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>"
                 >
 
                 <div class="admin-form-grid">
@@ -374,8 +402,8 @@ include 'templates/header.php';
                             <option value="">No trainer assigned</option>
 
                             <?php foreach ($trainers as $trainer): ?>
-                                <option value="<?php echo htmlspecialchars($trainer['id']); ?>">
-                                    <?php echo htmlspecialchars($trainer['name']); ?>
+                                <option value="<?php echo htmlspecialchars((string) $trainer['id'], ENT_QUOTES, 'UTF-8'); ?>">
+                                    <?php echo htmlspecialchars($trainer['name'], ENT_QUOTES, 'UTF-8'); ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
@@ -456,13 +484,13 @@ include 'templates/header.php';
                             ?>
 
                             <tr>
-                                <td><?php echo htmlspecialchars($class['name']); ?></td>
-                                <td><?php echo htmlspecialchars(ucfirst($class['type'])); ?></td>
-                                <td><?php echo htmlspecialchars($class['trainer_name'] ?? 'TBA'); ?></td>
-                                <td><?php echo htmlspecialchars($date); ?></td>
-                                <td><?php echo htmlspecialchars($class['duration_min']); ?> min</td>
-                                <td><?php echo htmlspecialchars($class['location']); ?></td>
-                                <td><?php echo htmlspecialchars($capacityText); ?></td>
+                                <td><?php echo htmlspecialchars($class['name'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td><?php echo htmlspecialchars(ucfirst($class['type']), ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td><?php echo htmlspecialchars($class['trainer_name'] ?? 'TBA', ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td><?php echo htmlspecialchars($date, ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td><?php echo htmlspecialchars((string) $class['duration_min'], ENT_QUOTES, 'UTF-8'); ?> min</td>
+                                <td><?php echo htmlspecialchars($class['location'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td><?php echo htmlspecialchars($capacityText, ENT_QUOTES, 'UTF-8'); ?></td>
                                 <td>
                                     <form
                                         action="actions/action_delete_class.php"
@@ -473,13 +501,13 @@ include 'templates/header.php';
                                         <input
                                             type="hidden"
                                             name="csrf_token"
-                                            value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>"
+                                            value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>"
                                         >
 
                                         <input
                                             type="hidden"
                                             name="class_id"
-                                            value="<?php echo htmlspecialchars($class['id']); ?>"
+                                            value="<?php echo htmlspecialchars((string) $class['id'], ENT_QUOTES, 'UTF-8'); ?>"
                                         >
 
                                         <button type="submit" class="admin-action-btn delete-btn">
@@ -506,7 +534,7 @@ include 'templates/header.php';
                 <input
                     type="hidden"
                     name="csrf_token"
-                    value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>"
+                    value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>"
                 >
 
                 <div class="admin-form-grid">
@@ -576,8 +604,8 @@ include 'templates/header.php';
             <div class="equipment-admin-grid">
                 <?php foreach ($equipment as $item): ?>
                     <?php
-                        $percentage = $item['total_units'] > 0
-                            ? round(($item['available_units'] / $item['total_units']) * 100)
+                        $percentage = (int) $item['total_units'] > 0
+                            ? round(((int) $item['available_units'] / (int) $item['total_units']) * 100)
                             : 0;
 
                         $statusClass = 'status-good';
@@ -592,19 +620,19 @@ include 'templates/header.php';
                     <article class="equipment-admin-card">
                         <div class="equipment-admin-top">
                             <div>
-                                <h3><?php echo htmlspecialchars($item['name']); ?></h3>
-                                <p><?php echo htmlspecialchars($item['location']); ?></p>
+                                <h3><?php echo htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8'); ?></h3>
+                                <p><?php echo htmlspecialchars($item['location'], ENT_QUOTES, 'UTF-8'); ?></p>
                             </div>
 
                             <span class="equipment-type">
-                                <?php echo htmlspecialchars($item['type']); ?>
+                                <?php echo htmlspecialchars($item['type'], ENT_QUOTES, 'UTF-8'); ?>
                             </span>
                         </div>
 
                         <div class="equipment-progress">
                             <div
-                                class="equipment-progress-fill js-progress-fill <?php echo htmlspecialchars($statusClass); ?>"
-                                data-progress="<?php echo htmlspecialchars($percentage); ?>"
+                                class="equipment-progress-fill js-progress-fill <?php echo htmlspecialchars($statusClass, ENT_QUOTES, 'UTF-8'); ?>"
+                                data-progress="<?php echo htmlspecialchars((string) $percentage, ENT_QUOTES, 'UTF-8'); ?>"
                             ></div>
                         </div>
 
@@ -612,18 +640,18 @@ include 'templates/header.php';
                             <input
                                 type="hidden"
                                 name="csrf_token"
-                                value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>"
+                                value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>"
                             >
 
                             <input
                                 type="hidden"
                                 name="equipment_id"
-                                value="<?php echo htmlspecialchars($item['id']); ?>"
+                                value="<?php echo htmlspecialchars((string) $item['id'], ENT_QUOTES, 'UTF-8'); ?>"
                             >
 
                             <label>
                                 Available units
-                                <span><?php echo htmlspecialchars($item['total_units']); ?> total</span>
+                                <span><?php echo htmlspecialchars((string) $item['total_units'], ENT_QUOTES, 'UTF-8'); ?> total</span>
                             </label>
 
                             <div class="equipment-update-controls">
@@ -631,8 +659,8 @@ include 'templates/header.php';
                                     type="number"
                                     name="available_units"
                                     min="0"
-                                    max="<?php echo htmlspecialchars($item['total_units']); ?>"
-                                    value="<?php echo htmlspecialchars($item['available_units']); ?>"
+                                    max="<?php echo htmlspecialchars((string) $item['total_units'], ENT_QUOTES, 'UTF-8'); ?>"
+                                    value="<?php echo htmlspecialchars((string) $item['available_units'], ENT_QUOTES, 'UTF-8'); ?>"
                                     required
                                 >
 
@@ -651,13 +679,13 @@ include 'templates/header.php';
                             <input
                                 type="hidden"
                                 name="csrf_token"
-                                value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>"
+                                value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>"
                             >
 
                             <input
                                 type="hidden"
                                 name="equipment_id"
-                                value="<?php echo htmlspecialchars($item['id']); ?>"
+                                value="<?php echo htmlspecialchars((string) $item['id'], ENT_QUOTES, 'UTF-8'); ?>"
                             >
 
                             <button type="submit" class="admin-action-btn delete-btn">
@@ -673,4 +701,4 @@ include 'templates/header.php';
 
 <script src="js/admin.js"></script>
 
-<?php include 'templates/footer.php'; ?>
+<?php include __DIR__ . '/templates/footer.php'; ?>

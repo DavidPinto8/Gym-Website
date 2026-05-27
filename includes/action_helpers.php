@@ -2,13 +2,19 @@
 
 function action_redirect(string $path, array $parameters = []): void
 {
-    $url = $path;
+    $fragment = '';
 
-    if (!empty($parameters)) {
-        $url .= '?' . http_build_query($parameters);
+    if (str_contains($path, '#')) {
+        [$path, $fragmentValue] = explode('#', $path, 2);
+        $fragment = '#' . $fragmentValue;
     }
 
-    header('Location: ' . $url);
+    if (!empty($parameters)) {
+        $separator = str_contains($path, '?') ? '&' : '?';
+        $path .= $separator . http_build_query($parameters);
+    }
+
+    header('Location: ' . $path . $fragment);
     exit();
 }
 
@@ -50,7 +56,6 @@ function require_valid_csrf_token(string $redirectPath): void
         ]);
     }
 }
-
 
 function get_current_member(PDO $db): ?array
 {
