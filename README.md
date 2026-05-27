@@ -1,5 +1,9 @@
 # Flow Fitness (ltw14g08)
 
+Premium gym management platform built with PHP, SQLite and AJAX, focused on class scheduling, membership management, trainer workflows and equipment tracking.
+
+---
+
 ## How to Run
 
 ### Setup Database
@@ -20,7 +24,11 @@ Open:
 http://localhost:9000
 ```
 
-### Run Automated Tests
+---
+
+## Automated Tests
+
+Run backend sanity tests:
 
 ```bash
 php tests/run_tests.php
@@ -30,82 +38,146 @@ php tests/run_tests.php
 
 ## Features
 
+### Authentication & Accounts
+
 **All users:**
-- [x] Register a new account.
-- [x] Log in and out.
-- [x] Edit their profile, including name, username, password, and profile photo.
 
-**Members:**
-- [x] Browse the schedule of available fitness classes, filtering by type, trainer, day, or time.
-- [x] Enroll in and cancel enrollment from upcoming classes, subject to capacity limits.
-- [x] View trainer profiles, including their specializations and the classes they teach.
-- [x] Check the current availability of equipment in the main training area.
-- [x] Leave ratings and reviews for classes they have attended.
-
-**Trainers:**
-- [x] Manage their public profile, including bio, specializations, and certifications.
-- [x] View the roster of members enrolled in their classes.
-- [x] Track and manage their assigned class schedule.
-
-**Admins:**
-- [x] Manage members and trainers (create, update, and deactivate accounts).
-- [x] Manage the class catalog (create, edit, and remove classes) and assign trainers to them.
-- [x] Manage equipment in the main training area (add, update availability status, and remove items).
-- [x] Elevate a user to admin status.
-- [x] Oversee and ensure the smooth operation of the entire system.
+- [x] Register account
+- [x] Login / Logout
+- [x] Password hashing
+- [x] Profile management
+- [x] Username updates
+- [x] Password updates
+- [x] Profile photo upload
+- [x] QR-code gym access pass
+- [x] Membership billing information
+- [x] Membership plan upgrades
 
 ---
 
-## Additional Features Implemented
+### Membership & Billing
 
-### Booking & Class Experience
-- [x] Automatic waitlist system when classes are full.
-- [x] Automatic promotion from waitlist to enrolled status after cancellations.
-- [x] Detailed class pages with schedules, trainer information and ratings.
-- [x] Attendance tracking system managed by trainers.
-- [x] Class participation validation before allowing reviews.
-- [x] Average class ratings display.
+- [x] Starter / Pro / Elite plans
+- [x] Mock billing system
+- [x] Payment method management
+- [x] Membership renewal tracking
+- [x] Next billing date display
+
+---
+
+### Classes & Booking
+
+**Members can:**
+
+- [x] Browse available classes
+- [x] Filter by:
+  - Type
+  - Trainer
+  - Day
+- [x] View detailed class pages
+- [x] View trainer photos
+- [x] Book classes
+- [x] Cancel bookings
+- [x] Join waitlists automatically
+- [x] Leave waitlists
+- [x] Track waitlist position
+- [x] Leave reviews after attendance
+- [x] View ratings and review counts
+- [x] Weekly recurring schedule system
+
+---
 
 ### Trainer Features
-- [x] Trainer dashboard.
-- [x] Attendance management per class.
-- [x] Trainer schedule overview.
 
-### Reports & Feedback
-- [x] Equipment issue reporting.
-- [x] Class issue reporting.
-- [x] Trainer issue reporting.
-- [x] Report status tracking.
-- [x] Admin responses to reports.
+- [x] Public trainer profiles
+- [x] Trainer dashboard
+- [x] Attendance tracking
+- [x] Schedule overview
+- [x] Enrolled member roster
+- [x] Bio management
+- [x] Certifications management
+- [x] Specializations management
 
-### Equipment
-- [x] Live equipment availability updates using AJAX.
+---
+
+### Equipment Management
+
+- [x] Real-time equipment availability
+- [x] AJAX equipment updates
+- [x] Search equipment
+- [x] Filter by equipment category
+- [x] Equipment issue reporting
+- [x] Equipment CRUD management (Admin)
+
+---
+
+### Reporting System
+
+Members can report:
+
+- [x] Equipment issues
+- [x] Class issues
+- [x] Trainer issues
+- [x] Other issues
+
+Admin tools:
+
+- [x] Report response system
+- [x] Status tracking
+- [x] Open / In Progress / Resolved workflow
+- [x] Member follow-up responses
+- [x] Member-side ticket closing
+- [x] Notification system
+
+---
+
+### Admin Features
+
+- [x] User management
+- [x] Trainer management
+- [x] Promote users to admin
+- [x] Delete accounts safely
+- [x] Prevent deletion of last admin
+- [x] Class catalog CRUD
+- [x] Equipment CRUD
+- [x] Report moderation
+- [x] System oversight dashboard
+
+---
 
 ### Security
-- [x] Password hashing (`password_hash()`).
-- [x] CSRF protection.
-- [x] SQL Injection prevention using PDO prepared statements.
-- [x] XSS mitigation using `htmlspecialchars()`.
-- [x] Session authentication.
-- [x] Role-based authorization.
-- [x] Automated backend sanity testing suite for API boundaries.
-- [x] Server-side data validation and sanitization for all input forms.
 
-### UX Improvements
-- [x] AJAX schedule filtering.
-- [x] AJAX equipment updates.
-- [x] Responsive layouts.
-- [x] Profile photo upload support.
+- [x] CSRF protection
+- [x] PDO prepared statements
+- [x] SQL Injection prevention
+- [x] XSS mitigation
+- [x] Session authentication
+- [x] Role authorization
+- [x] Input validation
+- [x] Backend API sanity tests
+
+---
+
+### UX Enhancements
+
+- [x] Responsive layouts
+- [x] AJAX filtering
+- [x] AJAX equipment updates
+- [x] Trainer avatars
+- [x] Dashboard redesign
+- [x] Billing experience
+- [x] Membership visualization improvements
+- [x] Weekly recurring class generation
 
 ---
 
 ## Membership Plans
 
-Available plans:
-
-- Starter
-- Pro
-- Elite
+| Plan | Monthly Price |
+|-------|---------------|
+| Starter | €30 |
+| Pro | €45 |
+| Elite | €70 |
 
 ---
 
@@ -128,9 +200,9 @@ password: password
 ### Demo Trainer
 
 ```
-username: sarah_j
+username: chloe_fit
 password: password
-``` 
+```
 
 All seeded accounts use:
 
@@ -140,17 +212,19 @@ password
 
 ---
 
+## Notes
+
+- Classes operate using a recurring weekly scheduling model.
+- Members can only review classes they have attended.
+- Billing functionality is simulated for academic demonstration purposes.
+- Equipment availability updates dynamically using AJAX.
+- Trainer and admin dashboards provide role-specific workflows.
+
+---
+
 ## Team
 
 Group ltw14g08
 
-- David Pinto — up202404233@up.pt
-- João Lage — up202406458@up.pt
-
----
-
-## Notes
-
-Members can only review classes they have actually attended.
-
-The system includes AJAX interactions, waitlist handling, trainer attendance tracking, issue reporting workflows and secure authentication mechanisms.
+- João Lage — up202406458
+- David Pinto — up202404233
