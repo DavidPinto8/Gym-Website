@@ -18,7 +18,7 @@
 .class-hero-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(to top, rgba(0,0,0,0.92), rgba(0,0,0,0.35));
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.92), rgba(0, 0, 0, 0.35));
 }
 
 .class-hero-content {
@@ -30,8 +30,10 @@
 
 .class-hero h1 {
     color: var(--white);
+    font-family: var(--font-heading);
     font-size: clamp(2.5rem, 8vw, 5rem);
     margin-bottom: 0.75rem;
+    text-transform: uppercase;
 }
 
 .class-hero p {
@@ -64,9 +66,9 @@
     color: var(--black);
     padding: 0.3rem 0.8rem;
     font-size: 0.75rem;
-    font-weight: 700;
+    font-weight: 800;
     text-transform: uppercase;
-    border-radius: 2px;
+    border-radius: var(--radius-pill);
     margin-bottom: 1rem;
     display: inline-block;
 }
@@ -90,6 +92,19 @@
     border-radius: var(--radius-md);
     padding: 2rem;
     box-shadow: var(--shadow-sm);
+    border: 1px solid rgba(10, 10, 10, 0.06);
+}
+
+.details-card h2,
+.booking-panel h2 {
+    font-family: var(--font-heading);
+    color: var(--black);
+    text-transform: uppercase;
+}
+
+.details-card p {
+    color: var(--text-muted);
+    line-height: 1.7;
 }
 
 .details-grid {
@@ -103,6 +118,7 @@
     background-color: var(--bg-light);
     border-radius: var(--radius-md);
     padding: 1rem;
+    border-left: 4px solid var(--gold);
 }
 
 .details-grid strong {
@@ -117,6 +133,71 @@
     font-weight: 700;
     color: var(--black);
 }
+
+/* Trainer Detail Card */
+
+.trainer-detail-card {
+    background:
+        linear-gradient(135deg, rgba(212, 175, 55, 0.14), transparent 36%),
+        var(--white);
+}
+
+.trainer-detail-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.trainer-detail-avatar {
+    width: 100%;
+    max-width: 240px;
+    height: 300px;
+    border-radius: var(--radius-md);
+    object-fit: cover;
+    object-position: center top;
+    border: 4px solid var(--gold);
+    box-shadow: 0 16px 34px rgba(0, 0, 0, 0.16);
+}
+
+.trainer-detail-kicker {
+    display: inline-block;
+    margin-bottom: 0.6rem;
+    color: var(--gold);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.trainer-detail-bio {
+    font-style: italic;
+}
+
+.trainer-specializations {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin-top: 1rem;
+}
+
+.trainer-specializations span {
+    display: inline-flex;
+    padding: 0.4rem 0.8rem;
+    border-radius: var(--radius-pill);
+    background-color: var(--black);
+    color: var(--gold);
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.trainer-certifications {
+    margin-top: 1rem;
+    margin-bottom: 0;
+}
+
+/* Reviews */
 
 .reviews-list {
     display: flex;
@@ -178,8 +259,11 @@
 .form-group select:focus,
 .form-group textarea:focus {
     border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.18);
     outline: none;
 }
+
+/* Booking Panel */
 
 .booking-panel {
     height: fit-content;
@@ -187,6 +271,12 @@
 
 .booking-panel h2 {
     margin-bottom: 1rem;
+}
+
+.booking-panel p strong {
+    color: var(--gold);
+    font-family: var(--font-heading);
+    font-size: 2rem;
 }
 
 .booking-status {
@@ -257,6 +347,12 @@
 .member-warning {
     color: #b45309;
     font-weight: 700;
+}
+
+@media (min-width: 760px) {
+    .trainer-detail-layout {
+        grid-template-columns: 240px 1fr;
+    }
 }
 
 @media (min-width: 900px) {

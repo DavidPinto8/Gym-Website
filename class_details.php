@@ -6,6 +6,7 @@ if (empty($_SESSION['csrf_token'])) {
 }
 
 require_once 'database/db.php';
+require_once 'includes/avatar.php';
 
 $db = getDatabaseConnection();
 
@@ -36,8 +37,10 @@ $stmt = $db->prepare("
     SELECT
         classes.*,
         users.name AS trainer_name,
+        users.photo AS trainer_photo,
         trainers.bio AS trainer_bio,
         trainers.specializations,
+        trainers.certifications,
 
         COUNT(
             DISTINCT CASE
@@ -143,6 +146,14 @@ if ($memberId) {
 
 $canReview = $memberId && $userAttended && $classAlreadyHappened;
 
+$trainerAvatar = getUserAvatar(
+    $class['trainer_name'] ?? 'Trainer',
+    $class['trainer_photo'] ?? null,
+    220
+);
+
+$specializations = array_filter(array_map('trim', explode(',', $class['specializations'] ?? '')));
+
 $pageTitle = htmlspecialchars($class['name']) . " | Flow Fitness";
 $currentPage = 'schedule';
 $extraCSS = 'class_details.css';
@@ -173,13 +184,13 @@ include 'templates/header.php';
         <div class="class-main">
             <?php if (isset($_GET['success'])): ?>
                 <div class="schedule-alert success-alert">
-                    <?php echo htmlspecialchars($_GET['success']); ?>
+                    <?php echo htmlspecialchars(str_replace('_', ' ', $_GET['success'])); ?>
                 </div>
             <?php endif; ?>
 
             <?php if (isset($_GET['error'])): ?>
                 <div class="schedule-alert error-alert">
-                    <?php echo htmlspecialchars($_GET['error']); ?>
+                    <?php echo htmlspecialchars(str_replace('_', ' ', $_GET['error'])); ?>
                 </div>
             <?php endif; ?>
 
@@ -218,6 +229,45 @@ include 'templates/header.php';
                                 No reviews yet
                             <?php endif; ?>
                         </span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="details-card trainer-detail-card">
+                <div class="trainer-detail-layout">
+                    <img
+                        src="<?php echo htmlspecialchars($trainerAvatar); ?>"
+                        alt="<?php echo htmlspecialchars($class['trainer_name'] ?? 'Trainer'); ?>"
+                        class="trainer-detail-avatar"
+                    >
+
+                    <div>
+                        <span class="trainer-detail-kicker">Your Trainer</span>
+
+                        <h2><?php echo htmlspecialchars($class['trainer_name'] ?? 'TBA'); ?></h2>
+
+                        <?php if (!empty($class['trainer_bio'])): ?>
+                            <p class="trainer-detail-bio">
+                                <?php echo htmlspecialchars($class['trainer_bio']); ?>
+                            </p>
+                        <?php endif; ?>
+
+                        <?php if (count($specializations) > 0): ?>
+                            <div class="trainer-specializations">
+                                <?php foreach ($specializations as $specialization): ?>
+                                    <span>
+                                        <?php echo htmlspecialchars($specialization); ?>
+                                    </span>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if (!empty($class['certifications'])): ?>
+                            <p class="trainer-certifications">
+                                <strong>Certifications:</strong>
+                                <?php echo htmlspecialchars($class['certifications']); ?>
+                            </p>
+                        <?php endif; ?>
                     </div>
                 </div>
             </article>
