@@ -1,123 +1,174 @@
-<?php 
-    session_start();
-    require_once 'database/db.php';
-    require_once 'includes/avatar.php';
-    
-    $db = getDatabaseConnection();
+<?php
+session_start();
 
-    $stmt = $db->query("
-        SELECT trainers.id AS trainer_id, users.name, users.photo, trainers.bio, trainers.specializations, trainers.certifications 
-        FROM trainers 
-        JOIN users ON trainers.user_id = users.id
-    ");
-    $trainers = $stmt->fetchAll();
+require_once 'database/db.php';
+require_once 'includes/avatar.php';
 
-    $pageTitle = "Our Team | Flow Fitness";
-    $currentPage = 'trainers';
-    $extraCSS = 'trainers.css';
-    include 'templates/header.php';
+$db = getDatabaseConnection();
+
+$stmt = $db->query("
+    SELECT
+        trainers.id AS trainer_id,
+        users.name,
+        users.photo,
+        trainers.bio,
+        trainers.specializations,
+        trainers.certifications
+    FROM trainers
+    JOIN users ON trainers.user_id = users.id
+");
+
+$trainers = $stmt->fetchAll();
+
+$pageTitle = "Our Team | Flow Fitness";
+$currentPage = 'trainers';
+$extraCSS = 'trainers.css';
+
+include 'templates/header.php';
 ?>
 
 <main class="bg-light trainers-page">
     <div class="container">
-        <div class="section-header text-center">
-            <h1 class="trainers-title">Meet Our Experts</h1>
-            <p class="text-muted">Click on a coach to view their full profile and classes.</p>
-        </div>
+        <section class="trainers-hero text-center">
+            <span class="section-kicker">Flow Fitness Team</span>
 
-        <div class="trainers-grid">
+            <h1 class="trainers-title">Meet Our Experts</h1>
+
+            <p class="trainers-subtitle">
+                Elite coaches, real experience, and classes built to keep you moving forward.
+            </p>
+        </section>
+
+        <section class="trainers-grid" aria-label="Trainer profiles">
             <?php if (count($trainers) > 0): ?>
-                <?php foreach ($trainers as $trainer): 
+                <?php foreach ($trainers as $trainer):
                     $photoUrl = getUserAvatar(
                         $trainer['name'],
                         $trainer['photo'] ?? null,
                         200
                     );
 
-                    $specs = explode(',', $trainer['specializations']);
+                    $specs = array_filter(array_map('trim', explode(',', $trainer['specializations'])));
                     $mainSpec = $specs[0] ?? 'Fitness Expert';
+
+                    $stmt_classes = $db->prepare("
+                        SELECT DISTINCT name
+                        FROM classes
+                        WHERE trainer_id = ?
+                        ORDER BY name
+                    ");
+                    $stmt_classes->execute([$trainer['trainer_id']]);
+                    $classes_taught = $stmt_classes->fetchAll();
+
+                    $modalId = 'trainer-modal-' . $trainer['trainer_id'];
                 ?>
-                    <article class="card text-center trainer-mini-card" onclick="openTrainerModal('modal-<?php echo $trainer['trainer_id']; ?>')">
-                        <img 
-                            src="<?php echo $photoUrl; ?>" 
-                            alt="<?php echo htmlspecialchars($trainer['name']); ?>" 
-                            class="trainer-avatar"
+                    <article class="trainer-card">
+                        <button
+                            type="button"
+                            class="trainer-card-button js-open-trainer-modal"
+                            data-modal-target="<?php echo $modalId; ?>"
+                            aria-haspopup="dialog"
+                            aria-controls="<?php echo $modalId; ?>"
                         >
-
-                        <h3 class="trainer-name">
-                            <?php echo htmlspecialchars($trainer['name']); ?>
-                        </h3>
-
-                        <span class="trainer-specialization">
-                            <?php echo htmlspecialchars(trim($mainSpec)); ?>
-                        </span>
-                    </article>
-
-                    <div 
-                        id="modal-<?php echo $trainer['trainer_id']; ?>" 
-                        class="trainer-modal-overlay" 
-                        onclick="closeTrainerModal(event, this)"
-                    >
-                        <div class="trainer-modal-content card">
-                            <span 
-                                class="close-modal" 
-                                onclick="forceCloseModal('modal-<?php echo $trainer['trainer_id']; ?>')"
-                            >
-                                &times;
+                            <span class="trainer-image-wrapper">
+                                <img
+                                    src="<?php echo $photoUrl; ?>"
+                                    alt="<?php echo htmlspecialchars($trainer['name']); ?>"
+                                    class="trainer-avatar"
+                                >
                             </span>
 
+                            <span class="trainer-card-body">
+                                <span class="trainer-name">
+                                    <?php echo htmlspecialchars($trainer['name']); ?>
+                                </span>
+
+                                <span class="trainer-specialization">
+                                    <?php echo htmlspecialchars($mainSpec); ?>
+                                </span>
+
+                                <span class="trainer-card-cta">
+                                    View profile
+                                </span>
+                            </span>
+                        </button>
+                    </article>
+
+                    <div
+                        id="<?php echo $modalId; ?>"
+                        class="trainer-modal-overlay"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="<?php echo $modalId; ?>-title"
+                        hidden
+                    >
+                        <div class="trainer-modal-content">
+                            <button
+                                type="button"
+                                class="close-modal js-close-trainer-modal"
+                                aria-label="Close trainer profile"
+                            >
+                                &times;
+                            </button>
+
                             <div class="trainer-modal-header">
-                                <img 
-                                    src="<?php echo $photoUrl; ?>" 
-                                    alt="<?php echo htmlspecialchars($trainer['name']); ?>" 
+                                <img
+                                    src="<?php echo $photoUrl; ?>"
+                                    alt="<?php echo htmlspecialchars($trainer['name']); ?>"
                                     class="trainer-modal-avatar"
                                 >
 
-                                <h2 class="trainer-modal-name">
+                                <span class="trainer-modal-role">
+                                    <?php echo htmlspecialchars($mainSpec); ?>
+                                </span>
+
+                                <h2
+                                    id="<?php echo $modalId; ?>-title"
+                                    class="trainer-modal-name"
+                                >
                                     <?php echo htmlspecialchars($trainer['name']); ?>
                                 </h2>
 
-                                <p class="text-muted trainer-bio">
-                                    "<?php echo htmlspecialchars($trainer['bio']); ?>"
+                                <p class="trainer-bio">
+                                    “<?php echo htmlspecialchars($trainer['bio']); ?>”
                                 </p>
                             </div>
 
-                            <div class="specializations-list">
-                                <?php foreach ($specs as $spec): ?>
-                                    <span class="specialization-tag">
-                                        <?php echo htmlspecialchars(trim($spec)); ?>
-                                    </span>
-                                <?php endforeach; ?>
-                            </div>
+                            <?php if (count($specs) > 0): ?>
+                                <div class="specializations-list">
+                                    <?php foreach ($specs as $spec): ?>
+                                        <span class="specialization-tag">
+                                            <?php echo htmlspecialchars($spec); ?>
+                                        </span>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
 
-                            <div class="certifications-box">
-                                <h4 class="modal-section-title">Certifications</h4>
+                            <section class="trainer-info-box">
+                                <h3 class="modal-section-title">Certifications</h3>
+
                                 <p class="certifications-text">
                                     <?php echo htmlspecialchars($trainer['certifications']); ?>
                                 </p>
-                            </div>
+                            </section>
 
-                            <?php
-                                $stmt_classes = $db->prepare("SELECT DISTINCT name FROM classes WHERE trainer_id = ?");
-                                $stmt_classes->execute([$trainer['trainer_id']]);
-                                $classes_taught = $stmt_classes->fetchAll();
-                            ?>
-
-                            <div class="classes-section">
-                                <h4 class="modal-section-title">Classes Taught</h4>
+                            <section class="trainer-info-box">
+                                <h3 class="modal-section-title">Classes Taught</h3>
 
                                 <?php if (count($classes_taught) > 0): ?>
-                                    <div class="classes-grid">
+                                    <div class="trainer-classes-grid">
                                         <?php foreach ($classes_taught as $class): ?>
-                                            <div class="class-item">
+                                            <span class="class-item">
                                                 <?php echo htmlspecialchars($class['name']); ?>
-                                            </div>
+                                            </span>
                                         <?php endforeach; ?>
                                     </div>
                                 <?php else: ?>
-                                    <p class="no-classes">No classes currently scheduled.</p>
+                                    <p class="no-classes">
+                                        No classes currently scheduled.
+                                    </p>
                                 <?php endif; ?>
-                            </div>
+                            </section>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -126,27 +177,10 @@
                     We are currently recruiting new talent. Check back soon!
                 </p>
             <?php endif; ?>
-        </div>
+        </section>
     </div>
 </main>
 
-<script>
-    function openTrainerModal(modalId) {
-        document.getElementById(modalId).classList.add('active');
-        document.body.style.overflow = 'hidden'; 
-    }
-
-    function forceCloseModal(modalId) {
-        document.getElementById(modalId).classList.remove('active');
-        document.body.style.overflow = 'auto'; 
-    }
-
-    function closeTrainerModal(event, modalElement) {
-        if (event.target === modalElement) {
-            modalElement.classList.remove('active');
-            document.body.style.overflow = 'auto';
-        }
-    }
-</script>
+<script src="js/trainers.js"></script>
 
 <?php include 'templates/footer.php'; ?>
