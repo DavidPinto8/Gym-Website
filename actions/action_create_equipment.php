@@ -1,30 +1,18 @@
 <?php
+
 session_start();
 
-require_once '../database/db.php';
+require_once __DIR__ . '/../database/db.php';
+require_once __DIR__ . '/../includes/action_helpers.php';
 
-if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
-    header('Location: ../login.php');
-    exit();
-}
-
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: ../admin.php?error=invalid_request');
-    exit();
-}
-
-if (
-    empty($_POST['csrf_token']) ||
-    empty($_SESSION['csrf_token']) ||
-    !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
-) {
-    header('Location: ../admin.php?error=invalid_csrf');
-    exit();
-}
+require_post_request('../admin.php');
+require_user_role('admin');
+require_valid_csrf_token('../admin.php');
 
 $name = trim($_POST['name'] ?? '');
 $type = trim($_POST['type'] ?? '');
 $location = trim($_POST['location'] ?? '');
+
 $totalUnits = filter_input(INPUT_POST, 'total_units', FILTER_VALIDATE_INT);
 $availableUnits = filter_input(INPUT_POST, 'available_units', FILTER_VALIDATE_INT);
 
@@ -32,14 +20,17 @@ if (
     $name === '' ||
     $type === '' ||
     $location === '' ||
-    !$totalUnits ||
+    $totalUnits === false ||
+    $totalUnits === null ||
     $totalUnits < 1 ||
     $availableUnits === false ||
+    $availableUnits === null ||
     $availableUnits < 0 ||
     $availableUnits > $totalUnits
 ) {
-    header('Location: ../admin.php?error=invalid_equipment_input');
-    exit();
+    action_redirect('../admin.php', [
+        'error' => 'invalid_equipment_input'
+    ]);
 }
 
 $db = getDatabaseConnection();
@@ -64,9 +55,11 @@ try {
         $availableUnits
     ]);
 
-    header('Location: ../admin.php?success=equipment_created');
-    exit();
-} catch (Exception $e) {
-    header('Location: ../admin.php?error=create_equipment_failed');
-    exit();
+    action_redirect('../admin.php', [
+        'success' => 'equipment_created'
+    ]);
+} catch (Throwable $exception) {
+    action_redirect('../admin.php', [
+        'error' => 'create_equipment_failed'
+    ]);
 }

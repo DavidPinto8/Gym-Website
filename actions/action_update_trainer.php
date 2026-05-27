@@ -1,52 +1,59 @@
 <?php
+
 session_start();
-require_once '../database/db.php';
 
-// Security: Must be logged in as a trainer
-if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'trainer') {
-    header('Location: ../login.php');
-    exit();
-}
+require_once __DIR__ . '/../database/db.php';
+require_once __DIR__ . '/../includes/action_helpers.php';
 
-// Security: Must be a POST request
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: ../trainer_dashboard.php');
-    exit();
-}
+require_post_request('../trainer_dashboard.php');
+require_user_role('trainer');
+require_valid_csrf_token('../trainer_dashboard.php');
 
-// Security: CSRF Protection
-if (!isset($_POST['csrf']) || $_POST['csrf'] !== $_SESSION['csrf']) {
-    header('Location: ../trainer_dashboard.php?error=Security_token_invalid#trainer-profile');
-    exit();
-}
-
-$userId = $_SESSION['user_id'];
 $bio = trim($_POST['bio'] ?? '');
 $specializations = trim($_POST['specializations'] ?? '');
 $certifications = trim($_POST['certifications'] ?? '');
 
-// Validation
-if ($bio === '' || $specializations === '' || $certifications === '') {
-    header('Location: ../trainer_dashboard.php?error=All_fields_are_required#trainer-profile');
-    exit();
+if (
+    $bio === '' ||
+    $specializations === '' ||
+    $certifications === ''
+) {
+    action_redirect('../trainer_dashboard.php?error=All_fields_are_required#trainer-profile');
 }
 
 $db = getDatabaseConnection();
 
 try {
-    // Update the trainer's profile based on their user_id
-    $stmt = $db->prepare('
-        UPDATE trainers 
-        SET bio = ?, specializations = ?, certifications = ? 
+    $stmt = $db->prepare("
+        UPDATE trainers
+        SET bio = ?,
+            specializations = ?,
+            certifications = ?
         WHERE user_id = ?
-    ');
-    
-    $stmt->execute([$bio, $specializations, $certifications, $userId]);
+    ");
 
-    header('Location: ../trainer_dashboard.php?success=Profile_updated_successfully#trainer-profile');
-    exit();
+    $stmt->execute([
+        $bio,
+        $specializations,
+        $certifications,
+        $_SESSION['user_id']
+    ]);
 
-} catch (Exception $e) {
-    header('Location: ../trainer_dashboard.php?error=Database_error_occurred#trainer-profile');
-    exit();
+    if ($stmt->rowCount() === 0) {
+        $stmt = $db->prepare("
+            SELECT id
+            FROM trainers
+            WHERE user_id = ?
+        ");
+
+        $stmt->execute([$_SESSION['user_id']]);
+
+        if (!$stmt->fetch()) {
+            action_redirect('../trainer_dashboard.php?error=Trainer_profile_not_found#trainer-profile');
+        }
+    }
+
+    action_redirect('../trainer_dashboard.php?success=Profile_updated_successfully#trainer-profile');
+} catch (Throwable $exception) {
+    action_redirect('../trainer_dashboard.php?error=Database_error_occurred#trainer-profile');
 }

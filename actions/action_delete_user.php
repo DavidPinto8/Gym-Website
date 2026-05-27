@@ -1,61 +1,87 @@
 <?php
+
 session_start();
-require_once '../database/db.php';
 
-if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
-    header('Location: ../login.php');
-    exit();
-}
+require_once __DIR__ . '/../database/db.php';
+require_once __DIR__ . '/../includes/action_helpers.php';
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: ../admin.php?error=Invalid request.');
-    exit();
-}
-
-if (
-    empty($_POST['csrf_token']) ||
-    empty($_SESSION['csrf_token']) ||
-    !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
-) {
-    header('Location: ../admin.php?error=Invalid security token.');
-    exit();
-}
+require_post_request('../admin.php');
+require_user_role('admin');
+require_valid_csrf_token('../admin.php');
 
 $userId = filter_input(INPUT_POST, 'user_id', FILTER_VALIDATE_INT);
 
-if (!$userId) {
-    header('Location: ../admin.php?error=Invalid user.');
-    exit();
+if ($userId === false || $userId === null || $userId <= 0) {
+    action_redirect('../admin.php', [
+        'error' => 'Invalid user.'
+    ]);
 }
 
-if ($userId === (int)$_SESSION['user_id']) {
-    header('Location: ../admin.php?error=You cannot delete your own account.');
-    exit();
+if ($userId === (int) $_SESSION['user_id']) {
+    action_redirect('../admin.php', [
+        'error' => 'You cannot delete your own account.'
+    ]);
 }
 
 $db = getDatabaseConnection();
 
-$stmt = $db->prepare("SELECT role FROM users WHERE id = ?");
-$stmt->execute([$userId]);
-$user = $stmt->fetch();
+try {
+    $db->beginTransaction();
 
-if (!$user) {
-    header('Location: ../admin.php?error=User not found.');
-    exit();
-}
+    $stmt = $db->prepare("
+        SELECT role
+        FROM users
+        WHERE id = ?
+    ");
 
-if ($user['role'] === 'admin') {
-    $stmt = $db->query("SELECT COUNT(*) FROM users WHERE role = 'admin'");
-    $adminCount = (int)$stmt->fetchColumn();
+    $stmt->execute([$userId]);
 
-    if ($adminCount <= 1) {
-        header('Location: ../admin.php?error=You cannot delete the last admin.');
-        exit();
+    $user = $stmt->fetch();
+
+    if (!$user) {
+        $db->rollBack();
+
+        action_redirect('../admin.php', [
+            'error' => 'User not found.'
+        ]);
     }
+
+    if ($user['role'] === 'admin') {
+        $stmt = $db->query("
+            SELECT COUNT(*)
+            FROM users
+            WHERE role = 'admin'
+        ");
+
+        $adminCount = (int) $stmt->fetchColumn();
+
+        if ($adminCount <= 1) {
+            $db->rollBack();
+
+            action_redirect('../admin.php', [
+                'error' => 'You cannot delete the last admin.'
+            ]);
+        }
+    }
+
+    $stmt = $db->prepare("
+        DELETE FROM users
+        WHERE id = ?
+    ");
+
+    $stmt->execute([$userId]);
+
+    $db->commit();
+
+    action_redirect('../admin.php', [
+        'success' => 'User deleted successfully.'
+    ]);
+} catch (Throwable $exception) {
+    if ($db->inTransaction()) {
+        $db->rollBack();
+    }
+
+    action_redirect('../admin.php', [
+        'error' => 'Failed to delete user.'
+    ]);
 }
-
-$stmt = $db->prepare("DELETE FROM users WHERE id = ?");
-$stmt->execute([$userId]);
-
-header('Location: ../admin.php?success=User deleted successfully.');
-exit();

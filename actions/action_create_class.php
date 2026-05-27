@@ -1,72 +1,93 @@
 <?php
+
 session_start();
 
-require_once '../database/db.php';
+require_once __DIR__ . '/../database/db.php';
+require_once __DIR__ . '/../includes/action_helpers.php';
 
-if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
-    header('Location: ../login.php');
-    exit();
-}
-
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: ../admin.php?error=invalid_request');
-    exit();
-}
-
-if (
-    empty($_POST['csrf_token']) ||
-    empty($_SESSION['csrf_token']) ||
-    !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
-) {
-    header('Location: ../admin.php?error=invalid_csrf');
-    exit();
-}
+require_post_request('../admin.php');
+require_user_role('admin');
+require_valid_csrf_token('../admin.php');
 
 $name = trim($_POST['name'] ?? '');
 $type = trim($_POST['type'] ?? '');
-$trainerId = filter_input(INPUT_POST, 'trainer_id', FILTER_VALIDATE_INT);
 $capacity = filter_input(INPUT_POST, 'capacity', FILTER_VALIDATE_INT);
 $durationMin = filter_input(INPUT_POST, 'duration_min', FILTER_VALIDATE_INT);
 $startTime = trim($_POST['start_time'] ?? '');
 $location = trim($_POST['location'] ?? '');
 
+$trainerIdInput = trim($_POST['trainer_id'] ?? '');
+$trainerId = null;
+
 $validTypes = ['yoga', 'hiit', 'strength', 'cardio', 'other'];
+
+if ($trainerIdInput !== '') {
+    $validatedTrainerId = filter_var($trainerIdInput, FILTER_VALIDATE_INT);
+
+    if ($validatedTrainerId === false || $validatedTrainerId <= 0) {
+        action_redirect('../admin.php', [
+            'error' => 'invalid_class_input'
+        ]);
+    }
+
+    $trainerId = $validatedTrainerId;
+}
 
 if (
     $name === '' ||
     !in_array($type, $validTypes, true) ||
-    !$capacity ||
+    $capacity === false ||
+    $capacity === null ||
     $capacity < 1 ||
-    !$durationMin ||
+    $durationMin === false ||
+    $durationMin === null ||
     $durationMin < 15 ||
     $startTime === '' ||
     $location === ''
 ) {
-    header('Location: ../admin.php?error=invalid_class_input');
-    exit();
+    action_redirect('../admin.php', [
+        'error' => 'invalid_class_input'
+    ]);
 }
 
-$timestamp = strtotime($startTime);
+$date = DateTime::createFromFormat('Y-m-d\TH:i', $startTime);
 
-if ($timestamp === false) {
-    header('Location: ../admin.php?error=invalid_class_date');
-    exit();
+if (!$date || $date->format('Y-m-d\TH:i') !== $startTime) {
+    $date = DateTime::createFromFormat('Y-m-d\TH:i:s', $startTime);
 }
 
-$formattedStartTime = date('Y-m-d\TH:i:s', $timestamp);
+if (
+    !$date ||
+    !in_array(
+        $date->format(strlen($startTime) === 16 ? 'Y-m-d\TH:i' : 'Y-m-d\TH:i:s'),
+        [$startTime],
+        true
+    )
+) {
+    action_redirect('../admin.php', [
+        'error' => 'invalid_class_date'
+    ]);
+}
+
+$formattedStartTime = $date->format('Y-m-d\TH:i:s');
+
 $db = getDatabaseConnection();
 
 try {
-    if ($trainerId) {
-        $stmt = $db->prepare("SELECT id FROM trainers WHERE id = ?");
+    if ($trainerId !== null) {
+        $stmt = $db->prepare("
+            SELECT id
+            FROM trainers
+            WHERE id = ?
+        ");
+
         $stmt->execute([$trainerId]);
 
         if (!$stmt->fetch()) {
-            header('Location: ../admin.php?error=trainer_not_found');
-            exit();
+            action_redirect('../admin.php', [
+                'error' => 'trainer_not_found'
+            ]);
         }
-    } else {
-        $trainerId = null;
     }
 
     $stmt = $db->prepare("
@@ -92,9 +113,11 @@ try {
         $location
     ]);
 
-    header('Location: ../admin.php?success=class_created');
-    exit();
-} catch (Exception $e) {
-    header('Location: ../admin.php?error=create_class_failed');
-    exit();
+    action_redirect('../admin.php', [
+        'success' => 'class_created'
+    ]);
+} catch (Throwable $exception) {
+    action_redirect('../admin.php', [
+        'error' => 'create_class_failed'
+    ]);
 }

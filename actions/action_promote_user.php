@@ -1,56 +1,66 @@
 <?php
+
 session_start();
-require_once '../database/db.php';
 
-if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
-    header('Location: ../login.php');
-    exit();
-}
+require_once __DIR__ . '/../database/db.php';
+require_once __DIR__ . '/../includes/action_helpers.php';
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: ../admin.php?error=Invalid request.');
-    exit();
-}
-
-if (
-    empty($_POST['csrf_token']) ||
-    empty($_SESSION['csrf_token']) ||
-    !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
-) {
-    header('Location: ../admin.php?error=Invalid security token.');
-    exit();
-}
+require_post_request('../admin.php');
+require_user_role('admin');
+require_valid_csrf_token('../admin.php');
 
 $userId = filter_input(INPUT_POST, 'user_id', FILTER_VALIDATE_INT);
 
-if (!$userId) {
-    header('Location: ../admin.php?error=Invalid user.');
-    exit();
+if ($userId === false || $userId === null || $userId <= 0) {
+    action_redirect('../admin.php', [
+        'error' => 'Invalid user.'
+    ]);
 }
 
-if ($userId === (int)$_SESSION['user_id']) {
-    header('Location: ../admin.php?error=You are already an admin.');
-    exit();
+if ($userId === (int) $_SESSION['user_id']) {
+    action_redirect('../admin.php', [
+        'error' => 'You are already an admin.'
+    ]);
 }
 
 $db = getDatabaseConnection();
 
-$stmt = $db->prepare("SELECT role FROM users WHERE id = ?");
-$stmt->execute([$userId]);
-$user = $stmt->fetch();
+try {
+    $stmt = $db->prepare("
+        SELECT role
+        FROM users
+        WHERE id = ?
+    ");
 
-if (!$user) {
-    header('Location: ../admin.php?error=User not found.');
-    exit();
+    $stmt->execute([$userId]);
+
+    $user = $stmt->fetch();
+
+    if (!$user) {
+        action_redirect('../admin.php', [
+            'error' => 'User not found.'
+        ]);
+    }
+
+    if ($user['role'] === 'admin') {
+        action_redirect('../admin.php', [
+            'error' => 'User is already an admin.'
+        ]);
+    }
+
+    $stmt = $db->prepare("
+        UPDATE users
+        SET role = 'admin'
+        WHERE id = ?
+    ");
+
+    $stmt->execute([$userId]);
+
+    action_redirect('../admin.php', [
+        'success' => 'User promoted to admin.'
+    ]);
+} catch (Throwable $exception) {
+    action_redirect('../admin.php', [
+        'error' => 'Failed to promote user.'
+    ]);
 }
-
-if ($user['role'] === 'admin') {
-    header('Location: ../admin.php?error=User is already an admin.');
-    exit();
-}
-
-$stmt = $db->prepare("UPDATE users SET role = 'admin' WHERE id = ?");
-$stmt->execute([$userId]);
-
-header('Location: ../admin.php?success=User promoted to admin.');
-exit();

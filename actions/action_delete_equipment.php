@@ -1,51 +1,51 @@
 <?php
+
 session_start();
 
-require_once '../database/db.php';
+require_once __DIR__ . '/../database/db.php';
+require_once __DIR__ . '/../includes/action_helpers.php';
 
-if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
-    header('Location: ../login.php');
-    exit();
-}
-
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: ../admin.php?error=invalid_request');
-    exit();
-}
-
-if (
-    empty($_POST['csrf_token']) ||
-    empty($_SESSION['csrf_token']) ||
-    !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
-) {
-    header('Location: ../admin.php?error=invalid_csrf');
-    exit();
-}
+require_post_request('../admin.php');
+require_user_role('admin');
+require_valid_csrf_token('../admin.php');
 
 $equipmentId = filter_input(INPUT_POST, 'equipment_id', FILTER_VALIDATE_INT);
 
-if (!$equipmentId) {
-    header('Location: ../admin.php?error=invalid_equipment');
-    exit();
+if ($equipmentId === false || $equipmentId === null || $equipmentId <= 0) {
+    action_redirect('../admin.php', [
+        'error' => 'invalid_equipment'
+    ]);
 }
 
 $db = getDatabaseConnection();
 
 try {
-    $stmt = $db->prepare("SELECT id FROM equipment WHERE id = ?");
+    $stmt = $db->prepare("
+        SELECT id
+        FROM equipment
+        WHERE id = ?
+    ");
+
     $stmt->execute([$equipmentId]);
 
     if (!$stmt->fetch()) {
-        header('Location: ../admin.php?error=equipment_not_found');
-        exit();
+        action_redirect('../admin.php', [
+            'error' => 'equipment_not_found'
+        ]);
     }
 
-    $stmt = $db->prepare("DELETE FROM equipment WHERE id = ?");
+    $stmt = $db->prepare("
+        DELETE FROM equipment
+        WHERE id = ?
+    ");
+
     $stmt->execute([$equipmentId]);
 
-    header('Location: ../admin.php?success=equipment_deleted');
-    exit();
-} catch (Exception $e) {
-    header('Location: ../admin.php?error=delete_equipment_failed');
-    exit();
+    action_redirect('../admin.php', [
+        'success' => 'equipment_deleted'
+    ]);
+} catch (Throwable $exception) {
+    action_redirect('../admin.php', [
+        'error' => 'delete_equipment_failed'
+    ]);
 }
