@@ -117,19 +117,11 @@
                             </span>
                         </a>
                     <?php else: ?>
-                        <a
-                            href="login.php"
-                            class="btn-outline"
-                            style="color: var(--white); border-color: var(--white); margin-right: 1rem;"
-                        >
+                        <a href="login.php" class="btn-outline header-login-btn">
                             Log In
                         </a>
 
-                        <a
-                            href="register.php"
-                            class="btn-primary"
-                            style="padding: 0.5rem 1rem;"
-                        >
+                        <a href="register.php" class="btn-primary header-register-btn">
                             Join Now
                         </a>
                     <?php endif; ?>

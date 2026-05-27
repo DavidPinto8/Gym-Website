@@ -304,11 +304,13 @@ include 'templates/header.php';
     </div>
 </main>
 
-<script>
-    const isLoggedIn = <?php echo isset($_SESSION['user_id']) ? 'true' : 'false'; ?>;
-    const userRole = "<?php echo htmlspecialchars($_SESSION['role'] ?? ''); ?>";
-    const csrfToken = "<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>";
-</script>
+<div
+    id="schedule-config"
+    data-is-logged-in="<?php echo isset($_SESSION['user_id']) ? 'true' : 'false'; ?>"
+    data-user-role="<?php echo htmlspecialchars($_SESSION['role'] ?? ''); ?>"
+    data-csrf-token="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>"
+    hidden
+></div>
 
 <script src="js/schedule.js"></script>
 

@@ -1,3 +1,9 @@
+const config = document.getElementById('schedule-config');
+
+const isLoggedIn = config?.dataset.isLoggedIn === 'true';
+const userRole = config?.dataset.userRole || '';
+const csrfToken = config?.dataset.csrfToken || '';
+
 document.addEventListener('DOMContentLoaded', () => {
     loadClasses();
 

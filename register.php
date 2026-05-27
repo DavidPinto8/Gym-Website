@@ -26,7 +26,7 @@ include 'templates/header.php';
         <p class="auth-subtitle text-center text-muted">Start your journey today.</p>
 
         <?php if ($errorMessage): ?>
-            <p class="form-error text-center" style="color: #ef4444; margin-bottom: 1rem; font-weight: 600;">
+            <p class="form-error text-center auth-error-message auth-error-message-strong">
                 <?php
                     if ($errorMessage === 'user_exists') {
                         echo 'Username or Email already taken.';

@@ -256,6 +256,16 @@
     font-weight: 600; 
 }
 
+.header-login-btn {
+    color: var(--white);
+    border-color: var(--white);
+    margin-right: 1rem;
+}
+
+.header-register-btn {
+    padding: 0.5rem 1rem;
+}
+
 /* Desktop Overrides */
 @media (min-width: 768px) {
     .nav-toggle {

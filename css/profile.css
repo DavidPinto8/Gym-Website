@@ -129,6 +129,15 @@
     border: 1px solid #feb2b2;
 }
 
+.auth-error-message {
+    color: #ef4444;
+    margin-bottom: 1rem;
+}
+
+.auth-error-message-strong {
+    font-weight: 600;
+}
+
 /* --- Stats Grid --- */
 .stats-grid {
     display: grid;
