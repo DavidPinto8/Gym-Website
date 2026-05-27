@@ -6,6 +6,7 @@ if (empty($_SESSION['csrf_token'])) {
 }
 
 require_once 'database/db.php';
+require_once 'includes/avatar.php';
 
 $db = getDatabaseConnection();
 
@@ -25,15 +26,26 @@ if (isset($_SESSION['user_id'])) {
     }
 }
 
+$stmtTrainers = $db->query("
+    SELECT
+        trainers.id,
+        users.name
+    FROM trainers
+    JOIN users ON trainers.user_id = users.id
+    ORDER BY users.name ASC
+");
+$trainers = $stmtTrainers->fetchAll();
+
 $stmt = $db->prepare("
     SELECT
         classes.*,
         users.name AS trainer_name,
+        users.photo AS trainer_photo,
 
         COUNT(
-            CASE
+            DISTINCT CASE
                 WHEN enrollments.status = 'enrolled'
-                THEN 1
+                THEN enrollments.id
             END
         ) AS enrolled_count,
 
@@ -57,7 +69,10 @@ $stmt = $db->prepare("
                     AND e3.status = 'waitlist'
                   LIMIT 1
               )
-        ) AS waitlist_position
+        ) AS waitlist_position,
+
+        ROUND(AVG(reviews.rating), 1) AS average_rating,
+        COUNT(DISTINCT reviews.id) AS review_count
 
     FROM classes
 
@@ -69,6 +84,9 @@ $stmt = $db->prepare("
 
     LEFT JOIN enrollments
         ON classes.id = enrollments.class_id
+
+    LEFT JOIN reviews
+        ON classes.id = reviews.class_id
 
     GROUP BY classes.id
 
@@ -86,12 +104,13 @@ $pageTitle = "Classes | Flow Fitness";
 $currentPage = 'schedule';
 $extraCSS = 'schedule.css';
 
-include 'templates/header.php'; 
+include 'templates/header.php';
 ?>
 
 <main class="schedule-page">
     <div class="container schedule-layout">
         <aside class="filters">
+            <span class="filters-eyebrow">Training Planner</span>
             <h2 class="filters-title">Filter Classes</h2>
 
             <form class="filter-form">
@@ -105,6 +124,20 @@ include 'templates/header.php';
                         <option value="strength">Strength</option>
                         <option value="cardio">Cardio</option>
                         <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="trainer-select">Trainer</label>
+
+                    <select id="trainer-select">
+                        <option value="all">All Trainers</option>
+
+                        <?php foreach ($trainers as $trainer): ?>
+                            <option value="<?php echo htmlspecialchars($trainer['id']); ?>">
+                                <?php echo htmlspecialchars($trainer['name']); ?>
+                            </option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
 
@@ -131,19 +164,20 @@ include 'templates/header.php';
 
         <section class="classes-section">
             <div class="section-header">
+                <span class="section-kicker">Flow Classes</span>
                 <h2>Class Schedule</h2>
-                <p>High Performance Training</p>
+                <p>High performance sessions led by specialized trainers.</p>
             </div>
 
             <?php if (isset($_GET['success'])): ?>
                 <div class="schedule-alert success-alert">
-                    <?php echo htmlspecialchars($_GET['success']); ?>
+                    <?php echo htmlspecialchars(str_replace('_', ' ', $_GET['success'])); ?>
                 </div>
             <?php endif; ?>
 
             <?php if (isset($_GET['error'])): ?>
                 <div class="schedule-alert error-alert">
-                    <?php echo htmlspecialchars($_GET['error']); ?>
+                    <?php echo htmlspecialchars(str_replace('_', ' ', $_GET['error'])); ?>
                 </div>
             <?php endif; ?>
 
@@ -157,11 +191,16 @@ include 'templates/header.php';
                             $spotsLeft = (int)$class['capacity'] - (int)$class['enrolled_count'];
                             $isFull = $spotsLeft <= 0;
                             $bookingStatus = $class['user_booking_status'];
+                            $trainerAvatar = getUserAvatar(
+                                $class['trainer_name'] ?? 'Trainer',
+                                $class['trainer_photo'] ?? null,
+                                96
+                            );
                         ?>
 
-                        <article 
+                        <article
                             class="class-card <?php echo htmlspecialchars($class['type']); ?> <?php echo $bookingStatus === 'enrolled' ? 'enrolled' : ($bookingStatus === 'waitlist' ? 'waitlisted' : ''); ?>"
-                            data-type="<?php echo htmlspecialchars($class['type']); ?>" 
+                            data-type="<?php echo htmlspecialchars($class['type']); ?>"
                             data-day="<?php echo strtolower($dayOfWeek); ?>"
                         >
                             <div class="card-overlay"></div>
@@ -179,13 +218,31 @@ include 'templates/header.php';
                                     <?php echo htmlspecialchars($dayOfWeek . ' • ' . $timeFormatted); ?>
                                 </p>
 
-                                <p class="class-trainer">
-                                    Trainer: <?php echo htmlspecialchars($class['trainer_name'] ?? 'TBA'); ?>
-                                </p>
+                                <div class="class-trainer-card">
+                                    <img
+                                        src="<?php echo htmlspecialchars($trainerAvatar); ?>"
+                                        alt="<?php echo htmlspecialchars($class['trainer_name'] ?? 'Trainer'); ?>"
+                                    >
+
+                                    <span>
+                                        <small>Trainer</small>
+                                        <?php echo htmlspecialchars($class['trainer_name'] ?? 'TBA'); ?>
+                                    </span>
+                                </div>
 
                                 <p class="class-capacity">
                                     <?php echo htmlspecialchars($class['enrolled_count']); ?>/<?php echo htmlspecialchars($class['capacity']); ?> spots booked
                                 </p>
+
+                                <?php if ((int)$class['review_count'] > 0): ?>
+                                    <p class="class-rating">
+                                        ★ <?php echo htmlspecialchars(number_format((float)$class['average_rating'], 1)); ?>
+                                        (<?php echo htmlspecialchars($class['review_count']); ?> reviews)
+                                    </p>
+                                <?php else: ?>
+                                    <p class="class-rating">No reviews yet</p>
+                                <?php endif; ?>
+
                                 <a href="class_details.php?id=<?php echo htmlspecialchars($class['id']); ?>" class="btn-outline btn-block details-btn">
                                     View Details
                                 </a>
@@ -238,18 +295,22 @@ include 'templates/header.php';
                         </article>
                     <?php endforeach; ?>
                 <?php else: ?>
-                    <p>No classes scheduled at the moment.</p>
+                    <p class="empty-classes-message">
+                        No classes scheduled at the moment.
+                    </p>
                 <?php endif; ?>
             </div>
         </section>
     </div>
 </main>
 
-<script>
-    const isLoggedIn = <?php echo isset($_SESSION['user_id']) ? 'true' : 'false'; ?>;
-    const userRole = "<?php echo htmlspecialchars($_SESSION['role'] ?? ''); ?>";
-    const csrfToken = "<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>";
-</script>
+<div
+    id="schedule-config"
+    data-is-logged-in="<?php echo isset($_SESSION['user_id']) ? 'true' : 'false'; ?>"
+    data-user-role="<?php echo htmlspecialchars($_SESSION['role'] ?? ''); ?>"
+    data-csrf-token="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>"
+    hidden
+></div>
 
 <script src="js/schedule.js"></script>
 

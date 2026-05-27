@@ -25,7 +25,7 @@ include 'templates/header.php';
         <p class="auth-subtitle text-center text-muted">Keep your momentum going.</p>
 
         <?php if ($errorMessage): ?>
-            <p class="form-error text-center" style="color: #ef4444; margin-bottom: 1rem;">
+            <p class="form-error text-center auth-error-message">
                 <?php echo htmlspecialchars($errorMessage === 'invalid' ? 'Invalid username or password.' : $errorMessage); ?>
             </p>
         <?php endif; ?>

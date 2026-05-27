@@ -9,6 +9,7 @@ DROP TABLE IF EXISTS trainers;
 DROP TABLE IF EXISTS members;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS plans;
+DROP TABLE IF EXISTS notifications;
 
 CREATE TABLE plans (
     id    INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -36,6 +37,8 @@ CREATE TABLE members (
     favorite_flow     TEXT,
     primary_goal      TEXT,
     next_billing_date TEXT,
+    payment_method    TEXT,
+    card_last4        TEXT,
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
     FOREIGN KEY (plan_id) REFERENCES plans (id) ON DELETE SET NULL
 );
@@ -104,9 +107,21 @@ CREATE TABLE reports (
     description    TEXT    NOT NULL,
     status         TEXT    NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'in_progress', 'resolved')),
     admin_response TEXT,
+    member_response TEXT,
+    closed_by_member INTEGER NOT NULL DEFAULT 0 CHECK (closed_by_member IN (0, 1)),
     created_at     TEXT    NOT NULL DEFAULT (datetime('now')),
     updated_at     TEXT    NOT NULL DEFAULT (datetime('now')),
     FOREIGN KEY (member_id) REFERENCES members (id) ON DELETE CASCADE
+);
+
+CREATE TABLE notifications (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id    INTEGER NOT NULL,
+    message    TEXT    NOT NULL,
+    link       TEXT,
+    is_read    INTEGER NOT NULL DEFAULT 0 CHECK (is_read IN (0, 1)),
+    created_at TEXT    NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
 -- ==========================================
@@ -124,18 +139,18 @@ VALUES ('System Admin', 'admin', 'admin@flowfitness.com', '$2y$10$92IXUNpkjO0rOQ
 INSERT INTO users (name, username, email, password, role, photo) 
 VALUES ('Jalen Brunson', 'jbrunson_11', 'jalen@flowfitness.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'member', 'assets/avatar-jalen.jpg');
 
-INSERT INTO members (user_id, plan_id, phone, streak, favorite_flow, primary_goal, next_billing_date) 
-VALUES (2, 2, '+351912345678', 45, 'strength', 'muscle', '2026-05-24');
+INSERT INTO members (user_id,plan_id,phone,streak,favorite_flow,primary_goal,next_billing_date,payment_method,card_last4) 
+VALUES (2,2,'+351912345678',45,'strength','muscle','2026-05-24','visa','4242');
 
-INSERT INTO users (name, username, email, password, role) VALUES 
-('Sarah Jenkins', 'sarah_j', 'sarah.j@flowfitness.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'trainer'),
-('Marcus Thorne', 'm_thorne', 'marcus.t@flowfitness.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'trainer'),
-('Chloe Whitaker', 'chloe_fit', 'chloe.w@flowfitness.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'trainer'),
-('David Miller', 'dave_coach', 'david.m@flowfitness.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'trainer'),
-('Rachel Adams', 'rachel_a', 'rachel.a@flowfitness.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'trainer'),
-('James Sterling', 'j_sterling', 'james.s@flowfitness.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'trainer'),
-('Emma Collins', 'emma_c', 'emma.c@flowfitness.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'trainer'),
-('Leon Brooks', 'leon_b', 'leon.b@flowfitness.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'trainer');
+INSERT INTO users (name, username, email, password, role, photo) VALUES 
+('Sarah Jenkins', 'sarah_j', 'sarah.j@flowfitness.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'trainer', 'sarah_jenkins.png'),
+('Marcus Thorne', 'm_thorne', 'marcus.t@flowfitness.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'trainer', 'marcus_thorne.png'),
+('Chloe Whitaker', 'chloe_fit', 'chloe.w@flowfitness.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'trainer', 'chloe_whitaker.png'),
+('David Miller', 'dave_coach', 'david.m@flowfitness.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'trainer', 'david_miller.png'),
+('Rachel Adams', 'rachel_a', 'rachel.a@flowfitness.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'trainer', 'rachel_adams.png'),
+('James Sterling', 'j_sterling', 'james.s@flowfitness.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'trainer', 'james_sterling.png'),
+('Emma Collins', 'emma_c', 'emma.c@flowfitness.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'trainer', 'emma_collins.png'),
+('Leon Brooks', 'leon_b', 'leon.b@flowfitness.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'trainer', 'leon_brooks.png');
 
 INSERT INTO trainers (user_id, bio, specializations, certifications) VALUES 
 (3, 'Master of mindfulness and flexibility.', 'Yoga,Mobility,Meditation', 'E-RYT 500, Prenatal Yoga'),

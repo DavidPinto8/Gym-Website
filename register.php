@@ -26,7 +26,7 @@ include 'templates/header.php';
         <p class="auth-subtitle text-center text-muted">Start your journey today.</p>
 
         <?php if ($errorMessage): ?>
-            <p class="form-error text-center" style="color: #ef4444; margin-bottom: 1rem; font-weight: 600;">
+            <p class="form-error text-center auth-error-message auth-error-message-strong">
                 <?php
                     if ($errorMessage === 'user_exists') {
                         echo 'Username or Email already taken.';
@@ -40,6 +40,8 @@ include 'templates/header.php';
                         echo 'Password must be at least 6 characters long.';
                     } elseif ($errorMessage === 'invalid_plan') {
                         echo 'Please select a valid membership plan.';
+                    } elseif ($errorMessage === 'invalid_payment') {
+                        echo 'Please provide a valid payment method.';
                     } else {
                         echo htmlspecialchars($errorMessage);
                     }
@@ -114,6 +116,39 @@ include 'templates/header.php';
                     </option>
                 </select>
             </div>
+
+            <fieldset class="register-payment-fieldset">
+                <legend>Payment Method</legend>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="payment_method">Payment Method</label>
+
+                        <select id="payment_method" name="payment_method" class="custom-select" required>
+                            <option value="visa">Visa</option>
+                            <option value="mastercard">Mastercard</option>
+                            <option value="paypal">PayPal</option>
+                            <option value="apple_pay">Apple Pay</option>
+                            <option value="google_pay">Google Pay</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="card_last4">Card Last 4 Digits</label>
+
+                        <input
+                            type="text"
+                            id="card_last4"
+                            name="card_last4"
+                            maxlength="4"
+                            pattern="[0-9]{4}"
+                            placeholder="4242"
+                            required
+                        >
+                    </div>
+                </div>
+
+            </fieldset>
 
             <button type="submit" class="btn-primary btn-block">
                 Create Account

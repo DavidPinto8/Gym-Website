@@ -39,7 +39,7 @@ $stmt = $db->query("
 $reports = $stmt->fetchAll();
 
 $pageTitle = "Manage Reports | Flow Fitness";
-$currentPage = 'admin';
+$currentPage = 'admin_reports';
 $extraCSS = 'reports.css';
 
 include 'templates/header.php';
@@ -55,13 +55,13 @@ include 'templates/header.php';
 
             <?php if (isset($_GET['success'])): ?>
                 <div class="schedule-alert success-alert">
-                    <?php echo htmlspecialchars($_GET['success']); ?>
+                    <?php echo htmlspecialchars(str_replace('_', ' ', $_GET['success'])); ?>
                 </div>
             <?php endif; ?>
 
             <?php if (isset($_GET['error'])): ?>
                 <div class="schedule-alert error-alert">
-                    <?php echo htmlspecialchars($_GET['error']); ?>
+                    <?php echo htmlspecialchars(str_replace('_', ' ', $_GET['error'])); ?>
                 </div>
             <?php endif; ?>
 
@@ -89,6 +89,19 @@ include 'templates/header.php';
                             </div>
 
                             <p><?php echo nl2br(htmlspecialchars($report['description'])); ?></p>
+
+                            <?php if (!empty($report['member_response'])): ?>
+                                <div class="member-response">
+                                    <strong>Member response:</strong>
+                                    <p><?php echo nl2br(htmlspecialchars($report['member_response'])); ?></p>
+                                </div>
+                            <?php endif; ?>
+
+                            <?php if ((int)($report['closed_by_member'] ?? 0) === 1): ?>
+                                <p class="muted-text report-closed-note">
+                                    This report was closed by the member.
+                                </p>
+                            <?php endif; ?>
 
                             <form action="actions/action_update_report.php" method="POST" class="admin-report-form">
                                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">

@@ -1,8 +1,9 @@
 <?php
-
 session_start();
 
 require_once __DIR__ . '/../database/db.php';
+require_once __DIR__ . '/../includes/avatar.php';
+require_once __DIR__ . '/../includes/class_occurrence.php';
 
 header('Content-Type: application/json');
 
@@ -26,11 +27,13 @@ if (isset($_SESSION['user_id'])) {
 
 $type = $_GET['type'] ?? 'all';
 $day = $_GET['day'] ?? 'all';
+$trainer = $_GET['trainer'] ?? 'all';
 
 $sql = "
 SELECT
     classes.*,
     users.name AS trainer_name,
+    users.photo AS trainer_photo,
 
     COUNT(
         DISTINCT CASE
@@ -45,6 +48,21 @@ SELECT
             THEN enrollments.status
         END
     ) AS user_booking_status,
+
+    (
+        SELECT COUNT(*) + 1
+        FROM enrollments AS e2
+        WHERE e2.class_id = classes.id
+          AND e2.status = 'waitlist'
+          AND e2.id < (
+              SELECT id
+              FROM enrollments AS e3
+              WHERE e3.class_id = classes.id
+                AND e3.member_id = :member_id_sub
+                AND e3.status = 'waitlist'
+              LIMIT 1
+          )
+    ) AS waitlist_position,
 
     ROUND(AVG(reviews.rating), 1) AS average_rating,
     COUNT(DISTINCT reviews.id) AS review_count
@@ -67,12 +85,26 @@ WHERE 1=1
 ";
 
 $params = [
-    ':member_id' => $memberId
+    ':member_id' => $memberId,
+    ':member_id_sub' => $memberId
 ];
 
 if ($type !== 'all') {
-    $sql .= " AND classes.type = :type";
-    $params[':type'] = $type;
+    $validTypes = ['yoga', 'hiit', 'strength', 'cardio', 'other'];
+
+    if (in_array($type, $validTypes, true)) {
+        $sql .= " AND classes.type = :type";
+        $params[':type'] = $type;
+    }
+}
+
+if ($trainer !== 'all') {
+    $trainerId = filter_var($trainer, FILTER_VALIDATE_INT);
+
+    if ($trainerId) {
+        $sql .= " AND classes.trainer_id = :trainer_id";
+        $params[':trainer_id'] = $trainerId;
+    }
 }
 
 if ($day !== 'all') {
@@ -92,10 +124,21 @@ if ($day !== 'all') {
 
 $sql .= "
 GROUP BY classes.id
-ORDER BY classes.start_time
 ";
 
 $stmt = $db->prepare($sql);
 $stmt->execute($params);
 
-echo json_encode($stmt->fetchAll());
+$classes = applyNextWeeklyOccurrences($stmt->fetchAll());
+
+foreach ($classes as &$class) {
+    $class['trainer_avatar'] = getUserAvatar(
+        $class['trainer_name'] ?? 'Trainer',
+        $class['trainer_photo'] ?? null,
+        96
+    );
+}
+
+unset($class);
+
+echo json_encode($classes);
