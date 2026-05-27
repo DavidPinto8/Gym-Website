@@ -31,7 +31,13 @@ $stmt = $db->prepare("
     SELECT *
     FROM reports
     WHERE member_id = ?
-    ORDER BY created_at DESC
+    ORDER BY
+        CASE status
+            WHEN 'open' THEN 1
+            WHEN 'in_progress' THEN 2
+            WHEN 'resolved' THEN 3
+        END,
+        created_at DESC
 ");
 $stmt->execute([$member['id']]);
 $reports = $stmt->fetchAll();
@@ -53,13 +59,13 @@ include 'templates/header.php';
 
             <?php if (isset($_GET['success'])): ?>
                 <div class="schedule-alert success-alert">
-                    <?php echo htmlspecialchars($_GET['success']); ?>
+                    <?php echo htmlspecialchars(str_replace('_', ' ', $_GET['success'])); ?>
                 </div>
             <?php endif; ?>
 
             <?php if (isset($_GET['error'])): ?>
                 <div class="schedule-alert error-alert">
-                    <?php echo htmlspecialchars($_GET['error']); ?>
+                    <?php echo htmlspecialchars(str_replace('_', ' ', $_GET['error'])); ?>
                 </div>
             <?php endif; ?>
 
@@ -126,6 +132,47 @@ include 'templates/header.php';
                                         <strong>Admin response:</strong>
                                         <p><?php echo nl2br(htmlspecialchars($report['admin_response'])); ?></p>
                                     </div>
+                                <?php endif; ?>
+
+                                <?php if (!empty($report['member_response'])): ?>
+                                    <div class="member-response">
+                                        <strong>Your response:</strong>
+                                        <p><?php echo nl2br(htmlspecialchars($report['member_response'])); ?></p>
+                                    </div>
+                                <?php endif; ?>
+
+                                <?php if ($report['status'] !== 'resolved'): ?>
+                                    <form action="actions/action_member_update_report.php" method="POST" class="member-report-form">
+                                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+                                        <input type="hidden" name="report_id" value="<?php echo htmlspecialchars($report['id']); ?>">
+
+                                        <div class="form-group">
+                                            <label for="member-response-<?php echo htmlspecialchars($report['id']); ?>">
+                                                Reply to admin
+                                            </label>
+
+                                            <textarea
+                                                id="member-response-<?php echo htmlspecialchars($report['id']); ?>"
+                                                name="member_response"
+                                                rows="3"
+                                                placeholder="Add more context or answer the admin..."
+                                            ><?php echo htmlspecialchars($report['member_response'] ?? ''); ?></textarea>
+                                        </div>
+
+                                        <div class="report-actions">
+                                            <button type="submit" name="report_action" value="reply" class="btn-primary">
+                                                Send Response
+                                            </button>
+
+                                            <button type="submit" name="report_action" value="close" class="btn-outline">
+                                                Close Report
+                                            </button>
+                                        </div>
+                                    </form>
+                                <?php elseif ((int)($report['closed_by_member'] ?? 0) === 1): ?>
+                                    <p class="muted-text report-closed-note">
+                                        You closed this report.
+                                    </p>
                                 <?php endif; ?>
 
                                 <small>

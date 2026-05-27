@@ -104,6 +104,8 @@ CREATE TABLE reports (
     description    TEXT    NOT NULL,
     status         TEXT    NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'in_progress', 'resolved')),
     admin_response TEXT,
+    member_response TEXT,
+    closed_by_member INTEGER NOT NULL DEFAULT 0 CHECK (closed_by_member IN (0, 1)),
     created_at     TEXT    NOT NULL DEFAULT (datetime('now')),
     updated_at     TEXT    NOT NULL DEFAULT (datetime('now')),
     FOREIGN KEY (member_id) REFERENCES members (id) ON DELETE CASCADE
