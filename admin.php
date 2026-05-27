@@ -2,6 +2,7 @@
 session_start();
 
 require_once 'database/db.php';
+require_once 'includes/class_occurrence.php';
 
 if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
     header('Location: login.php');
@@ -120,6 +121,7 @@ $stmt = $db->query("
     ORDER BY type ASC, name ASC
 ");
 $equipment = $stmt->fetchAll();
+$classes = applyNextWeeklyOccurrences($classes);
 
 $pageTitle = "Admin Dashboard | Flow Fitness";
 $currentPage = 'admin';

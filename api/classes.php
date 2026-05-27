@@ -3,6 +3,7 @@ session_start();
 
 require_once __DIR__ . '/../database/db.php';
 require_once __DIR__ . '/../includes/avatar.php';
+require_once __DIR__ . '/../includes/class_occurrence.php';
 
 header('Content-Type: application/json');
 
@@ -123,13 +124,12 @@ if ($day !== 'all') {
 
 $sql .= "
 GROUP BY classes.id
-ORDER BY classes.start_time
 ";
 
 $stmt = $db->prepare($sql);
 $stmt->execute($params);
 
-$classes = $stmt->fetchAll();
+$classes = applyNextWeeklyOccurrences($stmt->fetchAll());
 
 foreach ($classes as &$class) {
     $class['trainer_avatar'] = getUserAvatar(
@@ -138,5 +138,7 @@ foreach ($classes as &$class) {
         96
     );
 }
+
+unset($class);
 
 echo json_encode($classes);

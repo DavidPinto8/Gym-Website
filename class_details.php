@@ -7,6 +7,7 @@ if (empty($_SESSION['csrf_token'])) {
 
 require_once 'database/db.php';
 require_once 'includes/avatar.php';
+require_once 'includes/class_occurrence.php';
 
 $db = getDatabaseConnection();
 
@@ -90,6 +91,9 @@ if (!$class) {
     exit();
 }
 
+$class['original_start_time'] = $class['start_time'];
+$class['start_time'] = getNextWeeklyOccurrence($class['start_time']);
+
 $stmt = $db->prepare("
     SELECT
         reviews.*,
@@ -129,7 +133,7 @@ $spotsLeft = (int)$class['capacity'] - (int)$class['enrolled_count'];
 $isFull = $spotsLeft <= 0;
 $bookingStatus = $class['user_booking_status'];
 
-$classAlreadyHappened = $timestamp < time();
+$classAlreadyHappened = true;
 $userAttended = false;
 
 if ($memberId) {

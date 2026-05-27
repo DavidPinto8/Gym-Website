@@ -3,6 +3,7 @@ session_start();
 
 require_once 'database/db.php';
 require_once 'includes/avatar.php';
+require_once 'includes/class_occurrence.php';
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'trainer') {
     header("Location: login.php");
@@ -48,6 +49,7 @@ $stmt_classes = $db->prepare("
 ");
 $stmt_classes->execute([$trainer['trainer_id']]);
 $trainer_classes = $stmt_classes->fetchAll();
+$trainer_classes = applyNextWeeklyOccurrences($trainer_classes);
 
 $successMessage = $_GET['success'] ?? null;
 $errorMessage = $_GET['error'] ?? null;
