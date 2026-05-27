@@ -1,15 +1,6 @@
 <?php
 session_start();
 
-if (
-    empty($_POST['csrf_token']) ||
-    empty($_SESSION['csrf_token']) ||
-    !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
-) {
-    header('Location: ../reports.php?error=invalid_csrf');
-    exit();
-}
-
 require_once '../database/db.php';
 
 if (!isset($_SESSION['user_id'])) {
@@ -19,6 +10,15 @@ if (!isset($_SESSION['user_id'])) {
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ../reports.php?error=invalid_request');
+    exit();
+}
+
+if (
+    empty($_POST['csrf_token']) ||
+    empty($_SESSION['csrf_token']) ||
+    !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
+) {
+    header('Location: ../reports.php?error=invalid_csrf');
     exit();
 }
 
@@ -35,7 +35,7 @@ if (!in_array($category, $validCategories, true) || $subject === '' || $descript
 
 $db = getDatabaseConnection();
 
-try{
+try {
     $stmt = $db->prepare("
         SELECT id
         FROM members
@@ -50,7 +50,7 @@ try{
     }
 
     $stmt = $db->prepare("
-        INSERT INTO reports (member_id, category, subject, description,status)
+        INSERT INTO reports (member_id, category, subject, description, status)
         VALUES (?, ?, ?, ?, 'open')
     ");
     $stmt->execute([
@@ -59,6 +59,26 @@ try{
         $subject,
         $description
     ]);
+
+    $stmt = $db->query("
+        SELECT id
+        FROM users
+        WHERE role = 'admin'
+    ");
+    $admins = $stmt->fetchAll();
+
+    $stmtInsert = $db->prepare("
+        INSERT INTO notifications (user_id, message, link)
+        VALUES (?, ?, ?)
+    ");
+
+    foreach ($admins as $admin) {
+        $stmtInsert->execute([
+            $admin['id'],
+            'A new report was submitted: "' . $subject . '".',
+            'admin_reports.php'
+        ]);
+    }
 
     header('Location: ../reports.php?success=report_submitted');
     exit();

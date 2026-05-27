@@ -1,3 +1,26 @@
+<?php
+$unreadNotifications = 0;
+
+if (isset($_SESSION['user_id'])) {
+    require_once __DIR__ . '/../database/db.php';
+
+    try {
+        $headerDb = getDatabaseConnection();
+
+        $stmtNotifications = $headerDb->prepare("
+            SELECT COUNT(*)
+            FROM notifications
+            WHERE user_id = ?
+            AND is_read = 0
+        ");
+        $stmtNotifications->execute([$_SESSION['user_id']]);
+        $unreadNotifications = (int)$stmtNotifications->fetchColumn();
+    } catch (Exception $e) {
+        $unreadNotifications = 0;
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -85,9 +108,24 @@
                                 Admin
                             </a>
                         </li>
+
                         <li>
                             <a href="admin_reports.php" class="<?php echo (isset($currentPage) && $currentPage === 'admin_reports') ? 'active' : ''; ?>">
                                 Reports
+                            </a>
+                        </li>
+                    <?php endif; ?>
+
+                    <?php if (isset($_SESSION['user_id'])): ?>
+                        <li>
+                            <a href="notifications.php" class="notification-link <?php echo (isset($currentPage) && $currentPage === 'notifications') ? 'active' : ''; ?>">
+                                Notifications
+
+                                <?php if ($unreadNotifications > 0): ?>
+                                    <span class="notification-badge">
+                                        <?php echo htmlspecialchars($unreadNotifications); ?>
+                                    </span>
+                                <?php endif; ?>
                             </a>
                         </li>
                     <?php endif; ?>

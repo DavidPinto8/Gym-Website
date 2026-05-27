@@ -9,6 +9,7 @@ DROP TABLE IF EXISTS trainers;
 DROP TABLE IF EXISTS members;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS plans;
+DROP TABLE IF EXISTS notifications;
 
 CREATE TABLE plans (
     id    INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -109,6 +110,16 @@ CREATE TABLE reports (
     created_at     TEXT    NOT NULL DEFAULT (datetime('now')),
     updated_at     TEXT    NOT NULL DEFAULT (datetime('now')),
     FOREIGN KEY (member_id) REFERENCES members (id) ON DELETE CASCADE
+);
+
+CREATE TABLE notifications (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id    INTEGER NOT NULL,
+    message    TEXT    NOT NULL,
+    link       TEXT,
+    is_read    INTEGER NOT NULL DEFAULT 0 CHECK (is_read IN (0, 1)),
+    created_at TEXT    NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
 -- ==========================================

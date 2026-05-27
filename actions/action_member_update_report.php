@@ -35,7 +35,7 @@ $db = getDatabaseConnection();
 
 try {
     $stmt = $db->prepare("
-        SELECT reports.id, reports.status
+        SELECT reports.id, reports.status, reports.subject
         FROM reports
         JOIN members ON reports.member_id = members.id
         WHERE reports.id = ?
@@ -64,25 +64,48 @@ try {
         ");
         $stmt->execute([$reportId]);
 
-        header('Location: ../reports.php?success=report_closed');
-        exit();
+        $notificationMessage = 'A member closed the report "' . $report['subject'] . '".';
+        $redirectSuccess = 'report_closed';
+    } else {
+        if ($memberResponse === '') {
+            header('Location: ../reports.php?error=empty_response');
+            exit();
+        }
+
+        $stmt = $db->prepare("
+            UPDATE reports
+            SET member_response = ?,
+                status = 'in_progress',
+                updated_at = datetime('now')
+            WHERE id = ?
+        ");
+        $stmt->execute([$memberResponse, $reportId]);
+
+        $notificationMessage = 'A member replied to the report "' . $report['subject'] . '".';
+        $redirectSuccess = 'response_sent';
     }
 
-    if ($memberResponse === '') {
-        header('Location: ../reports.php?error=empty_response');
-        exit();
-    }
-
-    $stmt = $db->prepare("
-        UPDATE reports
-        SET member_response = ?,
-            status = 'in_progress',
-            updated_at = datetime('now')
-        WHERE id = ?
+    $stmt = $db->query("
+        SELECT id
+        FROM users
+        WHERE role = 'admin'
     ");
-    $stmt->execute([$memberResponse, $reportId]);
+    $admins = $stmt->fetchAll();
 
-    header('Location: ../reports.php?success=response_sent');
+    $stmtInsert = $db->prepare("
+        INSERT INTO notifications (user_id, message, link)
+        VALUES (?, ?, ?)
+    ");
+
+    foreach ($admins as $admin) {
+        $stmtInsert->execute([
+            $admin['id'],
+            $notificationMessage,
+            'admin_reports.php'
+        ]);
+    }
+
+    header('Location: ../reports.php?success=' . $redirectSuccess);
     exit();
 } catch (Exception $e) {
     header('Location: ../reports.php?error=update_failed');
