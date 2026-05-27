@@ -714,6 +714,84 @@
     }
 }
 
+/* --- Mock Billing --- */
+
+.billing-layout {
+    max-width: 900px;
+}
+
+.billing-card h1 {
+    font-family: var(--font-heading);
+    color: var(--black);
+    font-size: clamp(2rem, 4vw, 3rem);
+    text-transform: uppercase;
+}
+
+.billing-summary {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.billing-summary div,
+.payment-summary-card {
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    background-color: #f8fafc;
+    border-left: 4px solid var(--gold);
+}
+
+.billing-summary strong,
+.payment-summary-card strong {
+    display: block;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    margin-bottom: 0.35rem;
+}
+
+.billing-summary span,
+.payment-summary-card span {
+    display: block;
+    color: var(--black);
+    font-weight: 800;
+}
+
+.payment-summary-card {
+    margin-top: 1.25rem;
+}
+
+.payment-link {
+    margin-top: 1rem;
+}
+
+.payment-warning {
+    color: #b45309;
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.mock-payment-note {
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    background-color: #fff8e1;
+    color: #92400e;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.register-payment-fieldset {
+    margin-top: 2rem;
+}
+
+@media (min-width: 768px) {
+    .billing-summary {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
 @media (min-width: 992px) {
     .profile-layout {
         grid-template-columns: 280px 1fr;

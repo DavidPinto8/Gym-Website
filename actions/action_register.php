@@ -23,8 +23,26 @@ $username = trim($_POST['username'] ?? '');
 $email = trim($_POST['email'] ?? '');
 $password = $_POST['password'] ?? '';
 $planId = isset($_POST['plan_id']) ? (int)$_POST['plan_id'] : 0;
+$paymentMethod = $_POST['payment_method'] ?? '';
+$cardLast4 = trim($_POST['card_last4'] ?? '');
 
-if ($name === '' || $username === '' || $email === '' || $password === '' || $planId === 0) {
+$validPaymentMethods = [
+    'visa',
+    'mastercard',
+    'paypal',
+    'apple_pay',
+    'google_pay'
+];
+
+if (
+    $name === '' ||
+    $username === '' ||
+    $email === '' ||
+    $password === '' ||
+    $planId === 0 ||
+    $paymentMethod === '' ||
+    $cardLast4 === ''
+) {
     header('Location: ../register.php?error=empty_fields');
     exit();
 }
@@ -36,6 +54,14 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
 
 if (strlen($password) < 6) {
     header('Location: ../register.php?error=short_password');
+    exit();
+}
+
+if (
+    !in_array($paymentMethod, $validPaymentMethods, true) ||
+    !preg_match('/^[0-9]{4}$/', $cardLast4)
+) {
+    header('Location: ../register.php?error=invalid_payment');
     exit();
 }
 
@@ -80,10 +106,24 @@ try {
     $nextBilling = date('Y-m-d', strtotime('+1 month'));
 
     $stmtMember = $db->prepare("
-        INSERT INTO members (user_id, plan_id, streak, next_billing_date)
-        VALUES (?, ?, 0, ?)
+        INSERT INTO members (
+            user_id,
+            plan_id,
+            streak,
+            next_billing_date,
+            payment_method,
+            card_last4
+        )
+        VALUES (?, ?, 0, ?, ?, ?)
     ");
-    $stmtMember->execute([$userId, $planId, $nextBilling]);
+
+    $stmtMember->execute([
+        $userId,
+        $planId,
+        $nextBilling,
+        $paymentMethod,
+        $cardLast4
+    ]);
 
     $db->commit();
 

@@ -33,6 +33,8 @@ $stmt = $db->prepare("
         members.favorite_flow,
         members.primary_goal,
         members.next_billing_date,
+        members.payment_method,
+        members.card_last4,
         members.plan_id,
         plans.name AS plan_name,
         plans.price AS plan_price
@@ -85,6 +87,16 @@ $errorMessages = [
     'short_password' => 'Password must be at least 6 characters long.',
     'invalid_current_password' => 'Current password is incorrect.'
 ];
+
+$paymentLabels = [
+    'visa' => 'Visa',
+    'mastercard' => 'Mastercard',
+    'paypal' => 'PayPal',
+    'apple_pay' => 'Apple Pay',
+    'google_pay' => 'Google Pay'
+];
+
+$paymentMethodLabel = $paymentLabels[$user['payment_method'] ?? ''] ?? 'No payment method set';
 
 $successMessage = null;
 $errorMessage = null;
@@ -154,7 +166,7 @@ include 'templates/header.php';
                     <li><a href="#access-pass">Access Pass</a></li>
                     <li><a href="#account-settings">Account Settings</a></li>
                     <li><a href="#password-settings">Password</a></li>
-                    <li><a href="#membership-details">Membership Plan</a></li>
+                    <li><a href="#membership-details">Membership & Billing</a></li>
                     <li><a href="actions/action_logout.php" class="text-danger">Log Out</a></li>
                 </ul>
             </nav>
@@ -384,8 +396,8 @@ include 'templates/header.php';
             </div>
 
             <div id="membership-details" class="card form-container">
-                <h2>Current Membership</h2>
-                <p class="text-muted">Review your active plan and billing details.</p>
+                <h2>Membership & Billing</h2>
+                <p class="text-muted">Review your active plan, billing details and mock payment method.</p>
 
                 <div class="membership-details">
                     <div class="plan-info">
@@ -403,6 +415,22 @@ include 'templates/header.php';
                                 <?php echo htmlspecialchars(date('M d, Y', strtotime($user['next_billing_date']))); ?>
                             </p>
                         <?php endif; ?>
+
+                        <div class="payment-summary-card">
+                            <strong>Payment Method</strong>
+
+                            <span>
+                                <?php echo htmlspecialchars($paymentMethodLabel); ?>
+
+                                <?php if (!empty($user['card_last4'])): ?>
+                                    ending in <?php echo htmlspecialchars($user['card_last4']); ?>
+                                <?php endif; ?>
+                            </span>
+
+                            <a href="billing.php" class="btn-outline payment-link">
+                                Manage Payment Method
+                            </a>
+                        </div>
                     </div>
 
                     <div class="plan-actions">
@@ -424,6 +452,12 @@ include 'templates/header.php';
                                     Elite - €70/month
                                 </option>
                             </select>
+
+                            <?php if (empty($user['payment_method'])): ?>
+                                <p class="payment-warning">
+                                    Add a payment method before changing your membership plan.
+                                </p>
+                            <?php endif; ?>
 
                             <button type="submit" class="btn-primary btn-large">
                                 Update Plan

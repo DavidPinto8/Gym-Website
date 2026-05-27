@@ -37,6 +37,8 @@ CREATE TABLE members (
     favorite_flow     TEXT,
     primary_goal      TEXT,
     next_billing_date TEXT,
+    payment_method    TEXT,
+    card_last4        TEXT,
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
     FOREIGN KEY (plan_id) REFERENCES plans (id) ON DELETE SET NULL
 );
@@ -137,8 +139,8 @@ VALUES ('System Admin', 'admin', 'admin@flowfitness.com', '$2y$10$92IXUNpkjO0rOQ
 INSERT INTO users (name, username, email, password, role, photo) 
 VALUES ('Jalen Brunson', 'jbrunson_11', 'jalen@flowfitness.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'member', 'assets/avatar-jalen.jpg');
 
-INSERT INTO members (user_id, plan_id, phone, streak, favorite_flow, primary_goal, next_billing_date) 
-VALUES (2, 2, '+351912345678', 45, 'strength', 'muscle', '2026-05-24');
+INSERT INTO members (user_id,plan_id,phone,streak,favorite_flow,primary_goal,next_billing_date,payment_method,card_last4) 
+VALUES (2,2,'+351912345678',45,'strength','muscle','2026-05-24','visa','4242');
 
 INSERT INTO users (name, username, email, password, role, photo) VALUES 
 ('Sarah Jenkins', 'sarah_j', 'sarah.j@flowfitness.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'trainer', 'sarah_jenkins.png'),
