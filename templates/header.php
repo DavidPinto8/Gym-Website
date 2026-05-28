@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../includes/avatar.php';
+
 $unreadNotifications = 0;
 
 if (isset($_SESSION['user_id'])) {
@@ -134,8 +136,6 @@ if (isset($_SESSION['user_id'])) {
                 <div class="nav-auth <?php echo isset($_SESSION['user_id']) ? 'logged-in' : ''; ?>">
                     <?php if (isset($_SESSION['user_id'])): ?>
                         <?php
-                            require_once __DIR__ . '/../includes/avatar.php';
-
                             $navAvatar = getUserAvatar(
                                 $_SESSION['name'] ?? 'User',
                                 $_SESSION['photo'] ?? null,
