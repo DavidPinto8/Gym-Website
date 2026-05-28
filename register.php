@@ -12,7 +12,13 @@ if (isset($_SESSION['user_id'])) {
 }
 
 $selectedPlan = $_GET['plan'] ?? 'starter';
-$errorMessage = $_GET['error'] ?? null;
+
+require_once 'includes/message_maps.php';
+
+$registerErrors = get_error_map('register');
+$errorMessage = isset($_GET['error'], $registerErrors[$_GET['error']])
+    ? $registerErrors[$_GET['error']]
+    : (isset($_GET['error']) ? htmlspecialchars($_GET['error']) : null);
 
 $pageTitle = 'Register | Flow Fitness';
 $extraCSS = 'profile.css';
@@ -27,25 +33,7 @@ include 'templates/header.php';
 
         <?php if ($errorMessage): ?>
             <p class="form-error text-center auth-error-message auth-error-message-strong">
-                <?php
-                    if ($errorMessage === 'user_exists') {
-                        echo 'Username or Email already taken.';
-                    } elseif ($errorMessage === 'db_fail') {
-                        echo 'Registration failed. Please try again.';
-                    } elseif ($errorMessage === 'empty_fields') {
-                        echo 'All fields are required.';
-                    } elseif ($errorMessage === 'invalid_email') {
-                        echo 'Please provide a valid email address.';
-                    } elseif ($errorMessage === 'short_password') {
-                        echo 'Password must be at least 6 characters long.';
-                    } elseif ($errorMessage === 'invalid_plan') {
-                        echo 'Please select a valid membership plan.';
-                    } elseif ($errorMessage === 'invalid_payment') {
-                        echo 'Please provide a valid payment method.';
-                    } else {
-                        echo htmlspecialchars($errorMessage);
-                    }
-                ?>
+                <?php echo $errorMessage; ?>
             </p>
         <?php endif; ?>
 

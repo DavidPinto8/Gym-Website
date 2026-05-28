@@ -7,6 +7,7 @@ if (empty($_SESSION['csrf_token'])) {
 
 require_once 'database/db.php';
 require_once 'includes/avatar.php';
+require_once 'includes/ui_helpers.php';
 
 $db = getDatabaseConnection();
 
@@ -169,17 +170,7 @@ include 'templates/header.php';
                 <p>High performance sessions led by specialized trainers.</p>
             </div>
 
-            <?php if (isset($_GET['success'])): ?>
-                <div class="schedule-alert success-alert">
-                    <?php echo htmlspecialchars(ucfirst(str_replace('_', ' ', $_GET['success']))); ?>
-                </div>
-            <?php endif; ?>
-
-            <?php if (isset($_GET['error'])): ?>
-                <div class="schedule-alert error-alert">
-                    <?php echo htmlspecialchars(ucfirst(str_replace('_', ' ', $_GET['error']))); ?>
-                </div>
-            <?php endif; ?>
+            <?php render_alerts(); ?>
 
             <div class="classes-grid" id="classes-grid">
                 <?php if (count($classes) > 0): ?>

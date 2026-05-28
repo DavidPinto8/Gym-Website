@@ -5,6 +5,7 @@ session_start();
 require_once __DIR__ . '/database/db.php';
 require_once __DIR__ . '/includes/avatar.php';
 require_once __DIR__ . '/includes/class_occurrence.php';
+require_once __DIR__ . '/includes/ui_helpers.php';
 
 if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'trainer') {
     header('Location: login.php');
@@ -58,8 +59,7 @@ $stmt->execute([$trainer['trainer_id']]);
 
 $trainerClasses = applyNextWeeklyOccurrences($stmt->fetchAll());
 
-$successMessage = $_GET['success'] ?? null;
-$errorMessage = $_GET['error'] ?? null;
+
 
 $pageTitle = 'Trainer Dashboard | Flow Fitness';
 $currentPage = 'trainer_dashboard';
@@ -117,17 +117,7 @@ include __DIR__ . '/templates/header.php';
         </aside>
 
         <section class="profile-content">
-            <?php if ($successMessage): ?>
-                <p class="form-message form-success">
-                    <?php echo htmlspecialchars(ucfirst(str_replace('_', ' ', $successMessage)), ENT_QUOTES, 'UTF-8'); ?>
-                </p>
-            <?php endif; ?>
-
-            <?php if ($errorMessage): ?>
-                <p class="form-message form-error">
-                    <?php echo htmlspecialchars(ucfirst(str_replace('_', ' ', $errorMessage)), ENT_QUOTES, 'UTF-8'); ?>
-                </p>
-            <?php endif; ?>
+            <?php render_alerts(); ?>
 
             <section id="my-classes" class="card form-container">
                 <h2>My Upcoming Classes</h2>

@@ -4,6 +4,7 @@ session_start();
 
 require_once __DIR__ . '/database/db.php';
 require_once __DIR__ . '/includes/avatar.php';
+require_once __DIR__ . '/includes/message_maps.php';
 
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
@@ -81,22 +82,7 @@ $memberAccessCode = 'FLOW-' . str_pad((string) $user['id'], 5, '0', STR_PAD_LEFT
 $qrPayload = 'FlowFitness Member Access | ID: ' . $memberAccessCode . ' | User: ' . $user['username'];
 $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' . urlencode($qrPayload);
 
-$successMessages = [
-    'profile_updated' => 'Profile updated successfully.',
-    'password_updated' => 'Password updated successfully.',
-    'plan_updated' => 'Membership plan updated successfully.'
-];
-
-$errorMessages = [
-    'empty_fields' => 'Please fill in all required fields.',
-    'username_taken' => 'That username is already taken.',
-    'update_failed' => 'Something went wrong while updating your profile.',
-    'invalid_plan' => 'Please select a valid membership plan.',
-    'password_mismatch' => 'The new passwords do not match.',
-    'short_password' => 'Password must be at least 6 characters long.',
-    'invalid_current_password' => 'Current password is incorrect.',
-    'Invalid CSRF security token.' => 'Invalid security token.'
-];
+$profileMessages = get_message_map('profile');
 
 $paymentLabels = [
     'visa' => 'Visa',
@@ -111,12 +97,12 @@ $paymentMethodLabel = $paymentLabels[$user['payment_method'] ?? ''] ?? 'No payme
 $successMessage = null;
 $errorMessage = null;
 
-if (isset($_GET['success'], $successMessages[$_GET['success']])) {
-    $successMessage = $successMessages[$_GET['success']];
+if (isset($_GET['success'], $profileMessages[$_GET['success']])) {
+    $successMessage = $profileMessages[$_GET['success']];
 }
 
-if (isset($_GET['error'], $errorMessages[$_GET['error']])) {
-    $errorMessage = $errorMessages[$_GET['error']];
+if (isset($_GET['error'], $profileMessages[$_GET['error']])) {
+    $errorMessage = $profileMessages[$_GET['error']];
 }
 
 $pageTitle = 'My Profile | Flow Fitness';

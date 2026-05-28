@@ -11,7 +11,12 @@ if (isset($_SESSION['user_id'])) {
     exit();
 }
 
-$errorMessage = $_GET['error'] ?? null;
+require_once 'includes/message_maps.php';
+
+$loginErrors = get_error_map('login');
+$errorMessage = isset($_GET['error'], $loginErrors[$_GET['error']])
+    ? $loginErrors[$_GET['error']]
+    : ($_GET['error'] ?? null);
 
 $pageTitle = 'Login | Flow Fitness';
 $extraCSS = 'profile.css';
@@ -26,7 +31,7 @@ include 'templates/header.php';
 
         <?php if ($errorMessage): ?>
             <p class="form-error text-center auth-error-message">
-                <?php echo htmlspecialchars($errorMessage === 'invalid' ? 'Invalid username or password.' : $errorMessage); ?>
+                <?php echo htmlspecialchars($errorMessage); ?>
             </p>
         <?php endif; ?>
 
