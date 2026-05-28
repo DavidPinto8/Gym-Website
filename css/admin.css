@@ -16,6 +16,24 @@
 
 .admin-logout-btn {
     white-space: nowrap;
+    display: inline-block;
+    padding: 0.7rem 1.5rem;
+    border-radius: var(--radius-pill);
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    background-color: transparent;
+    color: var(--text-muted);
+    border: 1px solid #d1d5db;
+    transition: all 0.3s ease;
+}
+
+.admin-logout-btn:hover {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border-color: #fca5a5;
 }
 
 .admin-eyebrow {
