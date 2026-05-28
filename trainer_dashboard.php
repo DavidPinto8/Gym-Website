@@ -119,13 +119,13 @@ include __DIR__ . '/templates/header.php';
         <section class="profile-content">
             <?php if ($successMessage): ?>
                 <p class="form-message form-success">
-                    <?php echo htmlspecialchars(str_replace('_', ' ', $successMessage), ENT_QUOTES, 'UTF-8'); ?>
+                    <?php echo htmlspecialchars(ucfirst(str_replace('_', ' ', $successMessage)), ENT_QUOTES, 'UTF-8'); ?>
                 </p>
             <?php endif; ?>
 
             <?php if ($errorMessage): ?>
                 <p class="form-message form-error">
-                    <?php echo htmlspecialchars(str_replace('_', ' ', $errorMessage), ENT_QUOTES, 'UTF-8'); ?>
+                    <?php echo htmlspecialchars(ucfirst(str_replace('_', ' ', $errorMessage)), ENT_QUOTES, 'UTF-8'); ?>
                 </p>
             <?php endif; ?>
 

@@ -171,13 +171,13 @@ include 'templates/header.php';
 
             <?php if (isset($_GET['success'])): ?>
                 <div class="schedule-alert success-alert">
-                    <?php echo htmlspecialchars(str_replace('_', ' ', $_GET['success'])); ?>
+                    <?php echo htmlspecialchars(ucfirst(str_replace('_', ' ', $_GET['success']))); ?>
                 </div>
             <?php endif; ?>
 
             <?php if (isset($_GET['error'])): ?>
                 <div class="schedule-alert error-alert">
-                    <?php echo htmlspecialchars(str_replace('_', ' ', $_GET['error'])); ?>
+                    <?php echo htmlspecialchars(ucfirst(str_replace('_', ' ', $_GET['error']))); ?>
                 </div>
             <?php endif; ?>
 
