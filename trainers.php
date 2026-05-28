@@ -1,8 +1,9 @@
 <?php
+
 session_start();
 
-require_once 'database/db.php';
-require_once 'includes/avatar.php';
+require_once __DIR__ . '/database/db.php';
+require_once __DIR__ . '/includes/avatar.php';
 
 $db = getDatabaseConnection();
 
@@ -15,16 +16,18 @@ $stmt = $db->query("
         trainers.specializations,
         trainers.certifications
     FROM trainers
-    JOIN users ON trainers.user_id = users.id
+    INNER JOIN users
+        ON trainers.user_id = users.id
+    ORDER BY users.name ASC
 ");
 
 $trainers = $stmt->fetchAll();
 
-$pageTitle = "Our Team | Flow Fitness";
+$pageTitle = 'Our Team | Flow Fitness';
 $currentPage = 'trainers';
 $extraCSS = 'trainers.css';
 
-include 'templates/header.php';
+include __DIR__ . '/templates/header.php';
 ?>
 
 <main class="bg-light trainers-page">
@@ -41,50 +44,60 @@ include 'templates/header.php';
 
         <section class="trainers-grid" aria-label="Trainer profiles">
             <?php if (count($trainers) > 0): ?>
-                <?php foreach ($trainers as $trainer):
-                    $photoUrl = getUserAvatar(
-                        $trainer['name'],
-                        $trainer['photo'] ?? null,
-                        200
-                    );
+                <?php foreach ($trainers as $trainer): ?>
+                    <?php
+                        $trainerId = (int) $trainer['trainer_id'];
 
-                    $specs = array_filter(array_map('trim', explode(',', $trainer['specializations'])));
-                    $mainSpec = $specs[0] ?? 'Fitness Expert';
+                        $photoUrl = getUserAvatar(
+                            $trainer['name'],
+                            $trainer['photo'] ?? null,
+                            200
+                        );
 
-                    $stmt_classes = $db->prepare("
-                        SELECT DISTINCT name
-                        FROM classes
-                        WHERE trainer_id = ?
-                        ORDER BY name
-                    ");
-                    $stmt_classes->execute([$trainer['trainer_id']]);
-                    $classes_taught = $stmt_classes->fetchAll();
+                        $specializationsText = $trainer['specializations'] ?? '';
 
-                    $modalId = 'trainer-modal-' . $trainer['trainer_id'];
-                ?>
+                        $specializations = array_filter(
+                            array_map('trim', explode(',', $specializationsText))
+                        );
+
+                        $mainSpecialization = $specializations[0] ?? 'Fitness Expert';
+
+                        $stmt = $db->prepare("
+                            SELECT DISTINCT name
+                            FROM classes
+                            WHERE trainer_id = ?
+                            ORDER BY name ASC
+                        ");
+
+                        $stmt->execute([$trainerId]);
+
+                        $classesTaught = $stmt->fetchAll();
+                        $modalId = 'trainer-modal-' . $trainerId;
+                    ?>
+
                     <article class="trainer-card">
                         <button
                             type="button"
                             class="trainer-card-button js-open-trainer-modal"
-                            data-modal-target="<?php echo $modalId; ?>"
+                            data-modal-target="<?php echo htmlspecialchars($modalId, ENT_QUOTES, 'UTF-8'); ?>"
                             aria-haspopup="dialog"
-                            aria-controls="<?php echo $modalId; ?>"
+                            aria-controls="<?php echo htmlspecialchars($modalId, ENT_QUOTES, 'UTF-8'); ?>"
                         >
                             <span class="trainer-image-wrapper">
                                 <img
-                                    src="<?php echo $photoUrl; ?>"
-                                    alt="<?php echo htmlspecialchars($trainer['name']); ?>"
+                                    src="<?php echo htmlspecialchars($photoUrl, ENT_QUOTES, 'UTF-8'); ?>"
+                                    alt="<?php echo htmlspecialchars($trainer['name'], ENT_QUOTES, 'UTF-8'); ?>"
                                     class="trainer-avatar"
                                 >
                             </span>
 
                             <span class="trainer-card-body">
                                 <span class="trainer-name">
-                                    <?php echo htmlspecialchars($trainer['name']); ?>
+                                    <?php echo htmlspecialchars($trainer['name'], ENT_QUOTES, 'UTF-8'); ?>
                                 </span>
 
                                 <span class="trainer-specialization">
-                                    <?php echo htmlspecialchars($mainSpec); ?>
+                                    <?php echo htmlspecialchars($mainSpecialization, ENT_QUOTES, 'UTF-8'); ?>
                                 </span>
 
                                 <span class="trainer-card-cta">
@@ -95,11 +108,11 @@ include 'templates/header.php';
                     </article>
 
                     <div
-                        id="<?php echo $modalId; ?>"
+                        id="<?php echo htmlspecialchars($modalId, ENT_QUOTES, 'UTF-8'); ?>"
                         class="trainer-modal-overlay"
                         role="dialog"
                         aria-modal="true"
-                        aria-labelledby="<?php echo $modalId; ?>-title"
+                        aria-labelledby="<?php echo htmlspecialchars($modalId . '-title', ENT_QUOTES, 'UTF-8'); ?>"
                         hidden
                     >
                         <div class="trainer-modal-content">
@@ -113,53 +126,57 @@ include 'templates/header.php';
 
                             <div class="trainer-modal-header">
                                 <img
-                                    src="<?php echo $photoUrl; ?>"
-                                    alt="<?php echo htmlspecialchars($trainer['name']); ?>"
+                                    src="<?php echo htmlspecialchars($photoUrl, ENT_QUOTES, 'UTF-8'); ?>"
+                                    alt="<?php echo htmlspecialchars($trainer['name'], ENT_QUOTES, 'UTF-8'); ?>"
                                     class="trainer-modal-avatar"
                                 >
 
                                 <span class="trainer-modal-role">
-                                    <?php echo htmlspecialchars($mainSpec); ?>
+                                    <?php echo htmlspecialchars($mainSpecialization, ENT_QUOTES, 'UTF-8'); ?>
                                 </span>
 
                                 <h2
-                                    id="<?php echo $modalId; ?>-title"
+                                    id="<?php echo htmlspecialchars($modalId . '-title', ENT_QUOTES, 'UTF-8'); ?>"
                                     class="trainer-modal-name"
                                 >
-                                    <?php echo htmlspecialchars($trainer['name']); ?>
+                                    <?php echo htmlspecialchars($trainer['name'], ENT_QUOTES, 'UTF-8'); ?>
                                 </h2>
 
-                                <p class="trainer-bio">
-                                    “<?php echo htmlspecialchars($trainer['bio']); ?>”
-                                </p>
+                                <?php if (!empty($trainer['bio'])): ?>
+                                    <p class="trainer-bio">
+                                        “<?php echo htmlspecialchars($trainer['bio'], ENT_QUOTES, 'UTF-8'); ?>”
+                                    </p>
+                                <?php endif; ?>
                             </div>
 
-                            <?php if (count($specs) > 0): ?>
+                            <?php if (count($specializations) > 0): ?>
                                 <div class="specializations-list">
-                                    <?php foreach ($specs as $spec): ?>
+                                    <?php foreach ($specializations as $specialization): ?>
                                         <span class="specialization-tag">
-                                            <?php echo htmlspecialchars($spec); ?>
+                                            <?php echo htmlspecialchars($specialization, ENT_QUOTES, 'UTF-8'); ?>
                                         </span>
                                     <?php endforeach; ?>
                                 </div>
                             <?php endif; ?>
 
-                            <section class="trainer-info-box">
-                                <h3 class="modal-section-title">Certifications</h3>
+                            <?php if (!empty($trainer['certifications'])): ?>
+                                <section class="trainer-info-box">
+                                    <h3 class="modal-section-title">Certifications</h3>
 
-                                <p class="certifications-text">
-                                    <?php echo htmlspecialchars($trainer['certifications']); ?>
-                                </p>
-                            </section>
+                                    <p class="certifications-text">
+                                        <?php echo htmlspecialchars($trainer['certifications'], ENT_QUOTES, 'UTF-8'); ?>
+                                    </p>
+                                </section>
+                            <?php endif; ?>
 
                             <section class="trainer-info-box">
                                 <h3 class="modal-section-title">Classes Taught</h3>
 
-                                <?php if (count($classes_taught) > 0): ?>
+                                <?php if (count($classesTaught) > 0): ?>
                                     <div class="trainer-classes-grid">
-                                        <?php foreach ($classes_taught as $class): ?>
+                                        <?php foreach ($classesTaught as $class): ?>
                                             <span class="class-item">
-                                                <?php echo htmlspecialchars($class['name']); ?>
+                                                <?php echo htmlspecialchars($class['name'], ENT_QUOTES, 'UTF-8'); ?>
                                             </span>
                                         <?php endforeach; ?>
                                     </div>
@@ -183,4 +200,4 @@ include 'templates/header.php';
 
 <script src="js/trainers.js"></script>
 
-<?php include 'templates/footer.php'; ?>
+<?php include __DIR__ . '/templates/footer.php'; ?>

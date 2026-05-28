@@ -1,83 +1,102 @@
 <?php
+
 session_start();
 
-if (
-    empty($_POST['csrf_token']) ||
-    empty($_SESSION['csrf_token']) ||
-    !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
-) {
-    header('Location: ../schedule.php?error=invalid_csrf');
-    exit();
-}
+require_once __DIR__ . '/../database/db.php';
+require_once __DIR__ . '/../includes/action_helpers.php';
 
-require_once '../database/db.php';
-
-if (!isset($_SESSION['user_id'])) {
-    header('Location: ../login.php');
-    exit();
-}
-
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: ../schedule.php?error=invalid_request');
-    exit();
-}
+require_post_request('../schedule.php');
+require_authenticated_user();
+require_valid_csrf_token('../schedule.php');
 
 $classId = filter_input(INPUT_POST, 'class_id', FILTER_VALIDATE_INT);
 $rating = filter_input(INPUT_POST, 'rating', FILTER_VALIDATE_INT);
 $comment = trim($_POST['comment'] ?? '');
 
-if (!$classId || !$rating || $rating < 1 || $rating > 5 || $comment === '') {
-    header('Location: ../class_details.php?id=' . urlencode((string)$classId) . '&error=invalid_input');
-    exit();
+if ($classId === false || $classId === null || $classId <= 0) {
+    action_redirect('../schedule.php', [
+        'error' => 'invalid_class'
+    ]);
+}
+
+$classDetailsPath = '../class_details.php';
+
+if (
+    $rating === false ||
+    $rating === null ||
+    $rating < 1 ||
+    $rating > 5 ||
+    $comment === ''
+) {
+    action_redirect($classDetailsPath, [
+        'id' => $classId,
+        'error' => 'invalid_input'
+    ]);
 }
 
 $db = getDatabaseConnection();
 
-try{
-    $stmt = $db->prepare("
-        SELECT id
-        FROM members
-        WHERE user_id = ?
-    ");
-    $stmt->execute([$_SESSION['user_id']]);
-    $member = $stmt->fetch();
+try {
+    $member = get_current_member($db);
 
     if (!$member) {
-        header('Location: ../class_details.php?id=' . urlencode((string)$classId) . '&error=not_a_member');
-        exit();
+        action_redirect($classDetailsPath, [
+            'id' => $classId,
+            'error' => 'not_a_member'
+        ]);
     }
 
-    $memberId = $member['id'];
+    $memberId = (int) $member['id'];
 
     $stmt = $db->prepare("
-        SELECT start_time
+        SELECT start_time, duration_min
         FROM classes
         WHERE id = ?
     ");
+
     $stmt->execute([$classId]);
+
     $class = $stmt->fetch();
 
     if (!$class) {
-        header('Location: ../schedule.php?error=class_not_found');
-        exit();
+        action_redirect('../schedule.php', [
+            'error' => 'class_not_found'
+        ]);
     }
 
-    if (strtotime($class['start_time']) > time()) {
-        header('Location: ../class_details.php?id=' . urlencode((string)$classId) . '&error=class_not_ended');
-        exit();
+    $classStartTime = strtotime($class['start_time']);
+
+    if ($classStartTime === false) {
+        action_redirect($classDetailsPath, [
+            'id' => $classId,
+            'error' => 'invalid_class_date'
+        ]);
+    }
+
+    $classEndTime = $classStartTime + ((int) $class['duration_min'] * 60);
+
+    if ($classEndTime > time()) {
+        action_redirect($classDetailsPath, [
+            'id' => $classId,
+            'error' => 'class_not_ended'
+        ]);
     }
 
     $stmt = $db->prepare("
-        SELECT status, attended
+        SELECT attended
         FROM enrollments
         WHERE member_id = ? AND class_id = ?
     ");
+
     $stmt->execute([$memberId, $classId]);
+
     $enrollment = $stmt->fetch();
 
-    if (!$enrollment || (int)$enrollment['attended'] !== 1) {
-        header('Location: ../class_details.php?id=' . urlencode((string)$classId) . '&error=no_attendance');
-        exit();
+    if (!$enrollment || (int) $enrollment['attended'] !== 1) {
+        action_redirect($classDetailsPath, [
+            'id' => $classId,
+            'error' => 'no_attendance'
+        ]);
     }
 
     $stmt = $db->prepare("
@@ -85,7 +104,9 @@ try{
         FROM reviews
         WHERE member_id = ? AND class_id = ?
     ");
+
     $stmt->execute([$memberId, $classId]);
+
     $existingReview = $stmt->fetch();
 
     if ($existingReview) {
@@ -94,18 +115,38 @@ try{
             SET rating = ?, comment = ?, created_at = datetime('now')
             WHERE id = ?
         ");
-        $stmt->execute([$rating, $comment, $existingReview['id']]);
+
+        $stmt->execute([
+            $rating,
+            $comment,
+            $existingReview['id']
+        ]);
     } else {
         $stmt = $db->prepare("
-            INSERT INTO reviews (member_id, class_id, rating, comment)
+            INSERT INTO reviews (
+                member_id,
+                class_id,
+                rating,
+                comment
+            )
             VALUES (?, ?, ?, ?)
         ");
-        $stmt->execute([$memberId, $classId, $rating, $comment]);
+
+        $stmt->execute([
+            $memberId,
+            $classId,
+            $rating,
+            $comment
+        ]);
     }
 
-    header('Location: ../class_details.php?id=' . urlencode((string)$classId) . '&success=review_saved');
-    exit();
-} catch (Exception $e) {
-    header('Location: ../class_details.php?id=' . urlencode((string)$classId) . '&error=update_failed');
-    exit();
+    action_redirect($classDetailsPath, [
+        'id' => $classId,
+        'success' => 'review_saved'
+    ]);
+} catch (Throwable $exception) {
+    action_redirect($classDetailsPath, [
+        'id' => $classId,
+        'error' => 'update_failed'
+    ]);
 }

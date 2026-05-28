@@ -2,29 +2,20 @@
 
 session_start();
 
-if (
-    empty($_POST['csrf_token']) ||
-    empty($_SESSION['csrf_token']) ||
-    !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
-) {
-    header('Location: ../register.php?error=Invalid security token.');
-    exit();
-}
+require_once __DIR__ . '/../database/db.php';
+require_once __DIR__ . '/../includes/action_helpers.php';
 
-require_once '../database/db.php';
-
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: ../register.php');
-    exit();
-}
+require_post_request('../register.php');
+require_valid_csrf_token('../register.php');
 
 $name = trim($_POST['name'] ?? '');
 $username = trim($_POST['username'] ?? '');
 $email = trim($_POST['email'] ?? '');
 $password = $_POST['password'] ?? '';
-$planId = isset($_POST['plan_id']) ? (int)$_POST['plan_id'] : 0;
 $paymentMethod = $_POST['payment_method'] ?? '';
 $cardLast4 = trim($_POST['card_last4'] ?? '');
+
+$planId = filter_input(INPUT_POST, 'plan_id', FILTER_VALIDATE_INT);
 
 $validPaymentMethods = [
     'visa',
@@ -39,73 +30,104 @@ if (
     $username === '' ||
     $email === '' ||
     $password === '' ||
-    $planId === 0 ||
+    $planId === false ||
+    $planId === null ||
+    $planId <= 0 ||
     $paymentMethod === '' ||
     $cardLast4 === ''
 ) {
-    header('Location: ../register.php?error=empty_fields');
-    exit();
+    action_redirect('../register.php', [
+        'error' => 'empty_fields'
+    ]);
 }
 
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    header('Location: ../register.php?error=invalid_email');
-    exit();
+    action_redirect('../register.php', [
+        'error' => 'invalid_email'
+    ]);
 }
 
 if (strlen($password) < 6) {
-    header('Location: ../register.php?error=short_password');
-    exit();
+    action_redirect('../register.php', [
+        'error' => 'short_password'
+    ]);
 }
 
 if (
     !in_array($paymentMethod, $validPaymentMethods, true) ||
     !preg_match('/^[0-9]{4}$/', $cardLast4)
 ) {
-    header('Location: ../register.php?error=invalid_payment');
-    exit();
+    action_redirect('../register.php', [
+        'error' => 'invalid_payment'
+    ]);
 }
 
 $db = getDatabaseConnection();
 
-$stmtCheck = $db->prepare("
-    SELECT id
-    FROM users
-    WHERE username = ? OR email = ?
-");
-$stmtCheck->execute([$username, $email]);
-
-if ($stmtCheck->fetch()) {
-    header('Location: ../register.php?error=user_exists');
-    exit();
-}
-
-$stmtPlan = $db->prepare("
-    SELECT id
-    FROM plans
-    WHERE id = ?
-");
-$stmtPlan->execute([$planId]);
-
-if (!$stmtPlan->fetch()) {
-    header('Location: ../register.php?error=invalid_plan');
-    exit();
-}
-
-$hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-
 try {
+    $stmt = $db->prepare("
+        SELECT id
+        FROM users
+        WHERE username = ? OR email = ?
+    ");
+
+    $stmt->execute([
+        $username,
+        $email
+    ]);
+
+    if ($stmt->fetch()) {
+        action_redirect('../register.php', [
+            'error' => 'user_exists'
+        ]);
+    }
+
+    $stmt = $db->prepare("
+        SELECT id
+        FROM plans
+        WHERE id = ?
+    ");
+
+    $stmt->execute([$planId]);
+
+    if (!$stmt->fetch()) {
+        action_redirect('../register.php', [
+            'error' => 'invalid_plan'
+        ]);
+    }
+
+    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
+    if ($hashedPassword === false) {
+        action_redirect('../register.php', [
+            'error' => 'db_fail'
+        ]);
+    }
+
     $db->beginTransaction();
 
-    $stmtUser = $db->prepare("
-        INSERT INTO users (name, username, email, password, role)
+    $stmt = $db->prepare("
+        INSERT INTO users (
+            name,
+            username,
+            email,
+            password,
+            role
+        )
         VALUES (?, ?, ?, ?, 'member')
     ");
-    $stmtUser->execute([$name, $username, $email, $hashedPassword]);
 
-    $userId = $db->lastInsertId();
-    $nextBilling = date('Y-m-d', strtotime('+1 month'));
+    $stmt->execute([
+        $name,
+        $username,
+        $email,
+        $hashedPassword
+    ]);
 
-    $stmtMember = $db->prepare("
+    $userId = (int) $db->lastInsertId();
+    $nextBillingDate = date('Y-m-d', strtotime('+1 month'));
+
+    $stmt = $db->prepare("
         INSERT INTO members (
             user_id,
             plan_id,
@@ -117,10 +139,10 @@ try {
         VALUES (?, ?, 0, ?, ?, ?)
     ");
 
-    $stmtMember->execute([
+    $stmt->execute([
         $userId,
         $planId,
-        $nextBilling,
+        $nextBillingDate,
         $paymentMethod,
         $cardLast4
     ]);
@@ -135,13 +157,15 @@ try {
     $_SESSION['role'] = 'member';
     $_SESSION['photo'] = null;
 
-    header('Location: ../profile.php?new_user=true');
-    exit();
-} catch (Exception $e) {
+    action_redirect('../profile.php', [
+        'new_user' => 'true'
+    ]);
+} catch (Throwable $exception) {
     if ($db->inTransaction()) {
         $db->rollBack();
     }
 
-    header('Location: ../register.php?error=db_fail');
-    exit();
+    action_redirect('../register.php', [
+        'error' => 'db_fail'
+    ]);
 }

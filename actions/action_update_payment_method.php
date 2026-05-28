@@ -1,28 +1,15 @@
 <?php
+
 session_start();
 
-require_once '../database/db.php';
+require_once __DIR__ . '/../database/db.php';
+require_once __DIR__ . '/../includes/action_helpers.php';
 
-if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'member') {
-    header('Location: ../login.php');
-    exit();
-}
+require_post_request('../billing.php');
+require_user_role('member');
+require_valid_csrf_token('../billing.php');
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: ../billing.php');
-    exit();
-}
-
-if (
-    empty($_POST['csrf_token']) ||
-    empty($_SESSION['csrf_token']) ||
-    !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
-) {
-    header('Location: ../billing.php?error=invalid_csrf');
-    exit();
-}
-
-$paymentMethod = $_POST['payment_method'] ?? '';
+$paymentMethod = trim($_POST['payment_method'] ?? '');
 $cardLast4 = trim($_POST['card_last4'] ?? '');
 
 $validMethods = [
@@ -37,8 +24,9 @@ if (
     !in_array($paymentMethod, $validMethods, true) ||
     !preg_match('/^[0-9]{4}$/', $cardLast4)
 ) {
-    header('Location: ../billing.php?error=invalid_input');
-    exit();
+    action_redirect('../billing.php', [
+        'error' => 'invalid_input'
+    ]);
 }
 
 $db = getDatabaseConnection();
@@ -57,9 +45,27 @@ try {
         $_SESSION['user_id']
     ]);
 
-    header('Location: ../billing.php?success=payment_updated');
-    exit();
-} catch (Exception $e) {
-    header('Location: ../billing.php?error=update_failed');
-    exit();
+    if ($stmt->rowCount() === 0) {
+        $stmt = $db->prepare("
+            SELECT id
+            FROM members
+            WHERE user_id = ?
+        ");
+
+        $stmt->execute([$_SESSION['user_id']]);
+
+        if (!$stmt->fetch()) {
+            action_redirect('../billing.php', [
+                'error' => 'member_not_found'
+            ]);
+        }
+    }
+
+    action_redirect('../billing.php', [
+        'success' => 'payment_updated'
+    ]);
+} catch (Throwable $exception) {
+    action_redirect('../billing.php', [
+        'error' => 'update_failed'
+    ]);
 }

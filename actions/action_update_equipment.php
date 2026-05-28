@@ -1,58 +1,71 @@
 <?php
+
 session_start();
-require_once '../database/db.php';
 
-if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
-    header('Location: ../login.php');
-    exit();
-}
+require_once __DIR__ . '/../database/db.php';
+require_once __DIR__ . '/../includes/action_helpers.php';
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: ../admin.php?error=invalid_request');
-    exit();
-}
-
-if (
-    empty($_POST['csrf_token']) ||
-    empty($_SESSION['csrf_token']) ||
-    !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
-) {
-    header('Location: ../admin.php?error=invalid_csrf');
-    exit();
-}
+require_post_request('../admin.php');
+require_user_role('admin');
+require_valid_csrf_token('../admin.php');
 
 $equipmentId = filter_input(INPUT_POST, 'equipment_id', FILTER_VALIDATE_INT);
 $availableUnits = filter_input(INPUT_POST, 'available_units', FILTER_VALIDATE_INT);
 
-if (!$equipmentId || $availableUnits === false || $availableUnits < 0) {
-    header('Location: ../admin.php?error=invalid_input');
-    exit();
+if (
+    $equipmentId === false ||
+    $equipmentId === null ||
+    $equipmentId <= 0 ||
+    $availableUnits === false ||
+    $availableUnits === null ||
+    $availableUnits < 0
+) {
+    action_redirect('../admin.php', [
+        'error' => 'invalid_input'
+    ]);
 }
 
 $db = getDatabaseConnection();
 
+try {
+    $stmt = $db->prepare("
+        SELECT total_units
+        FROM equipment
+        WHERE id = ?
+    ");
 
-try{
-    $stmt = $db->prepare("SELECT total_units FROM equipment WHERE id = ?");
     $stmt->execute([$equipmentId]);
+
     $equipment = $stmt->fetch();
 
     if (!$equipment) {
-        header('Location: ../admin.php?error=equipment_not_found');
-        exit();
+        action_redirect('../admin.php', [
+            'error' => 'equipment_not_found'
+        ]);
     }
 
-    if ($availableUnits > (int)$equipment['total_units']) {
-        header('Location: ../admin.php?error=units_exceeded');
-        exit();
+    if ($availableUnits > (int) $equipment['total_units']) {
+        action_redirect('../admin.php', [
+            'error' => 'units_exceeded'
+        ]);
     }
 
-    $stmt = $db->prepare("UPDATE equipment SET available_units = ? WHERE id = ?");
-    $stmt->execute([$availableUnits, $equipmentId]);
+    $stmt = $db->prepare("
+        UPDATE equipment
+        SET available_units = ?
+        WHERE id = ?
+    ");
 
-    header('Location: ../admin.php?success=equipment_updated');
-    exit();
-} catch(Exception $e){
-    header('Location: ../admin.php?error=update_failed');
-    exit();
+    $stmt->execute([
+        $availableUnits,
+        $equipmentId
+    ]);
+
+    action_redirect('../admin.php', [
+        'success' => 'equipment_updated'
+    ]);
+} catch (Throwable $exception) {
+    action_redirect('../admin.php', [
+        'error' => 'update_failed'
+    ]);
 }

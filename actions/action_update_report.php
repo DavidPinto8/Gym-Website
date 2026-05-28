@@ -1,36 +1,33 @@
 <?php
+
 session_start();
 
-require_once '../database/db.php';
+require_once __DIR__ . '/../database/db.php';
+require_once __DIR__ . '/../includes/action_helpers.php';
 
-if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
-    header('Location: ../login.php');
-    exit();
-}
-
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: ../admin_reports.php?error=invalid_request');
-    exit();
-}
-
-if (
-    empty($_POST['csrf_token']) ||
-    empty($_SESSION['csrf_token']) ||
-    !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
-) {
-    header('Location: ../admin_reports.php?error=invalid_csrf');
-    exit();
-}
+require_post_request('../admin_reports.php');
+require_user_role('admin');
+require_valid_csrf_token('../admin_reports.php');
 
 $reportId = filter_input(INPUT_POST, 'report_id', FILTER_VALIDATE_INT);
-$status = $_POST['status'] ?? '';
+$status = trim($_POST['status'] ?? '');
 $adminResponse = trim($_POST['admin_response'] ?? '');
 
-$validStatuses = ['open', 'in_progress', 'resolved'];
+$validStatuses = [
+    'open',
+    'in_progress',
+    'resolved'
+];
 
-if (!$reportId || !in_array($status, $validStatuses, true)) {
-    header('Location: ../admin_reports.php?error=invalid_input');
-    exit();
+if (
+    $reportId === false ||
+    $reportId === null ||
+    $reportId <= 0 ||
+    !in_array($status, $validStatuses, true)
+) {
+    action_redirect('../admin_reports.php', [
+        'error' => 'invalid_input'
+    ]);
 }
 
 $db = getDatabaseConnection();
@@ -43,17 +40,31 @@ try {
             reports.admin_response AS old_admin_response,
             users.id AS member_user_id
         FROM reports
-        JOIN members ON reports.member_id = members.id
-        JOIN users ON members.user_id = users.id
+        INNER JOIN members ON reports.member_id = members.id
+        INNER JOIN users ON members.user_id = users.id
         WHERE reports.id = ?
     ");
+
     $stmt->execute([$reportId]);
+
     $report = $stmt->fetch();
 
     if (!$report) {
-        header('Location: ../admin_reports.php?error=report_not_found');
-        exit();
+        action_redirect('../admin_reports.php', [
+            'error' => 'report_not_found'
+        ]);
     }
+
+    $responseChanged = $adminResponse !== ($report['old_admin_response'] ?? '');
+    $statusChanged = $status !== $report['old_status'];
+
+    if (!$responseChanged && !$statusChanged) {
+        action_redirect('../admin_reports.php', [
+            'success' => 'report_updated'
+        ]);
+    }
+
+    $db->beginTransaction();
 
     $stmt = $db->prepare("
         UPDATE reports
@@ -62,24 +73,31 @@ try {
             updated_at = datetime('now')
         WHERE id = ?
     ");
+
     $stmt->execute([
         $status,
         $adminResponse,
         $reportId
     ]);
 
-    $responseChanged = $adminResponse !== '' && $adminResponse !== ($report['old_admin_response'] ?? '');
-    $statusChanged = $status !== $report['old_status'];
-
     if ($responseChanged || $statusChanged) {
-        $message = $status === 'resolved'
-            ? 'Your report "' . $report['subject'] . '" was marked as resolved.'
-            : 'An admin responded to your report "' . $report['subject'] . '".';
+        if ($status === 'resolved' && $statusChanged) {
+            $message = 'Your report "' . $report['subject'] . '" was marked as resolved.';
+        } elseif ($adminResponse !== '' && $responseChanged) {
+            $message = 'An admin responded to your report "' . $report['subject'] . '".';
+        } else {
+            $message = 'The status of your report "' . $report['subject'] . '" was updated.';
+        }
 
         $stmt = $db->prepare("
-            INSERT INTO notifications (user_id, message, link)
+            INSERT INTO notifications (
+                user_id,
+                message,
+                link
+            )
             VALUES (?, ?, ?)
         ");
+
         $stmt->execute([
             $report['member_user_id'],
             $message,
@@ -87,9 +105,17 @@ try {
         ]);
     }
 
-    header('Location: ../admin_reports.php?success=report_updated');
-    exit();
-} catch (Exception $e) {
-    header('Location: ../admin_reports.php?error=update_failed');
-    exit();
+    $db->commit();
+
+    action_redirect('../admin_reports.php', [
+        'success' => 'report_updated'
+    ]);
+} catch (Throwable $exception) {
+    if ($db->inTransaction()) {
+        $db->rollBack();
+    }
+
+    action_redirect('../admin_reports.php', [
+        'error' => 'update_failed'
+    ]);
 }

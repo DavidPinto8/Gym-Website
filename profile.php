@@ -2,8 +2,8 @@
 
 session_start();
 
-require_once 'database/db.php';
-require_once 'includes/avatar.php';
+require_once __DIR__ . '/database/db.php';
+require_once __DIR__ . '/includes/avatar.php';
 
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
@@ -14,12 +14,12 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-if ($_SESSION['role'] === 'admin') {
+if (($_SESSION['role'] ?? '') === 'admin') {
     header('Location: admin.php');
     exit();
 }
 
-if ($_SESSION['role'] === 'trainer') {
+if (($_SESSION['role'] ?? '') === 'trainer') {
     header('Location: trainer_dashboard.php');
     exit();
 }
@@ -28,7 +28,10 @@ $db = getDatabaseConnection();
 
 $stmt = $db->prepare("
     SELECT
-        users.*,
+        users.id,
+        users.name,
+        users.username,
+        users.photo,
         members.streak,
         members.favorite_flow,
         members.primary_goal,
@@ -39,21 +42,26 @@ $stmt = $db->prepare("
         plans.name AS plan_name,
         plans.price AS plan_price
     FROM users
-    JOIN members
+    INNER JOIN members
         ON users.id = members.user_id
     LEFT JOIN plans
         ON members.plan_id = plans.id
     WHERE users.id = ?
 ");
+
 $stmt->execute([$_SESSION['user_id']]);
+
 $user = $stmt->fetch();
 
 if (!$user) {
-    header('Location: actions/action_logout.php');
+    $_SESSION = [];
+    session_destroy();
+
+    header('Location: login.php');
     exit();
 }
 
-$stmtAttended = $db->prepare("
+$stmt = $db->prepare("
     SELECT COUNT(*)
     FROM enrollments
     WHERE attended = 1
@@ -63,12 +71,13 @@ $stmtAttended = $db->prepare("
           WHERE user_id = ?
       )
 ");
-$stmtAttended->execute([$_SESSION['user_id']]);
-$attendedCount = (int)$stmtAttended->fetchColumn();
 
-$nextMilestone = max(50, (ceil(($attendedCount + 1) / 50) * 50));
+$stmt->execute([$_SESSION['user_id']]);
 
-$memberAccessCode = 'FLOW-' . str_pad((string)$user['id'], 5, '0', STR_PAD_LEFT);
+$attendedCount = (int) $stmt->fetchColumn();
+$nextMilestone = max(50, (int) ceil(($attendedCount + 1) / 50) * 50);
+
+$memberAccessCode = 'FLOW-' . str_pad((string) $user['id'], 5, '0', STR_PAD_LEFT);
 $qrPayload = 'FlowFitness Member Access | ID: ' . $memberAccessCode . ' | User: ' . $user['username'];
 $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' . urlencode($qrPayload);
 
@@ -85,7 +94,8 @@ $errorMessages = [
     'invalid_plan' => 'Please select a valid membership plan.',
     'password_mismatch' => 'The new passwords do not match.',
     'short_password' => 'Password must be at least 6 characters long.',
-    'invalid_current_password' => 'Current password is incorrect.'
+    'invalid_current_password' => 'Current password is incorrect.',
+    'Invalid CSRF security token.' => 'Invalid security token.'
 ];
 
 $paymentLabels = [
@@ -110,9 +120,10 @@ if (isset($_GET['error'], $errorMessages[$_GET['error']])) {
 }
 
 $pageTitle = 'My Profile | Flow Fitness';
+$currentPage = 'profile';
 $extraCSS = 'profile.css';
 
-include 'templates/header.php';
+include __DIR__ . '/templates/header.php';
 ?>
 
 <main class="profile-page bg-light">
@@ -128,8 +139,8 @@ include 'templates/header.php';
                 ?>
 
                 <img
-                    src="<?php echo htmlspecialchars($profileAvatar); ?>"
-                    alt="<?php echo htmlspecialchars($user['name']); ?> profile picture"
+                    src="<?php echo htmlspecialchars($profileAvatar, ENT_QUOTES, 'UTF-8'); ?>"
+                    alt="<?php echo htmlspecialchars($user['name'], ENT_QUOTES, 'UTF-8'); ?> profile picture"
                     id="profile-picture-preview"
                 >
 
@@ -137,13 +148,13 @@ include 'templates/header.php';
                     type="file"
                     id="avatar-upload"
                     name="avatar"
-                    accept="image/png, image/jpeg, image/jpg"
+                    accept="image/png, image/jpeg"
                 >
 
                 <input
                     type="hidden"
                     name="csrf_token"
-                    value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>"
+                    value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>"
                     id="avatar-csrf-token"
                 >
 
@@ -151,10 +162,10 @@ include 'templates/header.php';
                     Change Photo
                 </label>
 
-                <h3><?php echo htmlspecialchars($user['name']); ?></h3>
+                <h3><?php echo htmlspecialchars($user['name'], ENT_QUOTES, 'UTF-8'); ?></h3>
 
                 <span class="badge-gold">
-                    <?php echo htmlspecialchars($user['plan_name'] ?? 'Basic'); ?> Member
+                    <?php echo htmlspecialchars($user['plan_name'] ?? 'Basic', ENT_QUOTES, 'UTF-8'); ?> Member
                 </span>
 
                 <p id="avatar-upload-status" class="avatar-upload-status" aria-live="polite"></p>
@@ -166,8 +177,20 @@ include 'templates/header.php';
                     <li><a href="#access-pass">Access Pass</a></li>
                     <li><a href="#account-settings">Account Settings</a></li>
                     <li><a href="#password-settings">Password</a></li>
-                    <li><a href="#membership-details">Membership & Billing</a></li>
-                    <li><a href="actions/action_logout.php" class="text-danger">Log Out</a></li>
+                    <li><a href="#membership-details">Membership &amp; Billing</a></li>
+                    <li>
+                        <form action="actions/action_logout.php" method="POST">
+                            <input
+                                type="hidden"
+                                name="csrf_token"
+                                value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>"
+                            >
+
+                            <button type="submit" class="text-danger">
+                                Log Out
+                            </button>
+                        </form>
+                    </li>
                 </ul>
             </nav>
         </aside>
@@ -175,13 +198,13 @@ include 'templates/header.php';
         <section class="profile-content">
             <?php if ($successMessage): ?>
                 <p class="form-message form-success">
-                    <?php echo htmlspecialchars($successMessage); ?>
+                    <?php echo htmlspecialchars($successMessage, ENT_QUOTES, 'UTF-8'); ?>
                 </p>
             <?php endif; ?>
 
             <?php if ($errorMessage): ?>
                 <p class="form-message form-error">
-                    <?php echo htmlspecialchars($errorMessage); ?>
+                    <?php echo htmlspecialchars($errorMessage, ENT_QUOTES, 'UTF-8'); ?>
                 </p>
             <?php endif; ?>
 
@@ -190,7 +213,8 @@ include 'templates/header.php';
                     <span class="stat-title">Current Streak</span>
 
                     <span class="stat-value">
-                        <?php echo htmlspecialchars($user['streak'] ?? 0); ?> <small>Days</small>
+                        <?php echo htmlspecialchars((string) ($user['streak'] ?? 0), ENT_QUOTES, 'UTF-8'); ?>
+                        <small>Days</small>
                     </span>
                 </div>
 
@@ -198,7 +222,7 @@ include 'templates/header.php';
                     <span class="stat-title">Classes Attended</span>
 
                     <span class="stat-value">
-                        <?php echo htmlspecialchars($attendedCount); ?>
+                        <?php echo htmlspecialchars((string) $attendedCount, ENT_QUOTES, 'UTF-8'); ?>
                     </span>
                 </div>
 
@@ -206,7 +230,8 @@ include 'templates/header.php';
                     <span class="stat-title">Next Milestone</span>
 
                     <span class="stat-value">
-                        <?php echo htmlspecialchars($nextMilestone); ?> <small>Workouts</small>
+                        <?php echo htmlspecialchars((string) $nextMilestone, ENT_QUOTES, 'UTF-8'); ?>
+                        <small>Workouts</small>
                     </span>
                 </div>
             </div>
@@ -225,24 +250,24 @@ include 'templates/header.php';
                         <div class="access-pass-details">
                             <div>
                                 <strong>Member</strong>
-                                <span><?php echo htmlspecialchars($user['name']); ?></span>
+                                <span><?php echo htmlspecialchars($user['name'], ENT_QUOTES, 'UTF-8'); ?></span>
                             </div>
 
                             <div>
                                 <strong>Plan</strong>
-                                <span><?php echo htmlspecialchars($user['plan_name'] ?? 'Basic'); ?></span>
+                                <span><?php echo htmlspecialchars($user['plan_name'] ?? 'Basic', ENT_QUOTES, 'UTF-8'); ?></span>
                             </div>
 
                             <div>
                                 <strong>Access Code</strong>
-                                <span><?php echo htmlspecialchars($memberAccessCode); ?></span>
+                                <span><?php echo htmlspecialchars($memberAccessCode, ENT_QUOTES, 'UTF-8'); ?></span>
                             </div>
                         </div>
                     </div>
 
                     <div class="qr-pass-box">
                         <img
-                            src="<?php echo htmlspecialchars($qrUrl); ?>"
+                            src="<?php echo htmlspecialchars($qrUrl, ENT_QUOTES, 'UTF-8'); ?>"
                             alt="Member access QR code"
                             class="member-qr-code"
                         >
@@ -257,7 +282,12 @@ include 'templates/header.php';
                 <p class="text-muted">Manage your personal details and workout preferences.</p>
 
                 <form action="actions/action_update_profile.php" method="POST" class="profile-form">
-                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+                    <input
+                        type="hidden"
+                        name="csrf_token"
+                        value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>"
+                    >
+
                     <input type="hidden" name="form_type" value="profile">
 
                     <fieldset>
@@ -270,7 +300,7 @@ include 'templates/header.php';
                                 type="text"
                                 id="name"
                                 name="name"
-                                value="<?php echo htmlspecialchars($user['name']); ?>"
+                                value="<?php echo htmlspecialchars($user['name'], ENT_QUOTES, 'UTF-8'); ?>"
                                 required
                             >
                         </div>
@@ -282,7 +312,7 @@ include 'templates/header.php';
                                 type="text"
                                 id="username"
                                 name="username"
-                                value="<?php echo htmlspecialchars($user['username']); ?>"
+                                value="<?php echo htmlspecialchars($user['username'], ENT_QUOTES, 'UTF-8'); ?>"
                                 required
                             >
                         </div>
@@ -296,15 +326,15 @@ include 'templates/header.php';
                                 <label for="fav-class">Favorite Flow</label>
 
                                 <select id="fav-class" name="fav-class" class="custom-select">
-                                    <option value="hiit" <?php if (($user['favorite_flow'] ?? '') === 'hiit') echo 'selected'; ?>>
-                                        HIIT & Conditioning
+                                    <option value="hiit" <?php echo ($user['favorite_flow'] ?? '') === 'hiit' ? 'selected' : ''; ?>>
+                                        HIIT &amp; Conditioning
                                     </option>
 
-                                    <option value="mobility" <?php if (($user['favorite_flow'] ?? '') === 'mobility') echo 'selected'; ?>>
-                                        Mobility & Yoga
+                                    <option value="mobility" <?php echo ($user['favorite_flow'] ?? '') === 'mobility' ? 'selected' : ''; ?>>
+                                        Mobility &amp; Yoga
                                     </option>
 
-                                    <option value="strength" <?php if (($user['favorite_flow'] ?? '') === 'strength') echo 'selected'; ?>>
+                                    <option value="strength" <?php echo ($user['favorite_flow'] ?? '') === 'strength' ? 'selected' : ''; ?>>
                                         Strength Training
                                     </option>
                                 </select>
@@ -314,15 +344,15 @@ include 'templates/header.php';
                                 <label for="fitness-goal">Primary Goal</label>
 
                                 <select id="fitness-goal" name="fitness-goal" class="custom-select">
-                                    <option value="endurance" <?php if (($user['primary_goal'] ?? '') === 'endurance') echo 'selected'; ?>>
+                                    <option value="endurance" <?php echo ($user['primary_goal'] ?? '') === 'endurance' ? 'selected' : ''; ?>>
                                         Build Endurance
                                     </option>
 
-                                    <option value="muscle" <?php if (($user['primary_goal'] ?? '') === 'muscle') echo 'selected'; ?>>
+                                    <option value="muscle" <?php echo ($user['primary_goal'] ?? '') === 'muscle' ? 'selected' : ''; ?>>
                                         Gain Muscle
                                     </option>
 
-                                    <option value="weightloss" <?php if (($user['primary_goal'] ?? '') === 'weightloss') echo 'selected'; ?>>
+                                    <option value="weightloss" <?php echo ($user['primary_goal'] ?? '') === 'weightloss' ? 'selected' : ''; ?>>
                                         Weight Loss
                                     </option>
                                 </select>
@@ -343,7 +373,12 @@ include 'templates/header.php';
                 <p class="text-muted">Update your password securely.</p>
 
                 <form action="actions/action_update_profile.php" method="POST" class="profile-form">
-                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+                    <input
+                        type="hidden"
+                        name="csrf_token"
+                        value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>"
+                    >
+
                     <input type="hidden" name="form_type" value="password">
 
                     <fieldset>
@@ -396,23 +431,23 @@ include 'templates/header.php';
             </div>
 
             <div id="membership-details" class="card form-container">
-                <h2>Membership & Billing</h2>
+                <h2>Membership &amp; Billing</h2>
                 <p class="text-muted">Review your active plan, billing details and mock payment method.</p>
 
                 <div class="membership-details">
                     <div class="plan-info">
                         <span class="badge-gold">
-                            <?php echo htmlspecialchars($user['plan_name'] ?? 'Basic'); ?> Member
+                            <?php echo htmlspecialchars($user['plan_name'] ?? 'Basic', ENT_QUOTES, 'UTF-8'); ?> Member
                         </span>
 
                         <p class="price">
-                            €<?php echo htmlspecialchars($user['plan_price'] ?? '0.00'); ?><span>/month</span>
+                            €<?php echo htmlspecialchars((string) ($user['plan_price'] ?? '0.00'), ENT_QUOTES, 'UTF-8'); ?><span>/month</span>
                         </p>
 
                         <?php if (!empty($user['next_billing_date'])): ?>
                             <p class="billing-date">
                                 Next billing date:
-                                <?php echo htmlspecialchars(date('M d, Y', strtotime($user['next_billing_date']))); ?>
+                                <?php echo htmlspecialchars(date('M d, Y', strtotime($user['next_billing_date'])), ENT_QUOTES, 'UTF-8'); ?>
                             </p>
                         <?php endif; ?>
 
@@ -420,10 +455,10 @@ include 'templates/header.php';
                             <strong>Payment Method</strong>
 
                             <span>
-                                <?php echo htmlspecialchars($paymentMethodLabel); ?>
+                                <?php echo htmlspecialchars($paymentMethodLabel, ENT_QUOTES, 'UTF-8'); ?>
 
                                 <?php if (!empty($user['card_last4'])): ?>
-                                    ending in <?php echo htmlspecialchars($user['card_last4']); ?>
+                                    ending in <?php echo htmlspecialchars($user['card_last4'], ENT_QUOTES, 'UTF-8'); ?>
                                 <?php endif; ?>
                             </span>
 
@@ -435,20 +470,24 @@ include 'templates/header.php';
 
                     <div class="plan-actions">
                         <form action="actions/action_upgrade_plan.php" method="POST" class="plan-upgrade-form">
-                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+                            <input
+                                type="hidden"
+                                name="csrf_token"
+                                value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>"
+                            >
 
                             <label for="plan_id">Change Membership Plan</label>
 
                             <select id="plan_id" name="plan_id" class="custom-select" required>
-                                <option value="1" <?php if ((int)($user['plan_id'] ?? 0) === 1) echo 'selected'; ?>>
+                                <option value="1" <?php echo (int) ($user['plan_id'] ?? 0) === 1 ? 'selected' : ''; ?>>
                                     Starter - €30/month
                                 </option>
 
-                                <option value="2" <?php if ((int)($user['plan_id'] ?? 0) === 2) echo 'selected'; ?>>
+                                <option value="2" <?php echo (int) ($user['plan_id'] ?? 0) === 2 ? 'selected' : ''; ?>>
                                     Pro - €45/month
                                 </option>
 
-                                <option value="3" <?php if ((int)($user['plan_id'] ?? 0) === 3) echo 'selected'; ?>>
+                                <option value="3" <?php echo (int) ($user['plan_id'] ?? 0) === 3 ? 'selected' : ''; ?>>
                                     Elite - €70/month
                                 </option>
                             </select>
@@ -472,4 +511,4 @@ include 'templates/header.php';
 
 <script src="js/profile.js"></script>
 
-<?php include 'templates/footer.php'; ?>
+<?php include __DIR__ . '/templates/footer.php'; ?>
