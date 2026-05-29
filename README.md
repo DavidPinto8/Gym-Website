@@ -153,6 +153,21 @@ php tests/run_tests.php
 
 ---
 
+## Implemented Extra Features
+
+Beyond the base requirements, Flow Fitness includes several additional features:
+
+- Membership plans with upgrade/downgrade flows and simulated billing.
+- Class waitlists with automatic promotion when enrolled members cancel.
+- Attendance-locked class reviews, ensuring only attended classes can be reviewed.
+- Member support reports with two-way conversation threads.
+- Internal notification system with unread badges and a notification center.
+- Admin analytics dashboard with occupancy, popular disciplines and community spotlight.
+- Trainer attendance tracking using transactional updates.
+- Secure avatar upload flow with MIME validation, file size limits and randomized filenames.
+
+---
+
 ## Membership Plans
 
 | Plan | Monthly Price |
