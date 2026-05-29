@@ -190,7 +190,8 @@ include 'templates/header.php';
             ?>
 
             <div class="cards-grid">
-                <article class="card testimonial-card">
+                <article class="card testimonial-card highlighted">
+                    <div class="card-badge">Gym Ambassador</div>
                     <div class="testimonial-stars">★★★★★</div>
                     <p class="quote">
                         "In my line of work, if you lose your rhythm, you lose the game. Flow Fitness is where I come to lock in during the off-season. The facility is world-class, the environment forces you to elevate your game, and the staff treats every member like a professional athlete. If you're serious about finding your rhythm and pushing past your limits, this is the only place to be. Every day here is a step toward the next milestone."
