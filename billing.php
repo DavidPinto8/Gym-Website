@@ -6,6 +6,8 @@ if (empty($_SESSION['csrf_token'])) {
 }
 
 require_once 'database/db.php';
+require_once 'includes/message_maps.php';
+require_once 'includes/ui_helpers.php';
 
 if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'member') {
     header('Location: login.php');
@@ -35,26 +37,17 @@ if (!$billing) {
     exit();
 }
 
-$successMessages = [
-    'payment_updated' => 'Payment method updated successfully.'
-];
-
-$errorMessages = [
-    'invalid_input' => 'Please select a valid payment method and provide 4 digits.',
-    'update_failed' => 'Could not update payment method.',
-    'invalid_csrf' => 'Invalid security token.',
-    'missing_payment_method' => 'Please add a payment method before changing your plan.'
-];
+$billingMessages = get_message_map('billing');
 
 $successMessage = null;
 $errorMessage = null;
 
-if (isset($_GET['success'], $successMessages[$_GET['success']])) {
-    $successMessage = $successMessages[$_GET['success']];
+if (isset($_GET['success'], $billingMessages[$_GET['success']])) {
+    $successMessage = $billingMessages[$_GET['success']];
 }
 
-if (isset($_GET['error'], $errorMessages[$_GET['error']])) {
-    $errorMessage = $errorMessages[$_GET['error']];
+if (isset($_GET['error'], $billingMessages[$_GET['error']])) {
+    $errorMessage = $billingMessages[$_GET['error']];
 }
 
 $paymentLabels = [

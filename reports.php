@@ -6,6 +6,7 @@ if (empty($_SESSION['csrf_token'])) {
 }
 
 require_once 'database/db.php';
+require_once 'includes/ui_helpers.php';
 
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
@@ -57,17 +58,7 @@ include 'templates/header.php';
                 <p>Report equipment problems, class issues, or anything that needs attention.</p>
             </div>
 
-            <?php if (isset($_GET['success'])): ?>
-                <div class="schedule-alert success-alert">
-                    <?php echo htmlspecialchars(ucfirst(str_replace('_', ' ', $_GET['success']))); ?>
-                </div>
-            <?php endif; ?>
-
-            <?php if (isset($_GET['error'])): ?>
-                <div class="schedule-alert error-alert">
-                    <?php echo htmlspecialchars(ucfirst(str_replace('_', ' ', $_GET['error']))); ?>
-                </div>
-            <?php endif; ?>
+            <?php render_alerts(); ?>
 
             <article class="report-card">
                 <h2>Submit a Report</h2>
