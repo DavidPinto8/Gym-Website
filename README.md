@@ -1,227 +1,157 @@
 # Flow Fitness (ltw14g08)
 
-Premium gym management platform built with PHP, SQLite and AJAX, focused on class scheduling, membership management, trainer workflows and equipment tracking.
+Gym management platform built with **PHP**, **SQLite**, **PDO**, **JavaScript**, **AJAX/JSON**, **HTML** and **CSS**.
 
----
+Flow Fitness is a premium gym management platform designed to simplify the experience of members, trainers and administrators.
 
-## How to Run
-
-### Setup Database
-
-```bash
-sqlite3 database/database.db < database/database.sql
-```
-
-### Start Server
-
-```bash
-php -S localhost:9000
-```
-
-Open:
-
-```
-http://localhost:9000
-```
-
----
-
-## Automated Tests
-
-Run backend sanity tests:
-
-```bash
-php tests/run_tests.php
-```
+The platform combines class scheduling, membership management, equipment tracking and customer support in a single system.
 
 ---
 
 ## Features
 
-### Authentication & Accounts
+**All users:**
+- [x] Register a new account.
+- [x] Log in and out.
+- [x] Edit their profile, including name, username, password, and profile photo.
+- [x] Receive in-app notifications for bookings, reports and platform activity.
+- [x] View a personalized gym access QR pass.
 
-- [x] **Registration & Sign-up**: Register new member accounts with plan selection and payment setup.
-- [x] **Session Authentication**: Secure login/logout workflows with password verification.
-- [x] **Secure Password Hashing**: Passwords stored securely using bcrypt hashing algorithms.
-- [x] **Profile Management**: Update member details (Full Name, Username, etc.).
-- [x] **Workout Preferences**: Set and update favorite training style (HIIT, Strength, Mobility) and primary fitness goal.
-- [x] **Workout Streak Tracking**: Dynamically tracks and displays active member streaks (visualized with a 🔥 badge).
-- [x] **Secure Avatar Upload API**: 
-  - Restricts uploads to POST requests, validating active sessions and CSRF tokens.
-  - Limits file size to 2MB and enforces JPEG/PNG file types via server-side `finfo` MIME inspection.
-  - Validates image integrity with `getimagesize`.
-  - Cryptographically renames upload files using `random_bytes` to prevent traversal and directory attacks.
-- [x] **Gym Access Pass**: Dynamic, user-specific Gym Entry QR codes generated via external API for facility check-in.
+**Members:**
+- [x] Browse the schedule of available fitness classes, filtering by type, trainer, day, or time.
+- [x] Enroll in and cancel enrollment from upcoming classes, subject to capacity limits.
+- [x] View trainer profiles, including their specializations and the classes they teach.
+- [x] Check the current availability of equipment in the main training area.
+- [x] Leave ratings and reviews for classes they have attended.
+- [x] Edit previously submitted reviews.
+- [x] Join and leave class waitlists when a class is full.
+- [x] Manage their membership plan and payment method.
+- [x] Submit support reports and reply to admin responses.
+- [x] Set workout preferences (training style and fitness goal) and track workout streaks.
 
----
+**Trainers:**
+- [x] Manage their public profile, including bio, specializations, and certifications.
+- [x] View the roster of members enrolled in their classes.
+- [x] Track and manage their assigned class schedule.
+- [x] Mark member attendance per session (required to unlock class reviews).
 
-### Membership & Billing
+**Admins:**
+- [x] Manage members and trainers (create, update, and deactivate accounts).
+- [x] Manage the class catalog (create, edit, and remove classes) and assign trainers to them.
+- [x] Manage equipment in the main training area (add, update availability status, and remove items).
+- [x] Elevate a user to admin status.
+- [x] Oversee and ensure the smooth operation of the entire system.
+- [x] View platform analytics and moderate support reports.
 
-- [x] **Membership Plans**: Tiered plans including **Starter** (€30), **Pro** (€45), and **Elite** (€70).
-- [x] **Upgrade/Downgrade Flow**: Upgrade or downgrade plans directly from the profile dashboard.
-- [x] **Payment Validation Requirement**: Enforces that members have a valid payment method on file before upgrading plans, prompting redirection if missing.
-- [x] **Mock Billing System**: Simulated billing system tracking active subscriptions and calculating billing cycles.
-- [x] **Payment Method Management**: Update payment information dynamically, validating provider type (Visa, Mastercard, PayPal, Apple Pay, Google Pay) and card credentials (regex-enforced 4-digit card reference).
-- [x] **Next Billing Date Display**: Automatically calculates and displays the next renewal date (+1 month cycle).
-
----
-
-### Classes & Booking
-
-- [x] **Weekly Recurring Schedule**: Class schedule operates on a recurring weekly model, dynamically calculating next class times and displaying them chronologically.
-- [x] **Interactive Schedule Filtering**: Filter classes in real-time by category (Yoga, HIIT, Strength, Cardio, Other), trainer, and day of the week.
-- [x] **Real-time Capacity Tracking**: Interactive display of class capacities showing active bookings (e.g., `12/20` slots filled).
-- [x] **Detailed Class Pages**: Inspect class type, trainer bio/specializations, location, duration, and reviews.
-- [x] **Automated Booking & Waitlists**:
-  - Book or cancel class enrollments.
-  - Automatic waitlist placement when class capacities are full, with live queue position tracking.
-  - **Waitlist Auto-Promotion**: Cancelling a booking instantly promotes the next member in the waitlist queue to `enrolled` status.
-  - Leave waitlist queues at any time.
-- [x] **Review and Rating System**:
-  - Members can leave a rating (1 to 5 stars) and comments.
-  - Enforced attendance: Members can *only* review classes they have physically attended (verified via the trainer roster).
-  - **Interactive Review Editing**: Members can update or edit their previously submitted reviews.
-  - Live average ratings and review counts calculated on the fly.
+**Extra:**
+- [x] Membership plans and simulated billing.
+- [x] Class waitlists with automatic promotion.
+- [x] Attendance-locked reviews.
+- [x] Internal notification system.
+- [x] Support reports with two-way conversations.
+- [x] Admin analytics dashboard.
 
 ---
 
-### Trainer Features
+## Running
 
-- [x] **Public Trainer Profiles**: Showcases trainer bios, specializations, credentials, and photos.
-- [x] **Trainer Dashboard**:
-  - **Self-Editing Profiles**: Trainers can update their bio, certifications, and specializations from their dashboard.
-  - **Class Rosters**: View upcoming classes and the roster of enrolled students (with user details and booking status).
-  - **Attendance Tracking**: Mark member attendance (attended vs absent) for class sessions and save status using database transactions.
+### 1. Setup Database
 
----
-
-### Equipment Management
-
-- [x] **Real-time Equipment Availability**: Search and view equipment list status in real-time.
-- [x] **Live AJAX Searching & Filtering**: Search equipment by name and filter by category (cardio, weights, machines, functional) without reloading the page.
-- [x] **Visual Status Indicators**: Progress bars illustrating available units vs total units, color-coded by urgency (Green: >60% available, Orange: 26%-60% available, Red: <=25% critical capacity).
-- [x] **Issue Reporting**: Directly report equipment defects or issues, pre-filling the equipment name and category in the support ticket.
-- [x] **Admin CRUD Management**: Full administrative control to add, edit total/available units, and delete equipment.
-
----
-
-### Reporting System
-
-- [x] **Member Support Tickets**: Submit issue reports categorized under equipment, class, trainer, or other, with a custom subject and description.
-- [x] **Interactive Conversation Threads**: 
-  - Admins can post updates, change status (Open, In Progress, Resolved), and leave textual feedback.
-  - Members can post follow-up replies (which moves status back to "In Progress") and close solved tickets directly from their panel.
-- [x] **Internal Notifications**:
-  - Notifies admins when members submit reports, post replies, or close tickets.
-  - Notifies members when admins reply, update ticket status, or mark issues as resolved.
-  - **Unread Notification Badge**: Header navbar displays an unread notification count badge in real-time.
-  - **Notification Center**: Dashboard displaying notifications chronologically with quick links to related reports and a "Mark all as read" button.
-
----
-
-### Admin Features
-
-- [x] **System Oversight Dashboard**: High-level statistics cards displaying Total Members, Total Trainers, Total Classes, and Critical Equipment counts.
-- [x] **Live Analytics Panels**:
-  - **Gym Occupancy Status**: Displays average class slot utilization rate across the gym via dynamic progress indicators.
-  - **Popular Disciplines**: Ordered ranking of gym training methodologies based on total active bookings.
-  - **Community Spotlight**: Highlights the community member holding the highest active workout streak.
-- [x] **User Management**: Unified table listing users, roles, and membership plans. Admin capability to promote users to admin and delete accounts safely.
-- [x] **Account Deletion Constraints**: Prevents deleting the logged-in admin or deleting the last admin to preserve system accessibility.
-- [x] **Class Catalog CRUD**: Create and schedule new class slots (assigning trainer, capacity, time, duration, and location) or delete them safely (cleaning up associated bookings and reviews).
-- [x] **Equipment CRUD**: Complete workflow to add new gym equipment assets, update unit availability, or delete items.
-- [x] **Report Moderation**: Read, track, and resolve member reports via inline responses.
-
----
-
-### Security & Robustness
-
-- [x] **CSRF Protection**: All state-modifying requests (form submissions, API actions, and logout) are validated against secure session tokens to block Cross-Site Request Forgery.
-- [x] **SQL Injection Prevention**: All database queries are fully parameterized and executed using PDO prepared statements.
-- [x] **Stored XSS Mitigation**: Strictly escapes all user-generated content using `htmlspecialchars` before outputting as HTML to prevent Cross-Site Scripting.
-- [x] **Session Authentication & Role Authorization**: Hardened role verification checks (Admin, Trainer, Member) on every restricted PHP page and backend endpoint.
-- [x] **Rejection of Unsafe HTTP Methods**: Prevents sensitive actions (like logging out) through GET requests, requiring POST submissions.
-- [x] **Automated Security Tests**: Includes a backend sanity test script covering 20 automated security checks, from auth boundaries to XSS and CSRF validation.
-
----
-
-### UX & Interface Enhancements
-
-- [x] **Responsive Layouts**: Fully responsive pages built with CSS Flexbox/Grid, optimized for desktop and mobile devices.
-- [x] **Aesthetic Styling System**: Curated typography (Inter and Oswald Google Fonts), smooth transitions, glassmorphic accents, and dark/gold premium theme styling.
-- [x] **Confirmation Dialogues**: JavaScript confirmation dialogs before critical deletion actions (users, classes, equipment).
-
----
-
-## Implemented Extra Features
-
-Beyond the base requirements, Flow Fitness includes several additional features:
-
-- Membership plans with upgrade/downgrade flows and simulated billing.
-- Class waitlists with automatic promotion when enrolled members cancel.
-- Attendance-locked class reviews, ensuring only attended classes can be reviewed.
-- Member support reports with two-way conversation threads.
-- Internal notification system with unread badges and a notification center.
-- Admin analytics dashboard with occupancy, popular disciplines and community spotlight.
-- Trainer attendance tracking using transactional updates.
-- Secure avatar upload flow with MIME validation, file size limits and randomized filenames.
-
----
-
-## Membership Plans
-
-| Plan | Monthly Price |
-|-------|---------------|
-| Starter | €30 |
-| Pro | €45 |
-| Elite | €70 |
-
----
-
-## Running Credentials
-
-### Admin
-
-```
-username: admin
-password: password
+```bash
+sqlite3 database/database.db < database/database.sql
 ```
 
-### Demo Member
+### 2. Start Server
 
-```
-username: jbrunson_11
-password: password
-```
-
-### Demo Trainer
-
-```
-username: chloe_fit
-password: password
+```bash
+php -S localhost:9000
 ```
 
-All seeded accounts use:
+### 3. Open Website
 
+```text
+http://localhost:9000
 ```
-password
+
+---
+
+## Credentials
+
+All demo accounts use the password `password`.
+
+| Role | Username | Password |
+|---|---|---|
+| Admin | `admin` | `password` |
+| Member | `jbrunson_11` | `password` |
+| Trainer | `chloe_fit` | `password` |
+
+Recommended for the demo:
+- `admin` — full access to user management, class catalog, equipment, reports and analytics.
+- `jbrunson_11` — realistic member activity: bookings, membership info and all member workflows.
+- `chloe_fit` — trainer with assigned classes, editable profile and class roster.
+
+---
+
+## Automated Tests
+
+```bash
+php tests/run_tests.php
 ```
+
+Covers authentication boundaries, CSRF protection, XSS mitigation, SQL injection prevention and core business logic.
+
+---
+
+## Security
+
+- **SQL Injection** — PDO prepared statements with parameterized queries throughout.
+- **XSS** — user-generated output escaped with `htmlspecialchars`.
+- **CSRF** — all state-changing POST requests validate a CSRF token.
+- **Passwords** — stored with secure hashing.
+- **Access control** — role and session checks on all restricted pages and actions.
+- **Uploads** — avatar upload validates file size, MIME type, image integrity; filenames are randomized.
+- **Admin safety** — system blocks deletion of the last admin or the active session's admin.
+
+---
+
+## Extra Features
+
+- **Membership plans** — Starter (€30), Pro (€45) and Elite (€70) tiers with upgrade/downgrade flow.
+- **Simulated billing** — next billing date calculated and displayed; payment method management included.
+- **Waitlists** — full classes allow members to queue; cancellations automatically promote the next in line.
+- **Attendance-locked reviews** — members can only review a class after a trainer marks them as attended.
+- **Support reports** — two-way conversation threads between members and admins.
+- **Notifications** — events like bookings, report replies and waitlist promotions trigger internal notifications.
+- **Admin analytics** — dashboard panels for occupancy, popular disciplines and community spotlight.
+- **Dynamic avatars** — users without a photo get an initials-based generated avatar.
+- **Workout streaks** — member streaks tracked and displayed on the profile.
+
+---
+
+## Technology
+
+- [x] HTML — semantic page structure.
+- [x] CSS — responsive layouts, mobile-first.
+- [x] PHP — server-side rendering and backend logic.
+- [x] JavaScript — client-side interaction.
+- [x] AJAX/JSON — asynchronous schedule and equipment updates.
+- [x] SQLite + PDO — database layer.
+- [x] No Laravel, Bootstrap, jQuery or other restricted frameworks.
 
 ---
 
 ## Notes
 
-- Classes operate using a recurring weekly scheduling model.
-- Members can only review classes they have attended.
-- Billing functionality is simulated for academic demonstration purposes.
-- Equipment availability updates dynamically using AJAX.
-- Trainer and admin dashboards provide role-specific workflows.
+- Classes use a recurring weekly scheduling model.
+- Billing is simulated for academic demonstration.
+- Equipment availability updates without page reload via AJAX.
+- Demo data is seeded for a smooth presentation.
 
 ---
 
 ## Team
 
-Group ltw14g08
+Group `ltw14g08`
 
 - João Lage — up202406458
 - David Pinto — up202404233
