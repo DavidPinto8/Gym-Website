@@ -140,7 +140,7 @@ INSERT INTO users (name, username, email, password, role, photo)
 VALUES ('Jalen Brunson', 'jbrunson_11', 'jalen@flowfitness.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'member', 'assets/avatar-jalen.jpg');
 
 INSERT INTO members (user_id,plan_id,phone,streak,favorite_flow,primary_goal,next_billing_date,payment_method,card_last4) 
-VALUES (2,2,'+351912345678',45,'strength','muscle','2026-05-24','visa','4242');
+VALUES (2,3,'+351912345678',45,'strength','muscle','2026-05-24','visa','4242');
 
 INSERT INTO users (name, username, email, password, role, photo) VALUES 
 ('Sarah Jenkins', 'sarah_j', 'sarah.j@flowfitness.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'trainer', 'sarah_jenkins.png'),
@@ -177,7 +177,10 @@ INSERT INTO classes (name, type, trainer_id, capacity, start_time, location) VAL
 ('Functional Flow', 'other', 7, 20, '2026-04-30T17:30:00', 'Studio 2'),
 ('Snatch Clinic', 'strength', 6, 8, '2026-05-01T10:00:00', 'Main Floor'),
 ('Friday Finisher', 'hiit', 3, 25, '2026-05-01T16:00:00', 'Main Floor'),
-('Deep Stretch Yin', 'yoga', 7, 20, '2026-05-01T19:30:00', 'Studio 1');
+('Deep Stretch Yin', 'yoga', 7, 20, '2026-05-01T19:30:00', 'Studio 1'),
+('Weekend Warrior HIIT', 'hiit', 3, 20, '2026-05-02T10:00:00', 'Studio 2'),
+('Saturday Power Lift', 'strength', 2, 12, '2026-05-02T14:30:00', 'Main Floor'),
+('Sunday Zen Yoga', 'yoga', 1, 25, '2026-05-03T11:00:00', 'Studio 1');
 
 INSERT INTO equipment (name, type, location, total_units, available_units) VALUES 
 ('Treadmill Pro', 'cardio', 'Cardio Zone', 15, 4),          
@@ -191,4 +194,279 @@ INSERT INTO equipment (name, type, location, total_units, available_units) VALUE
 ('Leg Press 45°', 'machines', 'Machine Zone', 3, 1),        
 ('Cable Crossover', 'machines', 'Machine Zone', 4, 2),      
 ('Smith Machine', 'machines', 'Machine Zone', 2, 0),        
-('Pull-up & Dip Station', 'functional', 'Functional Zone', 4, 3);
+('Pull-up & Dip Station', 'functional', 'Functional Zone', 4, 3),
+('Assault AirBike', 'cardio', 'Cardio Zone', 8, 3),
+('Spinning Bike Spinner', 'cardio', 'Cycle Room', 25, 18),
+('SkiErg Concept2', 'cardio', 'Functional Zone', 3, 1),
+('Olympic Incline Bench', 'weights', 'Main Floor', 4, 2),
+('Preacher Curl Bench', 'weights', 'Free Weights', 2, 2),
+('Deadlift Platform', 'weights', 'Main Floor', 4, 1),
+('Bumper Plates Set (1000kg total)', 'weights', 'Main Floor', 1, 1),
+('Leg Extension Machine', 'machines', 'Machine Zone', 3, 3),
+('Lying Leg Curl', 'machines', 'Machine Zone', 2, 1),
+('Lat Pulldown Machine', 'machines', 'Machine Zone', 4, 2),
+('Seated Cable Row', 'machines', 'Machine Zone', 3, 1),
+('Pec Deck / Rear Delt', 'machines', 'Machine Zone', 2, 0),
+('Shoulder Press Machine', 'machines', 'Machine Zone', 2, 2),
+('TRX Suspension Trainer', 'functional', 'Functional Zone', 12, 8),
+('Medicine Ball Rack (2-10kg)', 'functional', 'Functional Zone', 10, 9),
+('Plyo Box Set', 'functional', 'Functional Zone', 6, 4),
+('Battle Rope Station', 'functional', 'Functional Zone', 4, 2);
+
+-- ==========================================
+-- EXTENDED SEED DATA FOR DEMO(MEMBERS & INTERACTIONS)
+-- ==========================================
+
+-- Additional members to register (all passwords are 'password')
+INSERT INTO users (name, username, email, password, role) VALUES
+('Elena Rostova', 'elena_r', 'elena@flowfitness.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'member'),
+('Marcus Aurelius', 'stoic_lift', 'stoic@flowfitness.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'member'),
+('Serena Williams', 'serena_w', 'serena@flowfitness.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'member'),
+('Tony Parker', 'tony_p', 'tony@flowfitness.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'member'),
+('Ethan Carter', 'ethan_c', 'ethan@flowfitness.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'member'),
+('Clara Oswald', 'clara_o', 'clara@flowfitness.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'member'),
+('Sophia Bennett', 'sophia_b', 'sophia@flowfitness.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'member'),
+('Daniel Brooks', 'daniel_b', 'daniel@flowfitness.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'member'),
+('Lucas Reed', 'lucas_r', 'lucas@flowfitness.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'member'),
+('Ryan Foster', 'ryan_f', 'ryan@flowfitness.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'member'),
+('Nathan Walker', 'nathan_w', 'nathan@flowfitness.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'member'),
+('Liam Turner', 'liam_t', 'liam@flowfitness.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'member'),
+('Connor Hayes', 'connor_h', 'connor@flowfitness.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'member'),
+('Amelia Scott', 'amelia_s', 'amelia@flowfitness.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'member');
+
+-- Members profile details mapping
+INSERT INTO members (user_id, plan_id, phone, streak, favorite_flow, primary_goal, next_billing_date, payment_method, card_last4) VALUES 
+(11, 3, '+351912345679', 52, 'cardio', 'endurance', '2026-06-15', 'mastercard', '5555'),
+(12, 2, '+351912345680', 12, 'strength', 'strength', '2026-06-20', 'visa', '1234'),
+(13, 3, '+351912345681', 38, 'hiit', 'conditioning', '2026-06-18', 'visa', '9876'),
+(14, 1, '+351912345682', 5, 'cardio', 'cardio', '2026-06-12', 'mastercard', '4321'),
+(15, 3, '+351912345683', 120, 'hiit', 'agility', '2026-06-25', 'visa', '0007'),
+(16, 1, '+351912345684', 8, 'yoga', 'flexibility', '2026-06-05', 'paypal', null),
+(17, 3, '+351912345685', 99, 'strength', 'muscle', '2026-06-22', 'visa', '1111'),
+(18, 3, '+351912345686', 15, 'strength', 'muscle', '2026-06-28', 'visa', '1938'),
+(19, 1, '+351912345687', 21, 'yoga', 'flexibility', '2026-06-01', 'visa', '2002'),
+(20, 3, '+351912345688', 88, 'cardio', 'speed', '2026-06-19', 'visa', '1940'),
+(21, 2, '+351912345689', 30, 'strength', 'power', '2026-06-14', 'mastercard', '5959'),
+(22, 3, '+351912345690', 42, 'cardio', 'endurance', '2026-06-21', 'visa', '0003'),
+(23, 3, '+351912345691', 75, 'hiit', 'precision', '2026-06-11', 'visa', '1010'),
+(24, 3, '+351912345692', 50, 'yoga', 'flexibility', '2026-06-24', 'mastercard', '2021');
+
+-- Enrollments across classes (capacity & waitlist setup)
+-- Class 1 (Sunrise Vinyasa, Yoga): 6 enrolled, 5 attended
+INSERT INTO enrollments (member_id, class_id, status, attended) VALUES 
+(1, 1, 'enrolled', 1),
+(2, 1, 'enrolled', 1),
+(7, 1, 'enrolled', 1),
+(8, 1, 'enrolled', 1),
+(10, 1, 'enrolled', 1),
+(15, 1, 'enrolled', 0);
+
+-- Class 2 (Big Lift Monday, Strength, capacity 12): 12 enrolled, 3 waitlisted
+INSERT INTO enrollments (member_id, class_id, status, attended) VALUES 
+(1, 2, 'enrolled', 1),
+(2, 2, 'enrolled', 1),
+(3, 2, 'enrolled', 1),
+(4, 2, 'enrolled', 1),
+(6, 2, 'enrolled', 1),
+(8, 2, 'enrolled', 1),
+(9, 2, 'enrolled', 1),
+(11, 2, 'enrolled', 0),
+(12, 2, 'enrolled', 0),
+(13, 2, 'enrolled', 0),
+(14, 2, 'enrolled', 0),
+(15, 2, 'enrolled', 0),
+(5, 2, 'waitlist', 0),
+(7, 2, 'waitlist', 0),
+(10, 2, 'waitlist', 0);
+
+-- Class 3 (Afterburn HIIT, HIIT): 9 enrolled, 5 attended
+INSERT INTO enrollments (member_id, class_id, status, attended) VALUES 
+(1, 3, 'enrolled', 1),
+(2, 3, 'enrolled', 1),
+(4, 3, 'enrolled', 1),
+(5, 3, 'enrolled', 1),
+(6, 3, 'enrolled', 1),
+(11, 3, 'enrolled', 0),
+(13, 3, 'enrolled', 0),
+(14, 3, 'enrolled', 0),
+(15, 3, 'enrolled', 0);
+
+-- Class 4 (Velocity Sprint, Cardio): 5 enrolled, 3 attended
+INSERT INTO enrollments (member_id, class_id, status, attended) VALUES 
+(2, 4, 'enrolled', 1),
+(4, 4, 'enrolled', 1),
+(5, 4, 'enrolled', 1),
+(11, 4, 'enrolled', 0),
+(13, 4, 'enrolled', 0);
+
+-- Class 5 (Core Control, Other): 4 enrolled, 2 attended
+INSERT INTO enrollments (member_id, class_id, status, attended) VALUES 
+(6, 5, 'enrolled', 1),
+(7, 5, 'enrolled', 1),
+(10, 5, 'enrolled', 0),
+(15, 5, 'enrolled', 0);
+
+-- Class 6 (Heavy Volume, Strength): 4 enrolled, 3 attended
+INSERT INTO enrollments (member_id, class_id, status, attended) VALUES 
+(1, 6, 'enrolled', 1),
+(3, 6, 'enrolled', 1),
+(8, 6, 'enrolled', 1),
+(12, 6, 'enrolled', 0);
+
+-- Class 7 (Metabolic Reset, HIIT): 5 enrolled, 2 attended
+INSERT INTO enrollments (member_id, class_id, status, attended) VALUES 
+(2, 7, 'enrolled', 1),
+(4, 7, 'enrolled', 1),
+(9, 7, 'enrolled', 0),
+(11, 7, 'enrolled', 0),
+(14, 7, 'enrolled', 0);
+
+-- Class 8 (Road Warrior, Cardio): 4 enrolled, 0 attended
+INSERT INTO enrollments (member_id, class_id, status, attended) VALUES 
+(2, 8, 'enrolled', 0),
+(5, 8, 'enrolled', 0),
+(11, 8, 'enrolled', 0),
+(13, 8, 'enrolled', 0);
+
+-- Class 9 (Total Strength, Strength, capacity 10): 10 enrolled (Fully Booked!), 2 waitlisted
+INSERT INTO enrollments (member_id, class_id, status, attended) VALUES 
+(1, 9, 'enrolled', 1),
+(2, 9, 'enrolled', 1),
+(3, 9, 'enrolled', 1),
+(4, 9, 'enrolled', 1),
+(5, 9, 'enrolled', 1),
+(6, 9, 'enrolled', 1),
+(7, 9, 'enrolled', 1),
+(8, 9, 'enrolled', 1),
+(9, 9, 'enrolled', 1),
+(10, 9, 'enrolled', 1),
+(11, 9, 'waitlist', 0),
+(12, 9, 'waitlist', 0);
+
+-- Class 10 (Flow & Breath, Yoga): 4 enrolled, 3 attended
+INSERT INTO enrollments (member_id, class_id, status, attended) VALUES 
+(1, 10, 'enrolled', 1),
+(7, 10, 'enrolled', 1),
+(10, 10, 'enrolled', 1),
+(15, 10, 'enrolled', 0);
+
+-- Class 11 (Box & Burn, HIIT): 4 enrolled, 0 attended
+INSERT INTO enrollments (member_id, class_id, status, attended) VALUES 
+(4, 11, 'enrolled', 0),
+(5, 11, 'enrolled', 0),
+(11, 11, 'enrolled', 0),
+(14, 11, 'enrolled', 0);
+
+-- Class 12 (Functional Flow, Other): 4 enrolled, 2 attended
+INSERT INTO enrollments (member_id, class_id, status, attended) VALUES 
+(2, 12, 'enrolled', 1),
+(6, 12, 'enrolled', 1),
+(13, 12, 'enrolled', 0),
+(15, 12, 'enrolled', 0);
+
+-- Class 13 (Snatch Clinic, Strength, capacity 8): 8 enrolled, 3 waitlisted
+INSERT INTO enrollments (member_id, class_id, status, attended) VALUES 
+(1, 13, 'enrolled', 0),
+(2, 13, 'enrolled', 0),
+(3, 13, 'enrolled', 0),
+(4, 13, 'enrolled', 0),
+(5, 13, 'enrolled', 0),
+(6, 13, 'enrolled', 0),
+(7, 13, 'enrolled', 0),
+(8, 13, 'enrolled', 0),
+(9, 13, 'waitlist', 0),
+(10, 13, 'waitlist', 0),
+(15, 13, 'waitlist', 0);
+
+-- Class 14 (Friday Finisher, HIIT, capacity 25): 12 enrolled
+INSERT INTO enrollments (member_id, class_id, status, attended) VALUES 
+(1, 14, 'enrolled', 0),
+(2, 14, 'enrolled', 0),
+(3, 14, 'enrolled', 0),
+(4, 14, 'enrolled', 0),
+(5, 14, 'enrolled', 0),
+(6, 14, 'enrolled', 0),
+(7, 14, 'enrolled', 0),
+(8, 14, 'enrolled', 0),
+(11, 14, 'enrolled', 0),
+(13, 14, 'enrolled', 0),
+(14, 14, 'enrolled', 0),
+(15, 14, 'enrolled', 0);
+
+-- Class 15 (Deep Stretch Yin, Yoga): 4 enrolled, 0 attended
+INSERT INTO enrollments (member_id, class_id, status, attended) VALUES 
+(1, 15, 'enrolled', 0),
+(7, 15, 'enrolled', 0),
+(10, 15, 'enrolled', 0),
+(15, 15, 'enrolled', 0),
+
+-- Class 16 (Weekend Warrior HIIT, Saturday): 5 enrolled, 0 attended
+(2, 16, 'enrolled', 0),
+(4, 16, 'enrolled', 0),
+(5, 16, 'enrolled', 0),
+(11, 16, 'enrolled', 0),
+(13, 16, 'enrolled', 0),
+
+-- Class 17 (Saturday Power Lift, Saturday): 6 enrolled, 0 attended
+(1, 17, 'enrolled', 0),
+(3, 17, 'enrolled', 0),
+(6, 17, 'enrolled', 0),
+(8, 17, 'enrolled', 0),
+(9, 17, 'enrolled', 0),
+(12, 17, 'enrolled', 0),
+
+-- Class 18 (Sunday Zen Yoga, Sunday): 4 enrolled, 0 attended
+(1, 18, 'enrolled', 0),
+(7, 18, 'enrolled', 0),
+(10, 18, 'enrolled', 0),
+(15, 18, 'enrolled', 0);
+
+-- Class Reviews
+INSERT INTO reviews (member_id, class_id, rating, comment) VALUES 
+(1, 1, 5, 'Absolutely loved the morning energy! Sarah is an amazing instructor.'),
+(2, 1, 4, 'Very calming and structured. Great way to start the day.'),
+(7, 1, 5, 'Perfect flow. Studio 1 is really peaceful.'),
+(8, 1, 4, 'Great alignment tips, though the room got a bit cold.'),
+(10, 1, 5, 'First time trying yoga, loved the guidance.'),
+(1, 2, 5, 'Incredible intensity and feedback on lifting posture.'),
+(2, 2, 4, 'Good session, but the barbell collars were a bit loose.'),
+(3, 2, 5, 'Excellent coaching on form and heavy lifts. Marcus knows his stuff!'),
+(4, 2, 4, 'Great group energy. Really pushed my strength thresholds.'),
+(6, 2, 5, 'Solid session. Reached a new PR on deadlifts.'),
+(8, 2, 4, 'Intense workout, great atmosphere.'),
+(2, 3, 5, 'Intense! Chloe keeps the motivation high the entire time.'),
+(4, 3, 5, 'Incredible calorie burner. Highly recommend!'),
+(6, 3, 5, 'Pushed my limits. Exactly what I needed.'),
+(2, 4, 4, 'Great sprint intervals. David is a very energetic coach.'),
+(6, 5, 4, 'Focus on core alignment was very helpful.'),
+(1, 6, 5, 'Outstanding strength structure.'),
+(3, 6, 5, 'Excellent strength training structure.'),
+(8, 6, 5, 'Super helpful tips on powerlifting form.'),
+(2, 7, 5, 'Tough session but felt amazing afterwards!'),
+(1, 9, 5, 'Perfect strength building routine.'),
+(2, 9, 4, 'Very tough but satisfying.'),
+(3, 9, 5, 'Great coaching on structural balance.'),
+(4, 9, 5, 'Highly recommend for heavy strength training.'),
+(5, 9, 4, 'Intense but accessible if you scale the weights.'),
+(6, 9, 5, 'Excellent pace and weight progression.'),
+(7, 9, 5, 'Loved the programming! Perfect coaching.'),
+(8, 9, 5, 'Awesome session.'),
+(1, 10, 5, 'Very restorative. Loved it.'),
+(7, 10, 4, 'Nice breathwork integration.'),
+(2, 12, 4, 'Helpful mobility drills.');
+
+-- Support Reports
+INSERT INTO reports (member_id, category, subject, description, status, admin_response, member_response, closed_by_member, created_at, updated_at) VALUES 
+(2, 'equipment', 'StairMaster screen is broken', 'The display screen on StairMaster #2 is flickering and doesn''t register heart rate input.', 'open', null, null, 0, '2026-05-28 09:15:00', '2026-05-28 09:15:00'),
+(1, 'class', 'Class timing conflict', 'The Sunrise Vinyasa class overlaps slightly with my work calendar. Is it possible to introduce a 7:30 AM slot?', 'in_progress', 'We are currently reviewing the schedule for next season. Thanks for the feedback!', 'Thanks, please keep me posted if the schedule changes.', 0, '2026-05-20 14:30:00', '2026-05-22 10:00:00'),
+(4, 'trainer', 'Special request for tennis training', 'Are any of the trainers qualified in specific athletic prep for tennis?', 'resolved', 'Hi Serena! Marcus Thorne has extensive experience training professional athletes in agility and power, including tennis players. You can check his bio.', 'Perfect, I will book a session with Marcus. Thank you!', 1, '2026-05-15 11:00:00', '2026-05-16 15:30:00'),
+(6, 'equipment', 'Pec Deck machine cable is fraying', 'I noticed the cable on the Pec Deck machine has some metal threads starting to pull apart. Might be unsafe.', 'open', null, null, 0, '2026-05-29 16:00:00', '2026-05-29 16:00:00'),
+(11, 'other', 'Missing water bottle', 'I left a black hydroflask on the cardio floor yesterday. Has anyone turned it in to lost and found?', 'resolved', 'Yes, Elena! A black water bottle was turned in to the front desk. You can pick it up anytime.', 'Found it, thank you!', 1, '2026-05-25 10:00:00', '2026-05-26 09:00:00');
+
+-- Notifications
+INSERT INTO notifications (user_id, message, link, is_read, created_at) VALUES 
+(1, 'New support report submitted by Elena Rostova: StairMaster screen is broken', 'admin_reports.php', 0, '2026-05-28 09:15:00'),
+(1, 'New support report submitted by Serena Williams: Special request for tennis training', 'admin_reports.php', 1, '2026-05-15 11:00:00'),
+(2, 'Admin responded to your report: Class timing conflict', 'reports.php', 0, '2026-05-22 10:00:00'),
+(13, 'Admin responded to your report: Special request for tennis training', 'reports.php', 1, '2026-05-16 15:30:00'),
+(1, 'New support report submitted by Bruce Wayne: Pec Deck machine cable is fraying', 'admin_reports.php', 0, '2026-05-29 16:00:00');

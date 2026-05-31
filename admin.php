@@ -39,14 +39,10 @@ $totalClasses = $db->query("
 $occupancyQuery = $db->query("
     SELECT
         CASE
-            WHEN SUM(capacity) > 0
-            THEN ROUND((COUNT(enrollments.id) * 100.0) / SUM(capacity), 1)
+            WHEN (SELECT SUM(capacity) FROM classes) > 0
+            THEN ROUND((SELECT COUNT(*) FROM enrollments WHERE status = 'enrolled') * 100.0 / (SELECT SUM(capacity) FROM classes), 1)
             ELSE 0
         END
-    FROM classes
-    LEFT JOIN enrollments
-        ON classes.id = enrollments.class_id
-        AND enrollments.status = 'enrolled'
 ");
 
 $avgOccupancy = $occupancyQuery->fetchColumn();
