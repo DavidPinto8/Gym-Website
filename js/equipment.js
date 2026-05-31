@@ -1,14 +1,29 @@
+let currentAbortController = null;
+let debounceTimeout = null;
+
 document.addEventListener('DOMContentLoaded', () => {
     const typeSelect = document.getElementById('equipment-type');
     const searchInput = document.getElementById('equipment-search');
 
-    loadEquipment();
+    loadEquipment(true);
 
-    typeSelect.addEventListener('change', loadEquipment);
-    searchInput.addEventListener('input', loadEquipment);
+    typeSelect.addEventListener('change', () => loadEquipment(true));
+    
+    searchInput.addEventListener('input', () => {
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(() => {
+            loadEquipment(false);
+        }, 250);
+    });
 });
 
-async function loadEquipment() {
+async function loadEquipment(showLoadingState = true) {
+    if (currentAbortController) {
+        currentAbortController.abort();
+    }
+    currentAbortController = new AbortController();
+    const { signal } = currentAbortController;
+
     const type = document.getElementById('equipment-type').value;
     const search = document.getElementById('equipment-search').value;
 
@@ -19,14 +34,16 @@ async function loadEquipment() {
 
     const grid = document.getElementById('equipment-grid');
 
-    grid.innerHTML = `
-        <p class="equipment-empty-state">
-            Loading equipment...
-        </p>
-    `;
+    if (showLoadingState) {
+        grid.innerHTML = `
+            <p class="equipment-empty-state">
+                Loading equipment...
+            </p>
+        `;
+    }
 
     try {
-        const response = await fetch(`api/equipment_status.php?${params}`);
+        const response = await fetch(`api/equipment_status.php?${params}`, { signal });
 
         if (!response.ok) {
             throw new Error('Failed to fetch equipment.');
@@ -37,6 +54,9 @@ async function loadEquipment() {
         renderEquipment(equipment);
         renderEquipmentSummary(equipment);
     } catch (error) {
+        if (error.name === 'AbortError') {
+            return;
+        }
         grid.innerHTML = `
             <p class="equipment-empty-state equipment-error-state">
                 Could not load equipment right now.

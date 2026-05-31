@@ -554,6 +554,38 @@ assertTest(
     !str_contains($trainerDashboard, 'name="csrf"')
 );
 
+echo "\n[Module: Equipment Search]\n";
+
+$equipmentClient = new TestClient();
+
+// Search by name
+$searchNameResponse = $equipmentClient->get('api/equipment_status.php?type=all&search=Treadmill');
+$searchNameData = json_decode($searchNameResponse['body'], true);
+$hasTreadmill = is_array($searchNameData) && count($searchNameData) > 0 && $searchNameData[0]['name'] === 'Treadmill Pro';
+
+assertTest(
+    'Equipment API can search equipment by name',
+    $hasTreadmill
+);
+
+// Search by location
+$searchLocationResponse = $equipmentClient->get('api/equipment_status.php?type=all&search=Free+Weights');
+$searchLocationData = json_decode($searchLocationResponse['body'], true);
+$hasPreacherCurlBench = false;
+if (is_array($searchLocationData)) {
+    foreach ($searchLocationData as $item) {
+        if ($item['name'] === 'Preacher Curl Bench') {
+            $hasPreacherCurlBench = true;
+            break;
+        }
+    }
+}
+
+assertTest(
+    'Equipment API can search equipment by location',
+    $hasPreacherCurlBench
+);
+
 echo "\n=== Test Suite Summary ===\n";
 echo "Executed: {$testsRun} | Passed: {$testsPassed} / {$testsRun}\n";
 

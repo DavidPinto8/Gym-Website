@@ -29,7 +29,8 @@ if ($type !== 'all') {
 }
 
 if ($search !== '') {
-    $sql .= " AND name LIKE ?";
+    $sql .= " AND (name LIKE ? OR location LIKE ?)";
+    $params[] = '%' . $search . '%';
     $params[] = '%' . $search . '%';
 }
 
